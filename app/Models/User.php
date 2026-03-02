@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -64,5 +65,15 @@ class User extends Authenticatable
     public function assignedCopywritingRequests()
     {
         return $this->hasMany(CopywritingRequest::class, 'assigned_to');
+    }
+
+    public function isOperator()
+    {
+        return $this->role === 'operator';
+    }
+
+    public function isClient()
+    {
+        return $this->role === 'client';
     }
 }

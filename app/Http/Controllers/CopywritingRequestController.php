@@ -7,9 +7,12 @@ use App\Models\Order;
 use App\Services\AIService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CopywritingRequestController extends Controller
 {
+    use AuthorizesRequests;
+
     protected $aiService;
 
     public function __construct(AIService $aiService)
@@ -19,18 +22,20 @@ class CopywritingRequestController extends Controller
 
     public function index()
     {
-        $requests = auth()->user()->copywritingRequests()
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $requests = $user->copywritingRequests()
             ->with('order.package')
             ->latest()
             ->paginate(20);
-        
+
         return view('copywriting.index', compact('requests'));
     }
 
     public function create(Order $order)
     {
         $this->authorize('view', $order);
-        
+
         return view('copywriting.create', compact('order'));
     }
 
@@ -99,13 +104,29 @@ class CopywritingRequestController extends Controller
             ->with('success', 'Request copywriting berhasil dibuat');
     }
 
-    public function show(CopywritingRequest $copywriting)
+    public function show(CopywritingRequest $copywritingRequest)
     {
-        $this->authorize('view', $copywriting);
-        
-        $copywriting->load(['order.package', 'assignedTo']);
-        
-        return view('copywriting.show', compact('copywriting'));
+        $this->authorize('view', $copywritingRequest);
+
+        $request = $copywritingRequest->load(['order.package', 'user', 'assignedTo']);
+
+        return view('copywriting.show', compact('request'));
+    }
+
+    public function queue()
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        if (!$user->isOperator()) {
+            abort(403);
+        }
+
+        $requests = CopywritingRequest::whereIn('status', ['pending', 'in_progress', 'revision'])
+            ->with(['order.package', 'user'])
+            ->latest()
+            ->paginate(20);
+
+        return view('operator.queue', compact('requests'));
     }
 
     public function update(Request $request, CopywritingRequest $copywriting)
@@ -121,7 +142,7 @@ class CopywritingRequestController extends Controller
 
         if ($validated['status'] === 'completed') {
             $copywriting->update(['completed_at' => Carbon::now()]);
-            
+
             // Update quota
             $order = $copywriting->order;
             if ($copywriting->type === 'caption') {
@@ -169,28 +190,19 @@ class CopywritingRequestController extends Controller
         return back()->with('success', 'Terima kasih atas rating Anda');
     }
 
-    // Operator/Admin methods
-    public function queue()
-    {
-        $requests = CopywritingRequest::whereIn('status', ['pending', 'in_progress', 'revision'])
-            ->with(['user', 'order.package'])
-            ->orderBy('deadline')
-            ->paginate(20);
-        
-        return view('operator.queue', compact('requests'));
-    }
-
     public function assign(Request $request, CopywritingRequest $copywriting)
     {
-        $validated = $request->validate([
-            'assigned_to' => 'required|exists:users,id',
-        ]);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        if (!$user->isOperator()) {
+            abort(403);
+        }
 
         $copywriting->update([
-            'assigned_to' => $validated['assigned_to'],
+            'assigned_to' => $user->id,
             'status' => 'in_progress',
         ]);
 
-        return back()->with('success', 'Request berhasil di-assign');
+        return back()->with('success', 'Request berhasil diambil alih');
     }
 }
