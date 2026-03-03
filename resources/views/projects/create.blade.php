@@ -1,70 +1,79 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tambah Proyek Bisnis Baru') }}
-        </h2>
-    </x-slot>
+@extends('layouts.client')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form action="{{ route('projects.store') }}" method="POST">
-                        @csrf
+@section('title', 'Tambah Proyek Bisnis')
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-6">
-                                <div>
-                                    <x-input-label for="business_name" :value="__('Nama Bisnis / Proyek')" />
-                                    <x-text-input id="business_name" name="business_name" type="text"
-                                        class="mt-1 block w-full" placeholder="Contoh: Kopi Susu Pak De" required />
-                                    <x-input-error :messages="$errors->get('business_name')" class="mt-2" />
-                                </div>
+@section('content')
+<div class="p-6">
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900">Tambah Proyek Bisnis Baru</h1>
+        <p class="text-sm text-gray-500 mt-1">Buat profil bisnis untuk hasil copywriting yang lebih personal</p>
+    </div>
 
-                                <div>
-                                    <x-input-label for="business_type" :value="__('Bidang Industri')" />
-                                    <x-text-input id="business_type" name="business_type" type="text"
-                                        class="mt-1 block w-full" placeholder="Contoh: Kuliner, Fashion..." required />
-                                    <x-input-error :messages="$errors->get('business_type')" class="mt-2" />
-                                </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <form action="{{ route('projects.store') }}" method="POST">
+            @csrf
 
-                                <div>
-                                    <x-input-label for="target_audience" :value="__('Target Audience')" />
-                                    <x-text-input id="target_audience" name="target_audience" type="text"
-                                        class="mt-1 block w-full"
-                                        placeholder="Contoh: Anak muda 18-25 tahun, pekerja kantoran..." />
-                                    <x-input-error :messages="$errors->get('target_audience')" class="mt-2" />
-                                </div>
-                            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Bisnis / Proyek</label>
+                    <input type="text" name="business_name" value="{{ old('business_name') }}" required
+                           placeholder="Contoh: Kopi Susu Pak De"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('business_name')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                            <div class="space-y-6">
-                                <div>
-                                    <x-input-label for="business_description" :value="__('Deskripsi Bisnis')" />
-                                    <textarea id="business_description" name="business_description" rows="5"
-                                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        placeholder="Jelaskan apa yang Anda jual, apa keunikan bisnis Anda, dll..." required></textarea>
-                                    <x-input-error :messages="$errors->get('business_description')" class="mt-2" />
-                                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bidang Industri</label>
+                    <input type="text" name="business_type" value="{{ old('business_type') }}" required
+                           placeholder="Contoh: Kuliner, Fashion, Teknologi"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('business_type')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                                <div>
-                                    <x-input-label for="brand_tone" :value="__('Tone Merek (Opsional)')" />
-                                    <x-text-input id="brand_tone" name="brand_tone" type="text"
-                                        class="mt-1 block w-full" placeholder="Contoh: Ceria, Berwibawa, Akrab..." />
-                                    <x-input-error :messages="$errors->get('brand_tone')" class="mt-2" />
-                                </div>
-                            </div>
-                        </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Bisnis</label>
+                    <textarea name="business_description" rows="4" required
+                              placeholder="Jelaskan apa yang Anda jual, apa keunikan bisnis Anda, dll..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('business_description') }}</textarea>
+                    @error('business_description')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        <div class="mt-8 flex justify-end">
-                            <a href="{{ route('projects.index') }}"
-                                class="text-gray-600 hover:text-gray-900 mr-4 self-center">Batal</a>
-                            <x-primary-button>
-                                Simpan Proyek
-                            </x-primary-button>
-                        </div>
-                    </form>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                    <input type="text" name="target_audience" value="{{ old('target_audience') }}"
+                           placeholder="Contoh: Anak muda 18-25 tahun, pekerja kantoran"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('target_audience')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tone Merek (Opsional)</label>
+                    <input type="text" name="brand_tone" value="{{ old('brand_tone') }}"
+                           placeholder="Contoh: Ceria, Berwibawa, Akrab"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('brand_tone')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
-        </div>
+
+            <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+                <a href="{{ route('projects.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Batal
+                </a>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Simpan Proyek
+                </button>
+            </div>
+        </form>
     </div>
-</x-app-layout>
+</div>
+@endsection

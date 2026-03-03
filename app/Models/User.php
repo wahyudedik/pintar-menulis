@@ -67,6 +67,16 @@ class User extends Authenticatable
         return $this->hasMany(CopywritingRequest::class, 'assigned_to');
     }
 
+    public function operatorProfile()
+    {
+        return $this->hasOne(OperatorProfile::class);
+    }
+
+    public function operatorOrders()
+    {
+        return $this->hasMany(Order::class, 'operator_id');
+    }
+
     public function isOperator()
     {
         return $this->role === 'operator';
@@ -75,5 +85,10 @@ class User extends Authenticatable
     public function isClient()
     {
         return $this->role === 'client';
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
     }
 }

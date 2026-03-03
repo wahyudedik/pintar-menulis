@@ -1,168 +1,164 @@
-<x-public-layout>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Copy SMK - AI Copywriting Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-semibold text-gray-900">Smart Copy SMK</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Dashboard</a>
+                    @else
+                        <a href="{{ route('login') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Login</a>
+                        <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                            Register
+                        </a>
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <!-- Hero Section -->
-    <div class="bg-white">
-        <div class="relative isolate px-6 pt-14 lg:px-8">
-            <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
-                <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                    Copywriting Berkualitas, <span class="text-blue-600">Harga Pelajar</span>, Hasil Profesional
+    <div class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="text-center">
+                <h1 class="text-5xl font-bold text-gray-900 mb-6">
+                    AI-Powered Copywriting<br>
+                    <span class="text-blue-600">untuk SMK</span>
                 </h1>
-                <p class="mt-6 text-lg leading-8 text-gray-600">
-                    Solusi konten promosi UMKM yang ditenagai AI dan dikurasi oleh talenta muda SMK. Tingkatkan
-                    penjualan Anda tanpa harus pusing memikirkan kata-kata.
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    Platform marketplace yang menghubungkan client dengan operator copywriting profesional, 
+                    didukung teknologi AI Google Gemini
                 </p>
-                <div class="mt-10 flex items-center justify-center gap-x-6">
-                    <a href="{{ route('packages.index') }}"
-                        class="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                <div class="flex justify-center gap-4">
+                    <a href="{{ route('register') }}" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        Mulai Sekarang
+                    </a>
+                    <a href="{{ route('packages.index') }}" class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
                         Lihat Paket
                     </a>
-                    <a href="#how-it-works" class="text-sm font-semibold leading-6 text-gray-900">
-                        Cara Kerja <span aria-hidden="true">→</span>
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Features Section -->
-    <div id="features" class="py-24 bg-gray-50 sm:py-32">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-            <div class="mx-auto max-w-2xl lg:text-center">
-                <h2 class="text-base font-semibold leading-7 text-blue-600">Sinergi Kompetensi</h2>
-                <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                    Kolaborasi Teknologi AI & Kreativitas Siswa
-                </p>
-                <p class="mt-6 text-lg leading-8 text-gray-600">
-                    Kami menggabungkan kecepatan Artificial Intelligence dengan ketelitian tata bahasa Indonesia untuk
-                    hasil terbaik bagi bisnis Anda.
-                </p>
+    <!-- Features -->
+    <div class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">Fitur Unggulan</h2>
+                <p class="text-gray-600">Platform lengkap untuk kebutuhan copywriting Anda</p>
             </div>
-            <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-                <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-                    <div class="relative pl-16">
-                        <dt class="text-base font-semibold leading-7 text-gray-900">
-                            <div
-                                class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                                </svg>
-                            </div>
-                            Dukungan AI Terkini
-                        </dt>
-                        <dd class="mt-2 text-base leading-7 text-gray-600">Menggunakan model bahasa AI terbaru untuk
-                            menghasilkan draf konten yang persuasif dan relevan dengan tren pasar.</dd>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg p-6 border border-gray-200">
+                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
                     </div>
-                    <div class="relative pl-16">
-                        <dt class="text-base font-semibold leading-7 text-gray-900">
-                            <div
-                                class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                </svg>
-                            </div>
-                            Kurasi Manual Siswa SMK
-                        </dt>
-                        <dd class="mt-2 text-base leading-7 text-gray-600">Setiap hasil AI ditinjau dan diperbaiki oleh
-                            siswa jurusan TKJ yang berkolaborasi dengan kompetensi Bahasa Indonesia.</dd>
-                    </div>
-                    <div class="relative pl-16">
-                        <dt class="text-base font-semibold leading-7 text-gray-900">
-                            <div
-                                class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 6v12m-3-2.818l.879.659c1.546 1.16 3.955 1.16 5.501 0M12 6L9 8.818m3-2.818l3 2.818m-9 9.182c-1.546-1.16-3.955-1.16-5.501 0" />
-                                </svg>
-                            </div>
-                            Harga Sangat Terjangkau
-                        </dt>
-                        <dd class="mt-2 text-base leading-7 text-gray-600">Sebagai proyek Teaching Factory sekolah, kami
-                            menawarkan harga yang sangat kompetitif khusus untuk membantu UMKM lokal.</dd>
-                    </div>
-                    <div class="relative pl-16">
-                        <dt class="text-base font-semibold leading-7 text-gray-900">
-                            <div
-                                class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            Berbasis Kurikulum
-                        </dt>
-                        <dd class="mt-2 text-base leading-7 text-gray-600">Proyek ini merupakan bagian dari kurikulum
-                            sekolah, menjamin keseriusan dan kualitas di bawah bimbingan guru profesional.</dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
-    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">AI Generator</h3>
+                    <p class="text-sm text-gray-600">Generate copywriting berkualitas dengan Google Gemini AI dalam hitungan detik</p>
+                </div>
 
-    <!-- How It Works Section -->
-    <div id="how-it-works" class="py-24 bg-white sm:py-32 border-t">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-            <div class="mx-auto max-w-2xl lg:text-center">
-                <h2 class="text-base font-semibold leading-7 text-blue-600">Alur Layanan</h2>
-                <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                    Mudah, Cepat, dan Berkualitas
-                </p>
-            </div>
-            <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24">
-                <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-                    <div class="text-center">
-                        <div
-                            class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold text-xl mb-4">
-                            1</div>
-                        <h3 class="text-lg font-bold text-gray-900">Pilih Paket & Berlangganan</h3>
-                        <p class="mt-2 text-gray-600">Pilih paket yang sesuai dengan kebutuhan konten bulanan bisnis
-                            Anda.</p>
+                <div class="bg-white rounded-lg p-6 border border-gray-200">
+                    <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
                     </div>
-                    <div class="text-center">
-                        <div
-                            class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold text-xl mb-4">
-                            2</div>
-                        <h3 class="text-lg font-bold text-gray-900">Submit Brief Konten</h3>
-                        <p class="mt-2 text-gray-600">Berikan detail produk dan tone yang diinginkan melalui dashboard
-                            Anda.</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Operator Profesional</h3>
+                    <p class="text-sm text-gray-600">Hubungkan dengan operator copywriting berpengalaman untuk hasil maksimal</p>
+                </div>
+
+                <div class="bg-white rounded-lg p-6 border border-gray-200">
+                    <div class="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
                     </div>
-                    <div class="text-center">
-                        <div
-                            class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold text-xl mb-4">
-                            3</div>
-                        <h3 class="text-lg font-bold text-gray-900">Terima Hasil Final</h3>
-                        <p class="mt-2 text-gray-600">Dapatkan konten yang sudah diproses AI dan dikurasi manual oleh
-                            tim kami.</p>
-                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Quality Assurance</h3>
+                    <p class="text-sm text-gray-600">Sistem review dan rating untuk memastikan kualitas hasil copywriting</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CTA Section -->
-    <div class="bg-blue-600">
-        <div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
-            <div class="mx-auto max-w-2xl text-center">
-                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    Siap Meningkatkan Penjualan Bisnis Anda?
-                </h2>
-                <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-blue-100">
-                    Daftar sekarang dan dapatkan akses ke layanan copywriting berbasis AI yang terjangkau.
-                </p>
-                <div class="mt-10 flex items-center justify-center gap-x-6">
-                    <a href="{{ route('register') }}"
-                        class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                        Daftar Sekarang
-                    </a>
-                    <a href="{{ route('packages.index') }}" class="text-sm font-semibold leading-6 text-white">
-                        Lihat Paket <span aria-hidden="true">→</span>
-                    </a>
+    <!-- How It Works -->
+    <div class="bg-white border-y border-gray-200 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">Cara Kerja</h2>
+                <p class="text-gray-600">Proses mudah dalam 4 langkah</p>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 border-2 border-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl font-bold text-blue-600">1</span>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Pilih Operator</h3>
+                    <p class="text-sm text-gray-600">Browse dan pilih operator sesuai kebutuhan</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 border-2 border-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl font-bold text-green-600">2</span>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Request Order</h3>
+                    <p class="text-sm text-gray-600">Kirim brief dan detail project Anda</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 border-2 border-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl font-bold text-purple-600">3</span>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Terima Hasil</h3>
+                    <p class="text-sm text-gray-600">Operator mengerjakan dengan bantuan AI</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 border-2 border-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl font-bold text-yellow-600">4</span>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Review & Bayar</h3>
+                    <p class="text-sm text-gray-600">Review hasil dan lakukan pembayaran</p>
                 </div>
             </div>
         </div>
     </div>
-</x-public-layout>
+
+    <!-- CTA -->
+    <div class="bg-blue-600 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-white mb-3">Siap Memulai?</h2>
+            <p class="text-xl text-blue-100 mb-8">Bergabung dengan Smart Copy SMK sekarang</p>
+            <a href="{{ route('register') }}" class="inline-block px-8 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition">
+                Daftar Gratis
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-sm text-gray-600">&copy; {{ date('Y') }} Smart Copy SMK. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
