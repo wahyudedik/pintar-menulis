@@ -41,6 +41,20 @@ Route::middleware(['auth'])->group(function () {
         // AI Generator
         Route::get('/ai-generator', [\App\Http\Controllers\Client\AIGeneratorController::class, 'index'])->name('ai.generator');
         
+        // Analytics
+        Route::get('/analytics', [\App\Http\Controllers\Client\AnalyticsController::class, 'index'])->name('analytics.index');
+        Route::post('/analytics', [\App\Http\Controllers\Client\AnalyticsController::class, 'store'])->name('analytics.store');
+        Route::get('/analytics/export-pdf', [\App\Http\Controllers\Client\AnalyticsController::class, 'exportPdf'])->name('analytics.export.pdf');
+        Route::get('/analytics/export-csv', [\App\Http\Controllers\Client\AnalyticsController::class, 'exportCsv'])->name('analytics.export.csv');
+        Route::get('/analytics/{analytics}', [\App\Http\Controllers\Client\AnalyticsController::class, 'show'])->name('analytics.show');
+        Route::put('/analytics/{analytics}', [\App\Http\Controllers\Client\AnalyticsController::class, 'update'])->name('analytics.update');
+        Route::get('/analytics-insights', [\App\Http\Controllers\Client\AnalyticsController::class, 'insights'])->name('analytics.insights');
+        
+        // Brand Voice
+        Route::get('/brand-voices', [\App\Http\Controllers\Client\BrandVoiceController::class, 'index'])->name('brand-voices.index');
+        Route::post('/brand-voices', [\App\Http\Controllers\Client\BrandVoiceController::class, 'store'])->name('brand-voices.store');
+        Route::delete('/brand-voices/{brandVoice}', [\App\Http\Controllers\Client\BrandVoiceController::class, 'destroy'])->name('brand-voices.destroy');
+        
         // Browse Operators & Request Order
         Route::get('/browse-operators', [\App\Http\Controllers\Client\OrderRequestController::class, 'index'])->name('browse.operators');
         Route::post('/request-order', [\App\Http\Controllers\Client\OrderRequestController::class, 'store'])->name('request.order');
@@ -97,6 +111,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/training', [\App\Http\Controllers\Guru\MLTrainingController::class, 'index'])->name('training');
         Route::get('/training/{order}', [\App\Http\Controllers\Guru\MLTrainingController::class, 'show'])->name('training.show');
         Route::post('/training', [\App\Http\Controllers\Guru\MLTrainingController::class, 'store'])->name('training.store');
+        Route::post('/training/caption', [\App\Http\Controllers\Guru\MLTrainingController::class, 'trainFromCaption'])->name('training.caption');
         Route::get('/training-history', [\App\Http\Controllers\Guru\MLTrainingController::class, 'history'])->name('training.history');
         Route::get('/analytics', [\App\Http\Controllers\Guru\MLTrainingController::class, 'analytics'])->name('analytics');
     });

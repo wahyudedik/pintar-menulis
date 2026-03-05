@@ -30,14 +30,21 @@ class AIGeneratorController extends Controller
                 'brief' => 'required|string|min:10',
                 'tone' => 'required|string',
                 'keywords' => 'nullable|string',
+                'generate_variations' => 'nullable|boolean',
+                'auto_hashtag' => 'nullable|boolean',
+                'local_language' => 'nullable|string',
             ]);
 
             $result = $this->aiService->generateCopywriting([
-                'type' => $validated['subcategory'],
+                'category' => $validated['category'],
+                'subcategory' => $validated['subcategory'],
                 'brief' => $validated['brief'],
                 'tone' => $validated['tone'],
                 'platform' => $validated['platform'] ?? 'instagram',
                 'keywords' => $validated['keywords'] ?? '',
+                'generate_variations' => $validated['generate_variations'] ?? false,
+                'auto_hashtag' => $validated['auto_hashtag'] ?? true,
+                'local_language' => $validated['local_language'] ?? '',
             ]);
 
             return response()->json([
@@ -46,9 +53,14 @@ class AIGeneratorController extends Controller
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = [];
+            foreach ($e->errors() as $field => $messages) {
+                $errors[] = implode(', ', $messages);
+            }
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Data tidak valid: ' . implode(', ', $e->errors())
+                'message' => 'Validation error: ' . implode('; ', $errors)
             ], 422);
             
         } catch (\Exception $e) {

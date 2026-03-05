@@ -94,6 +94,57 @@
     </div>
     @endif
 
+    <!-- Successful Captions for Training -->
+    <div class="bg-white rounded-lg border border-gray-200 mb-6">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Successful Captions (High Engagement)</h2>
+            <p class="text-sm text-gray-600 mt-1">Caption dengan performa tinggi untuk melatih AI</p>
+        </div>
+        <div class="p-4">
+            @if($successfulCaptions->count() > 0)
+            <div class="space-y-3">
+                @foreach($successfulCaptions as $caption)
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-900 mb-2">{{ Str::limit($caption->caption_text, 150) }}</p>
+                            <div class="flex items-center gap-3 text-xs text-gray-600">
+                                <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">{{ $caption->platform ?? 'N/A' }}</span>
+                                <span>{{ $caption->category }}</span>
+                                <span>Tone: {{ $caption->tone }}</span>
+                            </div>
+                        </div>
+                        <div class="text-right ml-4">
+                            <p class="text-lg font-bold text-green-600">{{ number_format($caption->engagement_rate, 1) }}%</p>
+                            <p class="text-xs text-gray-500">engagement</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                        <div class="flex gap-4 text-xs text-gray-600">
+                            <span>❤️ {{ number_format($caption->likes) }}</span>
+                            <span>💬 {{ number_format($caption->comments) }}</span>
+                            <span>🔄 {{ number_format($caption->shares) }}</span>
+                        </div>
+                        @if(!$caption->used_for_training)
+                        <button onclick="trainFromCaption({{ $caption->id }})" 
+                                class="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition">
+                            Use for Training
+                        </button>
+                        @else
+                        <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                            ✓ Already Trained
+                        </span>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <p class="text-gray-500 text-center py-8">Belum ada caption dengan performa tinggi</p>
+            @endif
+        </div>
+    </div>
+
     <!-- Pending Reviews -->
     <div class="bg-white rounded-lg border border-gray-200">
         <div class="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -161,4 +212,42 @@
         </div>
     </div>
 </div>
+
+<script>
+    function trainFromCaption(captionId) {
+        if (!confirm('Use this caption for AI training?')) return;
+        
+        // Create a simple form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("guru.training.caption") }}';
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = '{{ csrf_token() }}';
+        form.appendChild(csrfInput);
+        
+        const captionInput = document.createElement('input');
+        captionInput.type = 'hidden';
+        captionInput.name = 'caption_id';
+        captionInput.value = captionId;
+        form.appendChild(captionInput);
+        
+        const qualityInput = document.createElement('input');
+        qualityInput.type = 'hidden';
+        qualityInput.name = 'quality_rating';
+        qualityInput.value = 'excellent'; // Auto-mark as excellent since it has high engagement
+        form.appendChild(qualityInput);
+        
+        const notesInput = document.createElement('input');
+        notesInput.type = 'hidden';
+        notesInput.name = 'feedback_notes';
+        notesInput.value = 'High engagement caption from analytics';
+        form.appendChild(notesInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
 @endsection

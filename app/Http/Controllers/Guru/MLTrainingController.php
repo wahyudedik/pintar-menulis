@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MLTrainingData;
 use App\Models\MLModelVersion;
 use App\Models\Order;
+use App\Models\CaptionAnalytics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,12 +16,19 @@ class MLTrainingController extends Controller
     public function index()
     {
         // Get completed orders for review
-        // Since ml_training_data doesn't have order_id, we'll show all completed orders
         $pendingReviews = Order::where('status', 'completed')
             ->whereNotNull('result')
             ->with(['user', 'operator'])
             ->orderBy('completed_at', 'desc')
             ->paginate(10);
+
+        // Get successful captions from analytics for training
+        $successfulCaptions = CaptionAnalytics::where('marked_as_successful', true)
+            ->orWhere('engagement_rate', '>=', 5)
+            ->with('user')
+            ->orderByDesc('engagement_rate')
+            ->take(10)
+            ->get();
 
         // Get training stats
         $stats = [
@@ -30,12 +38,13 @@ class MLTrainingController extends Controller
                 ->count(),
             'excellent_quality' => MLTrainingData::where('quality_rating', 'excellent')->count(),
             'average_quality' => $this->calculateAverageQuality(),
+            'successful_captions' => CaptionAnalytics::where('marked_as_successful', true)->count(),
         ];
 
         // Get latest model version
         $latestModel = MLModelVersion::latest()->first();
 
-        return view('guru.training-dashboard', compact('pendingReviews', 'stats', 'latestModel'));
+        return view('guru.training-dashboard', compact('pendingReviews', 'stats', 'latestModel', 'successfulCaptions'));
     }
 
     // Show review form for specific order
@@ -81,6 +90,45 @@ class MLTrainingController extends Controller
 
         return redirect()->route('guru.training')
             ->with('success', 'Training data berhasil disimpan!');
+    }
+    
+    // Train from caption analytics
+    public function trainFromCaption(Request $request)
+    {
+        $validated = $request->validate([
+            'caption_id' => 'required|exists:caption_analytics,id',
+            'quality_rating' => 'required|in:poor,fair,good,excellent',
+            'corrected_output' => 'nullable|string',
+            'feedback_notes' => 'nullable|string',
+        ]);
+
+        $caption = CaptionAnalytics::findOrFail($validated['caption_id']);
+
+        // Create training data from caption
+        MLTrainingData::create([
+            'guru_id' => auth()->id(),
+            'copywriting_request_id' => null,
+            'input_prompt' => "Category: {$caption->category}, Subcategory: {$caption->subcategory}, Platform: {$caption->platform}, Tone: {$caption->tone}",
+            'ai_output' => $caption->caption_text,
+            'corrected_output' => $validated['corrected_output'] ?? $caption->caption_text,
+            'quality_rating' => $validated['quality_rating'],
+            'feedback_notes' => $validated['feedback_notes'],
+            'metadata' => [
+                'caption_id' => $caption->id,
+                'category' => $caption->category,
+                'platform' => $caption->platform,
+                'engagement_rate' => $caption->engagement_rate,
+                'likes' => $caption->likes,
+                'comments' => $caption->comments,
+                'shares' => $caption->shares,
+            ],
+        ]);
+        
+        // Mark caption as used for training
+        $caption->update(['used_for_training' => true]);
+
+        return redirect()->route('guru.training')
+            ->with('success', 'Caption berhasil ditambahkan ke training data!');
     }
 
     // Training History

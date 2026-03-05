@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
     <title>@yield('title', 'Smart Copy SMK')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -47,9 +48,7 @@
         <aside class="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2">
             <!-- Logo -->
             <div class="mb-4">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                    SC
-                </div>
+                <img src="{{ asset('logo.png') }}" alt="Logo" class="w-10 h-10 rounded-lg object-cover">
             </div>
 
             <!-- Menu Items -->
