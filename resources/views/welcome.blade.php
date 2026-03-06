@@ -6,7 +6,7 @@
     <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
     <title>Aplikasi Pembuat Caption Jualan Otomatis untuk UMKM Indonesia | Smart Copy SMK</title>
     <meta name="description" content="Bikin caption jualan yang bikin closing dalam 10 detik. Khusus UMKM Indonesia. Gratis 5 variasi caption per hari. Auto hashtag Indonesia.">
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
