@@ -575,7 +575,7 @@ php artisan test
 - [ ] Password reset
 - [ ] User profile management
 - [ ] Referral program
-- [ ] A/B testing captions
+- [ ] A/B testing captions 
 - [ ] Template library
 - [ ] Team collaboration
 - [ ] API for developers
