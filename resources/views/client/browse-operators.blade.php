@@ -324,7 +324,8 @@ function browseOperators() {
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
-                    window.location.href = '{{ route('orders.index') }}';
+                    // ESCROW: Redirect to payment page instead of orders list
+                    window.location.href = data.redirect_url;
                 } else {
                     this.errorMessage = data.message || 'Terjadi kesalahan. Silakan coba lagi.';
                 }

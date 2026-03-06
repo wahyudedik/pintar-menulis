@@ -64,4 +64,13 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
     </svg>
 </a>
+
+<!-- Feedback Management -->
+<a href="{{ route('admin.feedback') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.feedback*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="Feedback & Support">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+    </svg>
+</a>
 @endsection

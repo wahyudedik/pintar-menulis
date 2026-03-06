@@ -3,7 +3,7 @@
 @section('title', 'Order Detail')
 
 @section('content')
-<div class="p-6" x-data="{ showRevisionModal: false, showRatingModal: false }">
+<div class="p-6" x-data="{ showRevisionModal: false, showRatingModal: false, showDisputeModal: false }">
     <div class="mb-6">
         <a href="{{ route('orders.index') }}" class="text-blue-600 hover:text-blue-700 text-sm">
             ← Kembali ke Orders
@@ -191,7 +191,78 @@
 
             <!-- Actions -->
             @if($order->status === 'completed')
-                <!-- Payment Button -->
+                <!-- ESCROW: Approve/Dispute Buttons -->
+                @if($order->payment_status === 'held' && !$order->approved_at)
+                <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-lg p-6 mb-4 text-white">
+                    <h3 class="text-xl font-semibold mb-2">Review Hasil Pekerjaan</h3>
+                    <p class="text-sm mb-4">Order telah selesai! Silakan review hasil pekerjaan dan approve untuk melepas pembayaran ke operator, atau ajukan dispute jika ada masalah.</p>
+                    
+                    <div class="bg-white/20 rounded-lg p-4 mb-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-white mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">Pembayaran Anda (Rp {{ number_format($order->budget, 0, ',', '.') }}) sedang di-hold platform.</p>
+                                <p class="text-xs mt-1 opacity-90">Uang akan diteruskan ke operator setelah Anda approve.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <form method="POST" action="{{ route('orders.approve', $order) }}" class="flex-1" onsubmit="return confirm('Apakah Anda yakin puas dengan hasil pekerjaan? Pembayaran akan diteruskan ke operator.')">
+                            @csrf
+                            <button type="submit" class="w-full bg-white text-green-600 px-6 py-3 rounded-lg hover:bg-green-50 font-semibold text-sm flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Approve & Release Payment
+                            </button>
+                        </form>
+                        <button @click="showDisputeModal = true" class="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 font-semibold text-sm flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            Ajukan Dispute
+                        </button>
+                    </div>
+                </div>
+                @elseif($order->payment_status === 'released')
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-base font-semibold text-green-900 mb-1">Order Approved!</h3>
+                            <p class="text-sm text-green-800">Pembayaran telah diteruskan ke operator. Terima kasih telah menggunakan layanan kami!</p>
+                            @if($order->approved_at)
+                            <p class="text-xs text-green-600 mt-1">Approved pada: {{ $order->approved_at->format('d M Y, H:i') }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @elseif($order->status === 'disputed')
+                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-orange-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-base font-semibold text-orange-900 mb-1">Order Dalam Dispute</h3>
+                            <p class="text-sm text-orange-800">Dispute Anda sedang ditinjau oleh admin. Kami akan segera menghubungi Anda.</p>
+                            @if($order->dispute_reason)
+                            <div class="mt-2 bg-white rounded p-2">
+                                <p class="text-xs font-medium text-gray-700">Alasan Dispute:</p>
+                                <p class="text-sm text-gray-800">{{ $order->dispute_reason }}</p>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Payment Status Info (Old Flow) -->
                 @php
                     $payment = \App\Models\Payment::where('order_id', $order->id)
                         ->where('status', 'success')
@@ -201,40 +272,30 @@
                         ->first();
                 @endphp
 
-                @if(!$payment && !$pendingPayment)
+                @if($order->payment_status === 'pending_payment')
                 <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-lg p-4 mb-4 text-white">
-                    <h3 class="text-lg font-semibold mb-2">Pembayaran</h3>
+                    <h3 class="text-lg font-semibold mb-2">Pembayaran Diperlukan</h3>
                     <p class="text-sm mb-3">Order telah selesai! Silakan lakukan pembayaran untuk menyelesaikan transaksi.</p>
                     <a href="{{ route('payment.show', $order) }}" 
                        class="inline-block bg-white text-green-600 px-6 py-2 rounded-lg hover:bg-green-50 font-semibold text-sm">
                         Bayar Sekarang - Rp {{ number_format($order->budget, 0, ',', '.') }}
                     </a>
                 </div>
-                @elseif($pendingPayment)
+                @elseif($pendingPayment && $order->payment_status !== 'held')
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                     <h3 class="text-base font-semibold text-yellow-900 mb-2">Pembayaran Sedang Diverifikasi</h3>
                     <p class="text-sm text-yellow-800">Bukti pembayaran Anda sedang diverifikasi oleh admin. Mohon tunggu.</p>
                 </div>
-                @else
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                    <h3 class="text-base font-semibold text-green-900 mb-2">Pembayaran Berhasil</h3>
-                    <p class="text-sm text-green-800">Pembayaran telah diverifikasi. Terima kasih!</p>
-                </div>
                 @endif
 
-                @if(!$order->rating)
+                @if(!$order->rating && $order->payment_status === 'released')
                 <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Aksi</h3>
-                    <div class="flex gap-3">
-                        <button @click="showRatingModal = true" 
-                                class="flex-1 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition text-sm">
-                            Beri Rating
-                        </button>
-                        <button @click="showRevisionModal = true" 
-                                class="flex-1 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition text-sm">
-                            Request Revisi
-                        </button>
-                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Beri Rating</h3>
+                    <p class="text-sm text-gray-600 mb-3">Bagikan pengalaman Anda dengan operator ini</p>
+                    <button @click="showRatingModal = true" 
+                            class="w-full bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition text-sm">
+                        Beri Rating & Review
+                    </button>
                 </div>
                 @endif
             @endif
@@ -323,6 +384,63 @@
                         <button type="submit" :disabled="rating === 0"
                                 class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:bg-gray-400 text-sm">
                             Kirim Rating
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispute Modal -->
+    <div x-show="showDisputeModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="showDisputeModal = false">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-red-600">Ajukan Dispute</h3>
+                        <p class="text-sm text-gray-600 mt-1">Jelaskan masalah yang Anda alami dengan hasil pekerjaan</p>
+                    </div>
+                    <button @click="showDisputeModal = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-yellow-600 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div class="text-sm text-yellow-800">
+                            <p class="font-medium mb-1">Perhatian:</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Dispute akan ditinjau oleh admin kami</li>
+                                <li>Pembayaran akan tetap di-hold sampai dispute selesai</li>
+                                <li>Jelaskan masalah dengan detail dan jelas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('orders.dispute', $order) }}">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Dispute</label>
+                        <textarea name="dispute_reason" required rows="6"
+                                  placeholder="Jelaskan detail masalah yang Anda alami dengan hasil pekerjaan ini..."
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Minimal 20 karakter. Semakin detail, semakin cepat kami bisa membantu.</p>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" @click="showDisputeModal = false"
+                                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
+                            Ajukan Dispute
                         </button>
                     </div>
                 </form>

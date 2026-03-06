@@ -97,8 +97,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(BrandVoice::class);
     }
 
+
     public function defaultBrandVoice()
     {
         return $this->hasOne(BrandVoice::class)->where('is_default', true);
     }
+
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
 }

@@ -82,6 +82,33 @@
         </div>
     </div>
 
+    <!-- Withdrawal Stats -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Withdrawal Statistics</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                <p class="text-xs text-yellow-700 mb-1">Pending</p>
+                <p class="text-2xl font-bold text-yellow-900">{{ $withdrawalStats['pending'] }}</p>
+                <p class="text-xs text-yellow-600 mt-1">Rp {{ number_format($withdrawalStats['pendingAmount'], 0, ',', '.') }}</p>
+            </div>
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <p class="text-xs text-blue-700 mb-1">Processing</p>
+                <p class="text-2xl font-bold text-blue-900">{{ $withdrawalStats['processing'] }}</p>
+                <p class="text-xs text-blue-600 mt-1">Rp {{ number_format($withdrawalStats['processingAmount'], 0, ',', '.') }}</p>
+            </div>
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+                <p class="text-xs text-green-700 mb-1">Completed</p>
+                <p class="text-2xl font-bold text-green-900">{{ $withdrawalStats['completed'] }}</p>
+                <p class="text-xs text-green-600 mt-1">Rp {{ number_format($withdrawalStats['completedAmount'], 0, ',', '.') }}</p>
+            </div>
+            <div class="text-center p-4 bg-red-50 rounded-lg">
+                <p class="text-xs text-red-700 mb-1">Rejected</p>
+                <p class="text-2xl font-bold text-red-900">{{ $withdrawalStats['rejected'] }}</p>
+                <p class="text-xs text-red-600 mt-1">Rp {{ number_format($withdrawalStats['rejectedAmount'], 0, ',', '.') }}</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts -->
     <div class="grid md:grid-cols-2 gap-6 mb-6">
         <!-- Revenue Over Time -->

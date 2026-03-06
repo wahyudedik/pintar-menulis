@@ -72,6 +72,35 @@
         </div>
     </div>
 
+    <!-- Commission Info -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <h3 class="text-sm font-semibold text-blue-900 mb-2">Informasi Komisi Platform</h3>
+                <p class="text-sm text-blue-800 mb-3">Platform memotong 10% dari setiap pembayaran yang diterima sebagai biaya operasional. Anda menerima 90% dari total pembayaran.</p>
+                <div class="bg-white rounded-lg p-3 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Total Pembayaran Client:</span>
+                        <span class="font-semibold text-gray-900">Rp {{ number_format($stats['total_earnings'] / 0.9, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Komisi Platform (10%):</span>
+                        <span class="font-semibold text-red-600">- Rp {{ number_format(($stats['total_earnings'] / 0.9) * 0.1, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-2 flex justify-between text-sm">
+                        <span class="text-gray-900 font-semibold">Penghasilan Anda (90%):</span>
+                        <span class="font-bold text-green-600">Rp {{ number_format($stats['total_earnings'], 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Withdrawal Button -->
     <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 mb-6 text-white">
         <div class="flex justify-between items-center">
@@ -79,9 +108,20 @@
                 <h3 class="text-lg font-semibold mb-1">Tarik Penghasilan</h3>
                 <p class="text-green-100 text-sm">Saldo tersedia: Rp {{ number_format($stats['pending_withdrawal'], 0, ',', '.') }}</p>
             </div>
-            <button class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-green-50 transition text-sm">
-                Tarik Saldo
-            </button>
+            <div class="flex space-x-2">
+                <a href="{{ route('operator.withdrawal.history') }}" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition text-sm border border-white/30">
+                    Riwayat
+                </a>
+                @if($stats['pending_withdrawal'] >= 50000)
+                <a href="{{ route('operator.withdrawal.create') }}" class="px-4 py-2 bg-white text-green-600 rounded-lg font-medium hover:bg-green-50 transition text-sm">
+                    Tarik Saldo
+                </a>
+                @else
+                <button disabled class="px-4 py-2 bg-white/50 text-green-200 rounded-lg font-medium text-sm cursor-not-allowed">
+                    Minimum Rp 50.000
+                </button>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -94,25 +134,43 @@
             @if($completedOrders->count() > 0)
             <div class="divide-y divide-gray-200">
                 @foreach($completedOrders as $order)
-                <div class="py-3 flex items-center justify-between hover:bg-gray-50 transition">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">{{ $order->user->name }}</p>
-                        <p class="text-xs text-gray-500">
-                            {{ $order->category }} • 
-                            @if($order->completed_at)
-                                {{ $order->completed_at->format('d M Y') }}
-                            @else
-                                {{ $order->updated_at->format('d M Y') }}
-                            @endif
-                        </p>
+                <div class="py-3 hover:bg-gray-50 transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">{{ $order->user->name }}</p>
+                            <p class="text-xs text-gray-500">
+                                {{ $order->category }} • 
+                                @if($order->completed_at)
+                                    {{ $order->completed_at->format('d M Y') }}
+                                @else
+                                    {{ $order->updated_at->format('d M Y') }}
+                                @endif
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-green-600">
+                                Rp {{ number_format($order->budget * 0.9, 0, ',', '.') }}
+                            </p>
+                            <span class="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                Completed
+                            </span>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-green-600">
-                            Rp {{ number_format($order->budget, 0, ',', '.') }}
-                        </p>
-                        <span class="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                            Completed
-                        </span>
+                    <div class="ml-0 pl-3 border-l-2 border-gray-200">
+                        <div class="text-xs text-gray-500 space-y-1">
+                            <div class="flex justify-between">
+                                <span>Pembayaran Client:</span>
+                                <span class="text-gray-700">Rp {{ number_format($order->budget, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Komisi Platform (10%):</span>
+                                <span class="text-red-600">- Rp {{ number_format($order->budget * 0.1, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between font-medium">
+                                <span>Penghasilan Anda (90%):</span>
+                                <span class="text-green-600">Rp {{ number_format($order->budget * 0.9, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 @endforeach

@@ -16,19 +16,20 @@ class PaymentController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        if ($order->status !== 'completed') {
+        // ESCROW: Allow payment for pending_payment orders
+        if (!in_array($order->payment_status, ['pending_payment', 'refunded'])) {
             return redirect()->route('orders.show', $order)
-                ->with('error', 'Order belum completed');
+                ->with('info', 'Order ini sudah dibayar');
         }
 
-        // Check if already paid
+        // Check if already has pending payment
         $existingPayment = Payment::where('order_id', $order->id)
-            ->where('status', 'success')
+            ->whereIn('status', ['processing', 'success'])
             ->first();
 
         if ($existingPayment) {
             return redirect()->route('orders.show', $order)
-                ->with('info', 'Order ini sudah dibayar');
+                ->with('info', 'Pembayaran sedang diproses admin');
         }
 
         $paymentSettings = PaymentSetting::where('is_active', true)->get();
@@ -45,23 +46,26 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'payment_method' => 'required|string',
-            'transaction_id' => 'nullable|string',
             'proof_image' => 'required|image|max:2048', // 2MB max
         ]);
 
         // Upload proof image
         $proofPath = $request->file('proof_image')->store('payment-proofs', 'public');
 
+        // Generate unique transaction ID for manual transfer
+        $transactionId = 'MT-' . strtoupper(uniqid()) . '-' . time();
+
         Payment::create([
             'user_id' => auth()->id(),
             'order_id' => $order->id,
             'payment_method' => $validated['payment_method'],
-            'transaction_id' => $validated['transaction_id'] ?? null,
+            'transaction_id' => $transactionId,
             'amount' => $order->budget,
             'status' => 'processing', // Admin will verify
             'proof_image' => $proofPath,
             'payment_details' => [
                 'bank' => $validated['payment_method'],
+                'type' => 'manual_transfer',
             ],
         ]);
 

@@ -53,37 +53,44 @@ class PaymentController extends Controller
             return back()->with('error', 'Payment sudah diproses sebelumnya');
         }
 
+        // ESCROW: Update payment to verified and HOLD the money
         $payment->update([
             'status' => 'success',
+            'escrow_status' => 'held', // Money is held by platform
             'verified_at' => now(),
             'verified_by' => auth()->id(),
+            'paid_at' => now(),
         ]);
 
-        // Update order status to paid
+        // ESCROW: Update order status - NOW visible to operator
         $order = $payment->order;
-        $order->update(['payment_status' => 'paid']);
+        $order->update([
+            'payment_status' => 'held', // Money is held, waiting for work completion
+            'status' => 'pending', // NOW operator can see and accept this order
+        ]);
 
-        // Notify client
-        $this->notificationService->create(
-            $payment->user_id,
-            'payment_verified',
-            'Pembayaran Diverifikasi',
-            "Pembayaran untuk order #{$order->id} telah diverifikasi. Terima kasih!",
-            route('orders.show', $order)
-        );
-
-        // Notify operator (payment will be released after review period)
+        // Notify operator - order is now available!
         if ($order->operator_id) {
             $this->notificationService->create(
-                $order->operator_id,
-                'payment_received',
-                'Pembayaran Diterima',
-                "Client telah membayar order #{$order->id}. Penghasilan akan masuk ke saldo Anda.",
-                route('operator.earnings')
+                $order->operator,
+                'order_new',
+                'Order Baru Tersedia!',
+                "Ada order baru dengan budget Rp " . number_format($order->budget, 0, ',', '.') . " untuk kategori {$order->category}. Pembayaran sudah diterima dan di-hold platform.",
+                route('operator.queue'),
+                ['order_id' => $order->id]
             );
         }
 
-        return back()->with('success', 'Payment berhasil diverifikasi!');
+        // Notify client
+        $this->notificationService->create(
+            $payment->user,
+            'payment_verified',
+            'Pembayaran Diverifikasi',
+            "Pembayaran untuk order #{$order->id} telah diverifikasi. Uang Anda di-hold platform dan akan diteruskan ke operator setelah order selesai dan Anda approve.",
+            route('orders.show', $order)
+        );
+
+        return back()->with('success', 'Payment berhasil diverifikasi! Uang di-hold platform. Order sekarang visible untuk operator.');
     }
 
     public function reject(Payment $payment)
@@ -100,7 +107,7 @@ class PaymentController extends Controller
 
         // Notify client
         $this->notificationService->create(
-            $payment->user_id,
+            $payment->user,
             'payment_rejected',
             'Pembayaran Ditolak',
             "Pembayaran untuk order #{$payment->order_id} ditolak. Silakan upload bukti pembayaran yang valid.",

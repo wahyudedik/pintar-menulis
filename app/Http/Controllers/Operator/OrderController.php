@@ -20,8 +20,14 @@ class OrderController extends Controller
     // Order Queue - Lihat semua incoming orders
     public function queue()
     {
+        // ESCROW: Only show orders with payment_status='held' (payment verified and held by platform)
         $orders = Order::where('status', 'pending')
-            ->whereNull('operator_id')
+            ->where('payment_status', 'held') // ESCROW: Only paid orders
+            ->where(function($query) {
+                // Show orders without operator OR assigned to me
+                $query->whereNull('operator_id')
+                      ->orWhere('operator_id', auth()->id());
+            })
             ->with(['user', 'operator'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -120,9 +126,9 @@ class OrderController extends Controller
         // Update operator stats
         $profile = auth()->user()->operatorProfile;
         if ($profile && $revisionNumber === 1) {
-            // Only increment on first completion, not on revisions
+            // Only increment completed orders count, not earnings
+            // Earnings will be added when payment is verified by admin
             $profile->increment('completed_orders');
-            $profile->increment('total_earnings', $order->budget);
         }
 
         // Send notification to client
@@ -143,11 +149,19 @@ class OrderController extends Controller
             ->orderBy('completed_at', 'desc')
             ->get();
 
+        // Calculate available balance (total earnings - pending withdrawals)
+        $pendingWithdrawals = \App\Models\WithdrawalRequest::where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'processing'])
+            ->sum('amount');
+
+        $totalEarnings = $profile->total_earnings ?? 0;
+        $availableBalance = $totalEarnings - $pendingWithdrawals;
+
         $stats = [
-            'total_earnings' => $profile->total_earnings ?? 0,
+            'total_earnings' => $totalEarnings,
             'completed_orders' => $profile->completed_orders ?? 0,
             'average_rating' => $profile->average_rating ?? 0,
-            'pending_withdrawal' => $profile->total_earnings ?? 0, // Simplified
+            'pending_withdrawal' => $availableBalance,
         ];
 
         return view('operator.earnings', compact('stats', 'completedOrders'));

@@ -54,23 +54,25 @@ class OrderRequestController extends Controller
             'deadline' => 'required|date|after:today',
         ]);
 
+        // Create order with pending_payment status
         $order = Order::create([
             'user_id' => auth()->id(),
-            'operator_id' => null, // Set to null initially, operator will accept later
+            'operator_id' => $validated['operator_id'], // Store requested operator
             'category' => $validated['category'],
             'brief' => $validated['brief'],
             'budget' => $validated['budget'],
             'deadline' => $validated['deadline'],
-            'status' => 'pending',
+            'status' => 'pending_payment', // Order not visible to operator yet!
+            'payment_status' => 'pending_payment',
         ]);
 
-        // Send notification to the requested operator
-        $this->notificationService->notifyNewOrder($order, $validated['operator_id']);
-
+        // ESCROW: Redirect to payment page instead of notifying operator
+        // Operator will be notified AFTER payment is verified by admin
         return response()->json([
             'success' => true,
-            'message' => 'Order berhasil dikirim!',
+            'message' => 'Order berhasil dibuat! Silakan lakukan pembayaran.',
             'order_id' => $order->id,
+            'redirect_url' => route('payment.show', $order),
         ]);
     }
 }

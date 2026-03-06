@@ -14,19 +14,32 @@ class ReportController extends Controller
 {
     public function index()
     {
-        // Revenue Stats
-        $totalRevenue = Order::where('status', 'completed')->sum('budget');
-        $monthlyRevenue = Order::where('status', 'completed')
-            ->whereMonth('completed_at', now()->month)
-            ->sum('budget');
+        // Revenue Stats (from verified payments only)
+        $verifiedPayments = Payment::where('status', 'success')->get();
+        $totalRevenue = $verifiedPayments->sum('amount');
+        $monthlyRevenue = Payment::where('status', 'success')
+            ->whereMonth('verified_at', now()->month)
+            ->sum('amount');
 
         // Withdrawal Stats
         $totalWithdrawals = WithdrawalRequest::where('status', 'completed')->sum('amount');
-        $pendingWithdrawals = WithdrawalRequest::where('status', 'pending')->sum('amount');
+        $pendingWithdrawals = WithdrawalRequest::whereIn('status', ['pending', 'processing'])->sum('amount');
 
-        // Commission (Platform fee - 10% of revenue)
-        $platformCommission = $totalRevenue * 0.1;
-        $operatorEarnings = $totalRevenue * 0.9;
+        // Detailed Withdrawal Stats
+        $withdrawalStats = [
+            'pending' => WithdrawalRequest::where('status', 'pending')->count(),
+            'pendingAmount' => WithdrawalRequest::where('status', 'pending')->sum('amount'),
+            'processing' => WithdrawalRequest::where('status', 'processing')->count(),
+            'processingAmount' => WithdrawalRequest::where('status', 'processing')->sum('amount'),
+            'completed' => WithdrawalRequest::where('status', 'completed')->count(),
+            'completedAmount' => WithdrawalRequest::where('status', 'completed')->sum('amount'),
+            'rejected' => WithdrawalRequest::where('status', 'rejected')->count(),
+            'rejectedAmount' => WithdrawalRequest::where('status', 'rejected')->sum('amount'),
+        ];
+
+        // Commission (Platform fee - 10% of verified payments)
+        $platformCommission = $totalRevenue * 0.10;
+        $operatorEarnings = $totalRevenue * 0.90;
 
         // Order Stats
         $totalOrders = Order::count();
@@ -43,13 +56,13 @@ class ReportController extends Controller
             ->take(10)
             ->get();
 
-        // Revenue Over Time (Last 30 days)
-        $revenueOverTime = Order::select(
-                DB::raw('DATE(completed_at) as date'),
-                DB::raw('SUM(budget) as revenue')
+        // Revenue Over Time (Last 30 days) - from verified payments
+        $revenueOverTime = Payment::select(
+                DB::raw('DATE(verified_at) as date'),
+                DB::raw('SUM(amount) as revenue')
             )
-            ->where('status', 'completed')
-            ->where('completed_at', '>=', now()->subDays(30))
+            ->where('status', 'success')
+            ->where('verified_at', '>=', now()->subDays(30))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -71,6 +84,6 @@ class ReportController extends Controller
             'pendingOrders'
         );
 
-        return view('admin.reports', compact('stats', 'topOperators', 'revenueOverTime', 'ordersByCategory'));
+        return view('admin.reports', compact('stats', 'topOperators', 'revenueOverTime', 'ordersByCategory', 'withdrawalStats'));
     }
 }

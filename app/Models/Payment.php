@@ -13,12 +13,16 @@ class Payment extends Model
         'transaction_id',
         'amount',
         'status',
+        'escrow_status',
         'payment_details',
         'paid_at',
         'expired_at',
         'proof_image',
         'verified_at',
         'verified_by',
+        'released_at',
+        'refunded_at',
+        'refund_reason',
     ];
 
     protected $casts = [
@@ -26,6 +30,8 @@ class Payment extends Model
         'paid_at' => 'datetime',
         'expired_at' => 'datetime',
         'verified_at' => 'datetime',
+        'released_at' => 'datetime',
+        'refunded_at' => 'datetime',
         'amount' => 'integer',
     ];
 

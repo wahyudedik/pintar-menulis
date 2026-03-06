@@ -150,5 +150,111 @@ class OrderController extends Controller
 
         return back()->with('success', 'Terima kasih atas rating Anda!');
     }
+
+    // ESCROW: Approve order and release payment to operator
+    public function approve(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($order->status !== 'completed') {
+            return back()->with('error', 'Hanya bisa approve order yang sudah completed');
+        }
+
+        if ($order->payment_status === 'released') {
+            return back()->with('info', 'Order ini sudah di-approve sebelumnya');
+        }
+
+        // Update order status
+        $order->update([
+            'status' => 'approved',
+            'payment_status' => 'released',
+            'approved_at' => now(),
+        ]);
+
+        // ESCROW: Release payment to operator
+        $payment = $order->payment;
+        if ($payment) {
+            $payment->update([
+                'escrow_status' => 'released',
+                'released_at' => now(),
+            ]);
+
+            // Calculate platform commission (10%)
+            $paymentAmount = $payment->amount;
+            $platformCommission = $paymentAmount * 0.10;
+            $operatorEarnings = $paymentAmount * 0.90;
+
+            // Add earnings to operator
+            if ($order->operator_id) {
+                $operatorProfile = $order->operator->operatorProfile;
+                if ($operatorProfile && !$order->earnings_added) {
+                    $operatorProfile->increment('total_earnings', $operatorEarnings);
+                    $order->update(['earnings_added' => true]);
+
+                    // Notify operator
+                    $this->notificationService->create(
+                        $order->operator,
+                        'payment_released',
+                        'Pembayaran Diterima!',
+                        "Client telah approve order #{$order->id}. Penghasilan Rp " . number_format($operatorEarnings, 0, ',', '.') . " (setelah komisi 10%) telah masuk ke saldo Anda.",
+                        route('operator.earnings'),
+                        ['order_id' => $order->id]
+                    );
+                }
+            }
+        }
+
+        return back()->with('success', 'Order berhasil di-approve! Pembayaran telah diteruskan ke operator.');
+    }
+
+    // ESCROW: Dispute order
+    public function dispute(Request $request, Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($order->status !== 'completed') {
+            return back()->with('error', 'Hanya bisa dispute order yang sudah completed');
+        }
+
+        $validated = $request->validate([
+            'dispute_reason' => 'required|string|min:20',
+        ]);
+
+        $order->update([
+            'status' => 'disputed',
+            'dispute_reason' => $validated['dispute_reason'],
+        ]);
+
+        // Notify admin
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $this->notificationService->create(
+                $admin,
+                'order_disputed',
+                'Order Disputed!',
+                "Order #{$order->id} di-dispute oleh client. Alasan: {$validated['dispute_reason']}",
+                route('admin.orders.show', $order),
+                ['order_id' => $order->id]
+            );
+        }
+
+        // Notify operator
+        if ($order->operator_id) {
+            $this->notificationService->create(
+                $order->operator,
+                'order_disputed',
+                'Order Disputed',
+                "Client dispute order #{$order->id}. Admin akan mediasi. Alasan: {$validated['dispute_reason']}",
+                route('operator.workspace', $order),
+                ['order_id' => $order->id]
+            );
+        }
+
+        return back()->with('success', 'Dispute berhasil diajukan. Admin akan segera mediasi.');
+    }
 }
 

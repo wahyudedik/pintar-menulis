@@ -46,6 +46,7 @@
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">User</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Role</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Orders</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Earnings</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Status</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Joined</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Actions</th>
@@ -70,6 +71,15 @@
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-900">
                             {{ $user->orders_count + $user->operator_orders_count }}
+                        </td>
+                        <td class="px-4 py-3">
+                            @if($user->role === 'operator' && $user->operatorProfile)
+                                <span class="text-sm font-medium text-green-600">
+                                    Rp {{ number_format($user->operatorProfile->total_earnings ?? 0, 0, ',', '.') }}
+                                </span>
+                            @else
+                                <span class="text-gray-400 text-sm">-</span>
+                            @endif
                         </td>
                         <td class="px-4 py-3">
                             @if($user->role === 'operator' && $user->operatorProfile)

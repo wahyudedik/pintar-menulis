@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="p-6" x-data="{ showAddModal: false, showMidtransModal: false }">
+<div class="p-6" x-data="{ showAddModal: false, showMidtransModal: false }" x-cloak>
     <!-- Header -->
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Payment Settings</h1>
@@ -88,146 +88,144 @@
         </div>
         @endif
     </div>
-</div>
 
-<!-- Add Bank Account Modal -->
-<div x-show="showAddModal" 
-     x-transition
-     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-     @click.self="showAddModal = false"
-     style="display: none;">
-    <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <h3 class="text-xl font-bold text-gray-900 mb-6">Add Bank Account</h3>
-        
-        <form action="{{ route('admin.payment-settings.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+    <!-- Add Bank Account Modal -->
+    <div x-show="showAddModal" 
+         x-transition
+         x-cloak
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         @click.self="showAddModal = false">
+        <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Add Bank Account</h3>
             
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Bank Name *</label>
-                <input type="text" name="bank_name" required
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                       placeholder="BCA, Mandiri, BNI, etc.">
-            </div>
+            <form action="{{ route('admin.payment-settings.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bank Name *</label>
+                    <input type="text" name="bank_name" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="BCA, Mandiri, BNI, etc.">
+                </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Account Number *</label>
-                <input type="text" name="account_number" required
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                       placeholder="1234567890">
-            </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Account Number *</label>
+                    <input type="text" name="account_number" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="1234567890">
+                </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Account Name *</label>
-                <input type="text" name="account_name" required
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                       placeholder="PT Smart Copy SMK">
-            </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Account Name *</label>
+                    <input type="text" name="account_name" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="PT Smart Copy SMK">
+                </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">QR Code (Optional)</label>
-                <input type="file" name="qr_code" accept="image/*"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                <p class="text-xs text-gray-500 mt-1">Upload QR code untuk pembayaran. Max 2MB</p>
-            </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">QR Code (Optional)</label>
+                    <input type="file" name="qr_code" accept="image/*"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Upload QR code untuk pembayaran. Max 2MB</p>
+                </div>
 
-            <div class="flex gap-3">
-                <button type="submit" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                    Add Bank Account
-                </button>
-                <button type="button" @click="showAddModal = false" 
-                        class="flex-1 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
-                    Cancel
-                </button>
-            </div>
-        </form>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+                        Add Bank Account
+                    </button>
+                    <button type="button" @click="showAddModal = false" 
+                            class="flex-1 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Midtrans Configuration Modal -->
+    <div x-show="showMidtransModal" 
+         x-transition
+         x-cloak
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         @click.self="showMidtransModal = false">
+        <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Midtrans Configuration</h3>
+            
+            <form action="{{ route('admin.payment-settings.midtrans-update') }}" method="POST">
+                @csrf
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <p class="text-sm text-blue-800">
+                        <span class="font-semibold">Info:</span> Midtrans adalah payment gateway untuk menerima pembayaran otomatis 
+                        (Credit Card, E-Wallet, VA, dll). Dapatkan API keys dari 
+                        <a href="https://dashboard.midtrans.com" target="_blank" class="underline">Midtrans Dashboard</a>
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="midtrans_enabled" value="1" 
+                               {{ env('MIDTRANS_ENABLED', false) ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                        <span class="ml-2 text-sm font-medium text-gray-700">Enable Midtrans Payment Gateway</span>
+                    </label>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Environment</label>
+                    <select name="midtrans_environment" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <option value="sandbox" {{ env('MIDTRANS_ENVIRONMENT', 'sandbox') === 'sandbox' ? 'selected' : '' }}>
+                            Sandbox (Testing)
+                        </option>
+                        <option value="production" {{ env('MIDTRANS_ENVIRONMENT') === 'production' ? 'selected' : '' }}>
+                            Production (Live)
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Merchant ID</label>
+                    <input type="text" name="midtrans_merchant_id" 
+                           value="{{ env('MIDTRANS_MERCHANT_ID', '') }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="G123456789">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Client Key</label>
+                    <input type="text" name="midtrans_client_key" 
+                           value="{{ env('MIDTRANS_CLIENT_KEY', '') }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="SB-Mid-client-xxxxx">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Server Key</label>
+                    <input type="password" name="midtrans_server_key" 
+                           value="{{ env('MIDTRANS_SERVER_KEY', '') }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="SB-Mid-server-xxxxx">
+                    <p class="text-xs text-gray-500 mt-1">Keep this secret! Never share publicly</p>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <p class="text-sm text-yellow-800">
+                        <span class="font-semibold">Important:</span> Setelah save, aplikasi akan restart untuk apply perubahan .env
+                    </p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                        Save Configuration
+                    </button>
+                    <button type="button" @click="showMidtransModal = false" 
+                            class="flex-1 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-<!-- Midtrans Configuration Modal -->
-<div x-show="showMidtransModal" 
-     x-transition
-     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-     @click.self="showMidtransModal = false"
-     style="display: none;">
-    <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <h3 class="text-xl font-bold text-gray-900 mb-6">Midtrans Configuration</h3>
-        
-        <form action="{{ route('admin.payment-settings.midtrans-update') }}" method="POST">
-            @csrf
-            
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <p class="text-sm text-blue-800">
-                    <span class="font-semibold">Info:</span> Midtrans adalah payment gateway untuk menerima pembayaran otomatis 
-                    (Credit Card, E-Wallet, VA, dll). Dapatkan API keys dari 
-                    <a href="https://dashboard.midtrans.com" target="_blank" class="underline">Midtrans Dashboard</a>
-                </p>
-            </div>
-
-            <div class="mb-4">
-                <label class="flex items-center">
-                    <input type="checkbox" name="midtrans_enabled" value="1" 
-                           {{ env('MIDTRANS_ENABLED', false) ? 'checked' : '' }}
-                           class="rounded border-gray-300 text-red-600 focus:ring-red-500">
-                    <span class="ml-2 text-sm font-medium text-gray-700">Enable Midtrans Payment Gateway</span>
-                </label>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Environment</label>
-                <select name="midtrans_environment" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    <option value="sandbox" {{ env('MIDTRANS_ENVIRONMENT', 'sandbox') === 'sandbox' ? 'selected' : '' }}>
-                        Sandbox (Testing)
-                    </option>
-                    <option value="production" {{ env('MIDTRANS_ENVIRONMENT') === 'production' ? 'selected' : '' }}>
-                        Production (Live)
-                    </option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Merchant ID</label>
-                <input type="text" name="midtrans_merchant_id" 
-                       value="{{ env('MIDTRANS_MERCHANT_ID', '') }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                       placeholder="G123456789">
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Client Key</label>
-                <input type="text" name="midtrans_client_key" 
-                       value="{{ env('MIDTRANS_CLIENT_KEY', '') }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                       placeholder="SB-Mid-client-xxxxx">
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Server Key</label>
-                <input type="password" name="midtrans_server_key" 
-                       value="{{ env('MIDTRANS_SERVER_KEY', '') }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                       placeholder="SB-Mid-server-xxxxx">
-                <p class="text-xs text-gray-500 mt-1">Keep this secret! Never share publicly</p>
-            </div>
-
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <p class="text-sm text-yellow-800">
-                    <span class="font-semibold">Important:</span> Setelah save, aplikasi akan restart untuk apply perubahan .env
-                </p>
-            </div>
-
-            <div class="flex gap-3">
-                <button type="submit" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
-                    Save Configuration
-                </button>
-                <button type="button" @click="showMidtransModal = false" 
-                        class="flex-1 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 @endsection

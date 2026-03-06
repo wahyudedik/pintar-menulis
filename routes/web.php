@@ -55,6 +55,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/brand-voices', [\App\Http\Controllers\Client\BrandVoiceController::class, 'store'])->name('brand-voices.store');
         Route::delete('/brand-voices/{brandVoice}', [\App\Http\Controllers\Client\BrandVoiceController::class, 'destroy'])->name('brand-voices.destroy');
         
+        // Feedback & Support
+        Route::get('/feedback', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
+        Route::get('/feedback/create', [\App\Http\Controllers\FeedbackController::class, 'create'])->name('feedback.create');
+        Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
+        Route::get('/feedback/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show'])->name('feedback.show');
+        
         // Browse Operators & Request Order
         Route::get('/browse-operators', [\App\Http\Controllers\Client\OrderRequestController::class, 'index'])->name('browse.operators');
         Route::post('/request-order', [\App\Http\Controllers\Client\OrderRequestController::class, 'store'])->name('request.order');
@@ -66,6 +72,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/revision', [OrderController::class, 'requestRevision'])->name('orders.revision');
         Route::post('/orders/{order}/rate', [OrderController::class, 'rate'])->name('orders.rate');
+        Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('orders.approve');
+        Route::post('/orders/{order}/dispute', [OrderController::class, 'dispute'])->name('orders.dispute');
         
         // Payment
         Route::get('/payment/{order}', [\App\Http\Controllers\PaymentController::class, 'show'])->name('payment.show');
@@ -96,6 +104,11 @@ Route::middleware(['auth'])->group(function () {
         
         // Earnings
         Route::get('/earnings', [\App\Http\Controllers\Operator\OrderController::class, 'earnings'])->name('earnings');
+        
+        // Withdrawal
+        Route::get('/withdrawal/create', [\App\Http\Controllers\Operator\WithdrawalController::class, 'create'])->name('withdrawal.create');
+        Route::post('/withdrawal', [\App\Http\Controllers\Operator\WithdrawalController::class, 'store'])->name('withdrawal.store');
+        Route::get('/withdrawal/history', [\App\Http\Controllers\Operator\WithdrawalController::class, 'history'])->name('withdrawal.history');
         
         // Profile
         Route::get('/profile/edit', [\App\Http\Controllers\Operator\ProfileController::class, 'edit'])->name('profile.edit');
@@ -153,6 +166,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/withdrawals/{withdrawal}/approve', [\App\Http\Controllers\Admin\WithdrawalController::class, 'approve'])->name('withdrawals.approve');
         Route::post('/withdrawals/{withdrawal}/reject', [\App\Http\Controllers\Admin\WithdrawalController::class, 'reject'])->name('withdrawals.reject');
         Route::post('/withdrawals/{withdrawal}/complete', [\App\Http\Controllers\Admin\WithdrawalController::class, 'complete'])->name('withdrawals.complete');
+        
+        // Feedback Management
+        Route::get('/feedback', [\App\Http\Controllers\Admin\FeedbackController::class, 'index'])->name('feedback');
+        Route::get('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'show'])->name('feedback.show');
+        Route::put('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'update'])->name('feedback.update');
+        Route::delete('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'destroy'])->name('feedback.destroy');
     });
 });
 

@@ -6,9 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
     <title>@yield('title', 'Smart Copy SMK')</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @stack('head')
     <style>
         [x-cloak] { display: none !important; }
@@ -42,10 +42,35 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50" x-data="{ sidebarOpen: false }">
     <div class="flex h-screen overflow-hidden">
+        <!-- Mobile Menu Button -->
+        <button @click="sidebarOpen = !sidebarOpen" 
+                class="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50">
+            <svg x-show="!sidebarOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            <svg x-show="sidebarOpen" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
+        <!-- Mobile Overlay -->
+        <div x-show="sidebarOpen" 
+             @click="sidebarOpen = false"
+             x-cloak
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40">
+        </div>
+
         <!-- Sidebar -->
-        <aside class="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2">
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+               class="fixed lg:static inset-y-0 left-0 z-40 w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2 transition-transform duration-300 ease-in-out">
             <!-- Logo -->
             <div class="mb-4">
                 <img src="{{ asset('logo.png') }}" alt="Logo" class="w-10 h-10 rounded-lg object-cover">
@@ -101,7 +126,10 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 overflow-y-auto lg:ml-0">
+            <!-- Mobile Header Spacer -->
+            <div class="lg:hidden h-16"></div>
+            
             @if(session('success'))
             <div class="mx-6 mt-4">
                 <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">

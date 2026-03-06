@@ -4,10 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\WithdrawalRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class WithdrawalController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     public function index()
     {
         $withdrawals = WithdrawalRequest::with('user')
@@ -33,11 +40,19 @@ class WithdrawalController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
+        // Notify operator
+        $this->notificationService->notifyWithdrawalApproved($withdrawal);
+
         return back()->with('success', 'Withdrawal request approved');
     }
 
     public function complete(Request $request, WithdrawalRequest $withdrawal)
     {
+        if ($withdrawal->status === 'completed') {
+            return back()->with('error', 'Withdrawal sudah diproses sebelumnya');
+        }
+
+        // Update withdrawal status
         $withdrawal->update([
             'status' => 'completed',
             'processed_at' => now(),
@@ -45,7 +60,19 @@ class WithdrawalController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
-        return back()->with('success', 'Withdrawal completed');
+        // Deduct from operator's total earnings
+        $operator = $withdrawal->user;
+        $profile = $operator->operatorProfile;
+        
+        if ($profile) {
+            // Deduct the withdrawal amount from total earnings
+            $profile->decrement('total_earnings', $withdrawal->amount);
+        }
+
+        // Notify operator
+        $this->notificationService->notifyWithdrawalCompleted($withdrawal);
+
+        return back()->with('success', 'Withdrawal completed dan balance operator telah dikurangi');
     }
 
     public function reject(Request $request, WithdrawalRequest $withdrawal)
@@ -60,6 +87,9 @@ class WithdrawalController extends Controller
             'processed_by' => auth()->id(),
             'admin_notes' => $validated['admin_notes'],
         ]);
+
+        // Notify operator
+        $this->notificationService->notifyWithdrawalRejected($withdrawal);
 
         return back()->with('success', 'Withdrawal request rejected');
     }

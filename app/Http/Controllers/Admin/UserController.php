@@ -14,6 +14,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::withCount(['orders', 'operatorOrders'])
+            ->with('operatorProfile')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

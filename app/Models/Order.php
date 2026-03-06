@@ -20,11 +20,14 @@ class Order extends Model
         'rating',
         'review',
         'revision_notes',
+        'dispute_reason',
         'start_date',
         'end_date',
         'status',
+        'payment_status',
         'used_caption_quota',
         'used_product_description_quota',
+        'earnings_added',
     ];
 
     protected $casts = [
@@ -33,6 +36,7 @@ class Order extends Model
         'deadline' => 'date',
         'budget' => 'integer',
         'completed_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function user()
@@ -78,5 +82,10 @@ class Order extends Model
     public function revisions()
     {
         return $this->hasMany(OrderRevision::class)->orderBy('revision_number', 'asc');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
     }
 }
