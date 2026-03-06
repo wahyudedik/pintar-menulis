@@ -7,11 +7,18 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\LegalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
+
+// Legal pages
+Route::get('/privacy-policy', [LegalController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/terms-of-service', [LegalController::class, 'termsOfService'])->name('terms-of-service');
+Route::get('/refund-policy', [LegalController::class, 'refundPolicy'])->name('refund-policy');
+Route::get('/contact', [LegalController::class, 'contact'])->name('contact');
 
 // Dashboard with role-based routing
 Route::get('/dashboard', [DashboardController::class, 'index'])
