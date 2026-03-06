@@ -28,6 +28,31 @@
                 </a>
             </div>
         </div>
+        
+        <!-- How It Works Info Box -->
+        <div class="mt-4 bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="flex-1">
+                    <h4 class="text-sm font-semibold text-blue-900 mb-1">📊 Cara Kerja Analytics</h4>
+                    <p class="text-sm text-blue-800 mb-2">
+                        Fitur ini menggunakan <strong>manual input</strong> dari Anda. Berikut cara kerjanya:
+                    </p>
+                    <ol class="text-sm text-blue-800 space-y-1 ml-4 list-decimal">
+                        <li>Anda generate caption di AI Generator</li>
+                        <li>Anda posting caption tersebut di sosial media (Instagram, Facebook, TikTok, dll)</li>
+                        <li>Setelah beberapa hari, lihat performa di sosmed Anda (likes, comments, shares, reach)</li>
+                        <li>Input data performa ke platform ini dengan klik <strong>"Edit Metrics"</strong></li>
+                        <li>AI kami akan belajar dari caption yang sukses untuk generate caption yang lebih baik!</li>
+                    </ol>
+                    <p class="text-sm text-blue-800 mt-2">
+                        💡 <strong>Tip:</strong> Semakin banyak data yang Anda input, semakin pintar AI dalam membuat caption yang cocok untuk bisnis Anda!
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Stats -->
@@ -163,7 +188,10 @@
     <!-- Recent Captions -->
     <div class="bg-white rounded-lg border border-gray-200">
         <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-gray-900">Recent Captions</h3>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Recent Captions</h3>
+                <p class="text-xs text-gray-500 mt-1">Klik "Edit Metrics" untuk input data performa dari sosial media Anda</p>
+            </div>
             <button onclick="showAddCaptionModal()" class="text-sm text-blue-600 hover:text-blue-700">
                 + Add Caption
             </button>
@@ -187,11 +215,17 @@
                         <td class="px-4 py-3 text-sm">
                             <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">{{ $caption->platform ?? 'N/A' }}</span>
                         </td>
-                        <td class="px-4 py-3 text-sm font-semibold text-green-600">{{ number_format($caption->engagement_rate, 1) }}%</td>
+                        <td class="px-4 py-3 text-sm">
+                            @if($caption->engagement_rate > 0)
+                                <span class="font-semibold text-green-600">{{ number_format($caption->engagement_rate, 1) }}%</span>
+                            @else
+                                <span class="text-gray-400 text-xs">Belum diinput</span>
+                            @endif
+                        </td>
                         <td class="px-4 py-3 text-sm text-gray-600">{{ $caption->posted_at ? $caption->posted_at->format('d M Y') : '-' }}</td>
                         <td class="px-4 py-3 text-sm">
-                            <button onclick="editMetrics({{ $caption->id }})" class="text-blue-600 hover:text-blue-700">
-                                Edit Metrics
+                            <button onclick="editMetrics({{ $caption->id }})" class="text-blue-600 hover:text-blue-700 font-medium">
+                                📊 Edit Metrics
                             </button>
                         </td>
                     </tr>
@@ -199,7 +233,16 @@
                 </tbody>
             </table>
             @else
-            <p class="text-gray-500 text-center py-8">Belum ada caption</p>
+            <div class="p-8 text-center">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <p class="text-gray-500 mb-2">Belum ada caption yang di-track</p>
+                <p class="text-sm text-gray-400 mb-4">Mulai generate caption di AI Generator, lalu track performanya di sini!</p>
+                <a href="{{ route('ai.generator') }}" class="inline-block px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                    🚀 Generate Caption Sekarang
+                </a>
+            </div>
             @endif
         </div>
     </div>

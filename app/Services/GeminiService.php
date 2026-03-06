@@ -38,6 +38,21 @@ class GeminiService
             $maxTokens = 8192; // double for 20 variations
         }
 
+        // Adjust temperature based on user history (more creative for frequent users)
+        $temperature = 0.7; // default
+        if (isset($params['user_id'])) {
+            $recentCount = \App\Models\CaptionHistory::where('user_id', $params['user_id'])
+                ->where('created_at', '>=', now()->subDays(7))
+                ->count();
+            
+            // Increase temperature for users who generate frequently
+            if ($recentCount > 20) {
+                $temperature = 0.9; // More creative
+            } elseif ($recentCount > 10) {
+                $temperature = 0.8; // Moderately creative
+            }
+        }
+
         try {
             $requestData = [
                 'contents' => [
@@ -48,7 +63,7 @@ class GeminiService
                     ]
                 ],
                 'generationConfig' => [
-                    'temperature' => 0.7,
+                    'temperature' => $temperature,
                     'topK' => 40,
                     'topP' => 0.95,
                     'maxOutputTokens' => $maxTokens,
@@ -201,19 +216,38 @@ class GeminiService
         $generateVariations = $params['generate_variations'] ?? false;
         $autoHashtag = $params['auto_hashtag'] ?? true;
         $localLanguage = $params['local_language'] ?? '';
+        $userId = $params['user_id'] ?? null;
         
         // Default: 5 variasi (UMKM friendly)
         // If generate_variations = true: 20 variasi (premium)
         $variationCount = $generateVariations ? 20 : 5;
 
+        // Get user's recent captions to avoid repetition
+        $recentCaptions = [];
+        $successfulCaptions = [];
+        if ($userId) {
+            // Get recent captions (last 10)
+            $recentHistory = \App\Models\CaptionHistory::getRecentCaptions($userId, 10, $category, $platform);
+            $recentCaptions = $recentHistory->pluck('caption_text')->toArray();
+            
+            // Get successful captions from analytics (for learning style, not copying)
+            $successfulAnalytics = \App\Models\CaptionAnalytics::where('user_id', $userId)
+                ->where('platform', $platform)
+                ->successful()
+                ->orderBy('engagement_rate', 'desc')
+                ->limit(5)
+                ->get();
+            $successfulCaptions = $successfulAnalytics->pluck('caption_text')->toArray();
+        }
+
         // Quick Templates - Specialized prompts
         if ($category === 'quick_templates') {
-            return $this->buildQuickTemplatePrompt($subcategory, $brief, $tone, $keywords, $platform, $variationCount, $autoHashtag, $localLanguage);
+            return $this->buildQuickTemplatePrompt($subcategory, $brief, $tone, $keywords, $platform, $variationCount, $autoHashtag, $localLanguage, $recentCaptions, $successfulCaptions);
         }
         
         // Industry Presets - UMKM Specific
         if ($category === 'industry_presets') {
-            return $this->buildIndustryPresetPrompt($subcategory, $brief, $tone, $platform, $keywords, $variationCount, $autoHashtag, $localLanguage);
+            return $this->buildIndustryPresetPrompt($subcategory, $brief, $tone, $platform, $keywords, $variationCount, $autoHashtag, $localLanguage, $recentCaptions, $successfulCaptions);
         }
 
         // AI Context Awareness: Analyze brief to understand target audience
@@ -227,6 +261,33 @@ class GeminiService
 
         // General prompt with context awareness
         $prompt = "Kamu adalah copywriter profesional yang ahli dalam membuat konten promosi untuk UMKM Indonesia.\n\n";
+        
+        // Add CRITICAL instruction to avoid repetition
+        if (!empty($recentCaptions)) {
+            $prompt .= "⚠️ PENTING - AVOID REPETITION:\n";
+            $prompt .= "User ini sudah pernah generate caption sebelumnya. JANGAN BUAT CAPTION YANG MIRIP dengan yang sudah pernah dibuat!\n";
+            $prompt .= "Caption yang HARUS DIHINDARI (jangan copy pattern, struktur, atau kata-kata yang sama):\n";
+            foreach (array_slice($recentCaptions, 0, 5) as $index => $oldCaption) {
+                $prompt .= ($index + 1) . ". " . substr($oldCaption, 0, 100) . "...\n";
+            }
+            $prompt .= "\nBuat caption yang BENAR-BENAR BERBEDA dari contoh di atas!\n";
+            $prompt .= "Gunakan:\n";
+            $prompt .= "- Hook yang berbeda (jangan mulai dengan kata/kalimat yang sama)\n";
+            $prompt .= "- Struktur kalimat yang berbeda\n";
+            $prompt .= "- Angle/sudut pandang yang berbeda\n";
+            $prompt .= "- Call-to-action yang berbeda\n";
+            $prompt .= "- Emoji yang berbeda (jangan pattern emoji yang sama)\n\n";
+        }
+        
+        // Add successful captions as style reference (not to copy!)
+        if (!empty($successfulCaptions)) {
+            $prompt .= "📊 REFERENCE - Caption yang Sukses (JANGAN COPY, tapi pelajari style-nya):\n";
+            $prompt .= "Caption-caption ini punya engagement tinggi. Pelajari STYLE dan TONE-nya, tapi JANGAN copy struktur atau kata-katanya:\n";
+            foreach (array_slice($successfulCaptions, 0, 3) as $index => $successCaption) {
+                $prompt .= ($index + 1) . ". " . substr($successCaption, 0, 100) . "...\n";
+            }
+            $prompt .= "\n";
+        }
         
         // Add audience context
         $prompt .= "CONTEXT AWARENESS:\n";
@@ -371,12 +432,33 @@ class GeminiService
     /**
      * Build industry-specific prompts for UMKM
      */
-    protected function buildIndustryPresetPrompt($industry, $brief, $tone, $platform, $keywords, $variationCount, $autoHashtag, $localLanguage)
+    protected function buildIndustryPresetPrompt($industry, $brief, $tone, $platform, $keywords, $variationCount, $autoHashtag, $localLanguage, $recentCaptions = [], $successfulCaptions = [])
     {
         $audienceContext = $this->analyzeAudience($brief);
         $adjustedTone = $this->adjustToneForPlatform($tone, $platform);
         
         $basePrompt = "Kamu adalah copywriter profesional yang SANGAT PAHAM UMKM Indonesia dan cara jualan yang efektif.\n\n";
+        
+        // Add CRITICAL instruction to avoid repetition
+        if (!empty($recentCaptions)) {
+            $basePrompt .= "⚠️ PENTING - AVOID REPETITION:\n";
+            $basePrompt .= "User ini sudah pernah generate caption sebelumnya. JANGAN BUAT CAPTION YANG MIRIP!\n";
+            $basePrompt .= "Caption yang HARUS DIHINDARI:\n";
+            foreach (array_slice($recentCaptions, 0, 5) as $index => $oldCaption) {
+                $basePrompt .= ($index + 1) . ". " . substr($oldCaption, 0, 100) . "...\n";
+            }
+            $basePrompt .= "\nBuat caption yang BENAR-BENAR BERBEDA! Gunakan hook, struktur, dan angle yang berbeda!\n\n";
+        }
+        
+        // Add successful captions as style reference
+        if (!empty($successfulCaptions)) {
+            $basePrompt .= "📊 REFERENCE - Caption Sukses (pelajari style-nya, JANGAN copy):\n";
+            foreach (array_slice($successfulCaptions, 0, 3) as $index => $successCaption) {
+                $basePrompt .= ($index + 1) . ". " . substr($successCaption, 0, 100) . "...\n";
+            }
+            $basePrompt .= "\n";
+        }
+        
         $basePrompt .= "CONTEXT:\n";
         $basePrompt .= "Target Audience: {$audienceContext['audience']}\n";
         $basePrompt .= "Pain Points: {$audienceContext['pain_points']}\n";
@@ -451,13 +533,33 @@ class GeminiService
     /**
      * Build specialized prompts for quick templates
      */
-    protected function buildQuickTemplatePrompt($subcategory, $brief, $tone, $keywords, $platform = 'instagram', $variationCount = 5, $autoHashtag = true, $localLanguage = '')
+    protected function buildQuickTemplatePrompt($subcategory, $brief, $tone, $keywords, $platform = 'instagram', $variationCount = 5, $autoHashtag = true, $localLanguage = '', $recentCaptions = [], $successfulCaptions = [])
     {
         // AI Context Awareness
         $audienceContext = $this->analyzeAudience($brief);
         $adjustedTone = $this->adjustToneForPlatform($tone, $platform);
         
         $basePrompt = "Kamu adalah copywriter profesional yang ahli dalam membuat konten viral untuk social media.\n\n";
+        
+        // Add CRITICAL instruction to avoid repetition
+        if (!empty($recentCaptions)) {
+            $basePrompt .= "⚠️ PENTING - AVOID REPETITION:\n";
+            $basePrompt .= "User ini sudah pernah generate caption sebelumnya. JANGAN BUAT CAPTION YANG MIRIP!\n";
+            $basePrompt .= "Caption yang HARUS DIHINDARI:\n";
+            foreach (array_slice($recentCaptions, 0, 5) as $index => $oldCaption) {
+                $basePrompt .= ($index + 1) . ". " . substr($oldCaption, 0, 100) . "...\n";
+            }
+            $basePrompt .= "\nBuat caption yang BENAR-BENAR BERBEDA! Gunakan hook, struktur, dan angle yang berbeda!\n\n";
+        }
+        
+        // Add successful captions as style reference
+        if (!empty($successfulCaptions)) {
+            $basePrompt .= "📊 REFERENCE - Caption Sukses (pelajari style-nya, JANGAN copy):\n";
+            foreach (array_slice($successfulCaptions, 0, 3) as $index => $successCaption) {
+                $basePrompt .= ($index + 1) . ". " . substr($successCaption, 0, 100) . "...\n";
+            }
+            $basePrompt .= "\n";
+        }
         
         // Add audience context
         $basePrompt .= "CONTEXT AWARENESS:\n";

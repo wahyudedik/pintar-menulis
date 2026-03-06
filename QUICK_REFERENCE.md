@@ -1,279 +1,313 @@
-# 🚀 Quick Reference Guide
+# Quick Reference Guide - Pintar Menulis
 
-## 🔗 Important URLs
+## 🚀 Quick Start
 
+### Local Development:
+```bash
+# Start server
+php artisan serve
+
+# Watch assets
+npm run dev
+
+# Clear cache
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
 ```
-Landing Page:    http://pintar-menulis.test
-Dashboard:       http://pintar-menulis.test/dashboard
-AI Generator:    http://pintar-menulis.test/ai-generator
-Analytics:       http://pintar-menulis.test/analytics
-Feedback:        http://pintar-menulis.test/feedback
-Payment Settings: http://pintar-menulis.test/admin/payment-settings
+
+### Production Deployment:
+```bash
+# Pull latest code
+git pull origin main
+
+# Install dependencies
+composer install --optimize-autoloader --no-dev
+npm install && npm run build
+
+# Run migrations
+php artisan migrate --force
+
+# Clear & cache
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Set permissions
+chmod -R 775 storage bootstrap/cache
 ```
 
 ---
 
-## 👤 Test Accounts
+## 🔑 Important URLs
 
-```
-Admin:    admin@smartcopy.com / password
-Client:   client@example.com / password
-Operator: operator@example.com / password
-Guru:     guru@example.com / password
-```
+### Production:
+- Website: https://noteds.com
+- Admin Panel: https://noteds.com/admin
+- API Endpoint: https://noteds.com/api
+
+### Development:
+- Local: http://localhost:8000
+- AI Generator: http://localhost:8000/ai-generator
+- Analytics: http://localhost:8000/analytics
+
+### External Services:
+- Gemini API Key: https://aistudio.google.com/app/apikey
+- WhatsApp Operator: https://wa.me/6281654932383
 
 ---
 
-## 💳 Payment Methods (Default)
+## 📧 Contact Information
 
-```
-BCA:      1234567890 (a.n. PT Smart Copy SMK)
-Mandiri:  1400012345678 (a.n. PT Smart Copy SMK)
-BNI:      0987654321 (a.n. PT Smart Copy SMK)
-```
+**All Emails**: info@noteds.com
+- Support inquiries
+- Privacy questions
+- Refund requests
+- Partnership inquiries
+- General questions
+
+**WhatsApp**: +62 816-5493-2383
+- Operator registration only
 
 ---
 
 ## 🔧 Common Commands
 
+### Artisan Commands:
 ```bash
-# Start server
-php artisan serve
+# Check Gemini models
+php artisan gemini:list-models
 
+# Test Gemini API
+php artisan gemini:test
+
+# Clear all caches
+php artisan optimize:clear
+
+# Generate app key
+php artisan key:generate
+```
+
+### Database:
+```bash
 # Run migrations
 php artisan migrate
 
-# Seed database
-php artisan db:seed
+# Rollback last migration
+php artisan migrate:rollback
 
-# Clear cache
-php artisan cache:clear
-php artisan config:clear
-
-# Check routes
-php artisan route:list
-
-# Tinker (test)
-php artisan tinker
+# Fresh database (WARNING: deletes all data)
+php artisan migrate:fresh --seed
 ```
 
----
+### Queue (if using):
+```bash
+# Run queue worker
+php artisan queue:work
 
-## 📁 Key Files
-
-```
-Controllers:
-- app/Http/Controllers/Client/AIGeneratorController.php
-- app/Http/Controllers/Client/AnalyticsController.php
-- app/Http/Controllers/FeedbackController.php
-- app/Http/Controllers/Admin/PaymentSettingController.php
-
-Models:
-- app/Models/User.php
-- app/Models/BrandVoice.php
-- app/Models/CaptionAnalytics.php
-- app/Models/Feedback.php
-- app/Models/PaymentSetting.php
-
-Services:
-- app/Services/GeminiService.php
-
-Views:
-- resources/views/client/ai-generator.blade.php
-- resources/views/client/analytics.blade.php
-- resources/views/feedback/create.blade.php
-- resources/views/admin/payment-settings.blade.php
-
-Layouts:
-- resources/views/layouts/app-layout.blade.php
-- resources/views/layouts/client.blade.php
-- resources/views/layouts/admin.blade.php
-```
-
----
-
-## 🎯 Quick Actions
-
-### Add Bank Account
-```
-1. Login as admin
-2. Go to Payment Settings
-3. Click "+ Add Bank Account"
-4. Fill form & submit
-```
-
-### Submit Feedback
-```
-1. Login as client
-2. Go to Feedback
-3. Click "Submit Feedback"
-4. Choose type & fill form
-```
-
-### Generate Caption
-```
-1. Login as client
-2. Go to AI Generator
-3. Choose Simple or Advanced mode
-4. Fill form & generate
-```
-
-### Save Analytics
-```
-1. Generate caption
-2. Click "Save for Analytics"
-3. Fill metrics
-4. View in Analytics page
+# Restart queue workers
+php artisan queue:restart
 ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### AI Generator Not Working
+### AI Generator Error 500:
+1. Check API key source (must be from AI Studio)
+2. Verify `.env` has `GEMINI_API_KEY`
+3. Run: `php artisan config:clear`
+4. Check logs: `tail -f storage/logs/laravel.log`
+
+### Analytics Not Showing Data:
+- This is normal! Users need to manually input metrics
+- Check info box on analytics page for instructions
+- Not a bug - manual input by design
+
+### Permission Errors:
 ```bash
-# Check Gemini API key
-php artisan tinker
->>> env('GEMINI_API_KEY')
-
-# Test API
-curl https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=YOUR_KEY
+# Fix storage permissions
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
 ```
 
-### Payment Settings Not Showing
+### Database Connection Error:
+1. Check `.env` database credentials
+2. Verify database exists
+3. Test connection: `php artisan tinker` then `DB::connection()->getPdo();`
+
+---
+
+## 📊 Key Database Tables
+
+### Users & Auth:
+- `users` - All users (client, operator, admin, guru)
+- `password_reset_tokens` - Password resets
+- `sessions` - User sessions
+
+### AI & Content:
+- `caption_histories` - All generated captions (for anti-repetition)
+- `caption_analytics` - Performance metrics (manual input)
+- `brand_voices` - User brand voice preferences
+
+### Orders & Payments:
+- `orders` - All orders between clients and operators
+- `order_revisions` - Revision requests
+- `payments` - Payment transactions
+- `withdrawal_requests` - Operator withdrawal requests
+
+### Platform:
+- `packages` - Service packages
+- `payment_settings` - Payment gateway settings
+- `notifications` - User notifications
+- `feedback` - User feedback
+
+### ML Training:
+- `ml_training_data` - Curated data for ML training
+- `ml_model_versions` - ML model version tracking
+
+---
+
+## 🎨 UI Components
+
+### Layouts:
+- `layouts.app` - Main app layout
+- `layouts.client` - Client dashboard layout
+- `layouts.operator` - Operator dashboard layout
+- `layouts.admin` - Admin dashboard layout
+- `layouts.guest` - Guest/auth pages layout
+
+### Common Components:
+- `components.button` - Reusable buttons
+- `components.input` - Form inputs
+- `components.modal` - Modal dialogs
+- `components.alert` - Alert messages
+
+---
+
+## 🔐 User Roles
+
+### Client (role: client):
+- Generate AI captions
+- Order from operators
+- Track analytics
+- Manage projects
+- Save brand voice
+
+### Operator (role: operator):
+- Accept orders
+- Complete orders
+- Request withdrawals
+- Manage profile
+
+### Admin (role: admin):
+- Manage all users
+- Manage packages
+- Approve withdrawals
+- View reports
+- Handle feedback
+
+### Guru (role: guru):
+- Review ML training data
+- Curate caption examples
+- Manage model versions
+
+---
+
+## 📈 Analytics Metrics
+
+### Engagement Rate Formula:
+```
+(Likes + Comments + Shares + Saves) / Reach × 100%
+```
+
+### Benchmarks:
+- < 1%: Poor
+- 1-3%: Average
+- 3-5%: Good
+- 5-10%: Very Good
+- > 10%: Excellent
+
+### Successful Caption Criteria:
+- Engagement rate > 5%
+- OR marked as successful by user
+- OR user rating >= 4 stars
+
+---
+
+## 🤖 AI Configuration
+
+### Models Available:
+- `gemini-2.0-flash-exp` (current, stable)
+- `gemini-2.5-flash` (alternative)
+
+### Temperature Settings:
+- Default: 0.7 (balanced)
+- Frequent users (10+): 0.8 (more creative)
+- Power users (20+): 0.9 (very creative)
+
+### Token Limits:
+- 5 variations: 4096 tokens
+- 20 variations: 8192 tokens
+
+---
+
+## 📱 Platform Features
+
+### AI Generator:
+- 5 variations (default) or 20 (premium)
+- Multiple categories (social media, quick templates, industry presets)
+- Platform-specific (Instagram, TikTok, Facebook, LinkedIn, Twitter)
+- Tone options (casual, formal, funny, persuasive, emotional, educational)
+- Auto hashtag generation
+- Local language support
+- Anti-repetition system
+
+### Analytics:
+- Manual input (by design)
+- Track: likes, comments, shares, saves, reach, impressions, clicks
+- Auto-calculate engagement rate
+- Charts: platform performance, category performance, engagement over time
+- Export: PDF, CSV
+- Top performing captions
+
+### Order System:
+- Client creates order request
+- Operator accepts & completes
+- Revision system
+- Escrow payment (10% platform fee)
+- Rating & review
+
+---
+
+## 🎯 Quick Fixes
+
+### Clear Everything:
 ```bash
-# Check database
-php artisan tinker
->>> App\Models\PaymentSetting::all()
-
-# Clear cache
-php artisan cache:clear
+php artisan optimize:clear
+composer dump-autoload
+npm run build
 ```
 
-### Feedback Error
+### Reset Config:
 ```bash
-# Check relationship
-php artisan tinker
->>> App\Models\User::first()->feedback
-
-# Run migration
-php artisan migrate
+php artisan config:clear
+php artisan config:cache
 ```
 
----
-
-## 📊 Database Quick Check
-
+### Fix Permissions:
 ```bash
-php artisan tinker
+chmod -R 775 storage bootstrap/cache
+```
 
-# Check users
->>> App\Models\User::count()
-
-# Check payment settings
->>> App\Models\PaymentSetting::all()
-
-# Check feedback
->>> App\Models\Feedback::count()
-
-# Check brand voices
->>> App\Models\BrandVoice::count()
-
-# Check analytics
->>> App\Models\CaptionAnalytics::count()
+### Check Health:
+```bash
+./check-production.sh
 ```
 
 ---
 
-## 🔑 Environment Variables
-
-```env
-# Required
-GEMINI_API_KEY=your_api_key_here
-
-# Optional (Midtrans)
-MIDTRANS_ENABLED=false
-MIDTRANS_ENVIRONMENT=sandbox
-MIDTRANS_MERCHANT_ID=
-MIDTRANS_CLIENT_KEY=
-MIDTRANS_SERVER_KEY=
-```
-
----
-
-## 📚 Documentation Files
-
-```
-README.md                           - Main documentation
-SETUP_COMPLETE_SUMMARY.md          - Setup summary
-PAYMENT_SETTINGS_ACTIVATED.md      - Payment activation
-PAYMENT_SETTINGS_GUIDE.md          - Payment guide
-PAYMENT_SETTINGS_QUICKSTART.md     - Payment quick start
-FEEDBACK_SYSTEM_COMPLETE.md        - Feedback docs
-BUSINESS_PLAN.md                   - Business strategy
-QUICK_REFERENCE.md                 - This file
-```
-
----
-
-## 🎨 Design System
-
-### Colors
-```
-Primary: Red (#DC2626)
-Secondary: Pink (#EC4899)
-Success: Green (#10B981)
-Warning: Yellow (#F59E0B)
-Error: Red (#EF4444)
-```
-
-### Sidebar Icons
-```
-Dashboard: 🏠
-AI Generator: ✨
-Analytics: 📊
-Feedback: 💬
-Settings: ⚙️
-Users: 👥
-Payments: 💳
-Reports: 📈
-```
-
----
-
-## ✅ Feature Status
-
-```
-✅ AI Generator (Simple & Advanced)
-✅ 12 Industry Presets
-✅ 57+ Content Templates
-✅ Bahasa UMKM & Daerah
-✅ Brand Voice Saver
-✅ Analytics Tracking
-✅ Feedback System
-✅ Payment Settings
-✅ Mobile Responsive
-✅ 4 User Roles
-```
-
----
-
-## 🚀 Deployment Checklist
-
-```
-[ ] Update .env for production
-[ ] Set APP_DEBUG=false
-[ ] Configure real database
-[ ] Update bank accounts
-[ ] Setup SSL certificate
-[ ] Configure backup
-[ ] Setup monitoring
-[ ] Test all features
-[ ] Deploy to server
-```
-
----
-
-**Last Updated**: March 5, 2026
-**Version**: 1.0.0
-**Status**: ✅ READY
+**Need Help?** 
+- Check logs: `storage/logs/laravel.log`
+- Email: info@noteds.com
+- Documentation: See `CONTEXT_TRANSFER_SUMMARY.md`

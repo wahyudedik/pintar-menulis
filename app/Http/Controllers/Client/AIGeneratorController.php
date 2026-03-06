@@ -35,7 +35,7 @@ class AIGeneratorController extends Controller
                 'local_language' => 'nullable|string',
             ]);
 
-            $result = $this->aiService->generateCopywriting([
+            $params = [
                 'category' => $validated['category'],
                 'subcategory' => $validated['subcategory'],
                 'brief' => $validated['brief'],
@@ -45,7 +45,24 @@ class AIGeneratorController extends Controller
                 'generate_variations' => $validated['generate_variations'] ?? false,
                 'auto_hashtag' => $validated['auto_hashtag'] ?? true,
                 'local_language' => $validated['local_language'] ?? '',
-            ]);
+                'user_id' => auth()->id(), // Add user_id for history tracking
+            ];
+
+            $result = $this->aiService->generateCopywriting($params);
+
+            // Record caption history for each generated caption
+            if (isset($result) && is_string($result)) {
+                // Parse result to extract individual captions
+                $captions = $this->extractCaptions($result);
+                
+                foreach ($captions as $caption) {
+                    \App\Models\CaptionHistory::recordCaption(
+                        auth()->id(),
+                        $caption,
+                        $params
+                    );
+                }
+            }
 
             return response()->json([
                 'success' => true,
@@ -73,6 +90,24 @@ class AIGeneratorController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Extract individual captions from AI result
+     */
+    private function extractCaptions(string $result): array
+    {
+        $captions = [];
+        
+        // Try to split by numbered list (1., 2., 3., etc)
+        if (preg_match_all('/\d+\.\s*(.+?)(?=\d+\.|$)/s', $result, $matches)) {
+            $captions = array_map('trim', $matches[1]);
+        } else {
+            // If no numbered list, treat whole result as one caption
+            $captions = [$result];
+        }
+        
+        return array_filter($captions); // Remove empty entries
     }
 }
 
