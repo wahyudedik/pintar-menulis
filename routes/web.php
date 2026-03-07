@@ -68,6 +68,9 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/caption-history/{history}', [\App\Http\Controllers\Client\CaptionHistoryController::class, 'destroy'])->name('caption-history.destroy');
         Route::post('/caption-history/clear-all', [\App\Http\Controllers\Client\CaptionHistoryController::class, 'clearAll'])->name('caption-history.clear-all');
         
+        // My Stats (Personal ML Insights)
+        Route::get('/my-stats', [\App\Http\Controllers\Client\CaptionRatingController::class, 'myStats'])->name('my-stats');
+        
         // Feedback & Support
         Route::get('/feedback', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
         Route::get('/feedback/create', [\App\Http\Controllers\FeedbackController::class, 'create'])->name('feedback.create');
@@ -159,6 +162,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ai-usage/{user}', [\App\Http\Controllers\Admin\AIUsageController::class, 'show'])->name('ai-usage.show');
         Route::get('/ai-usage/{user}/stats', [\App\Http\Controllers\Admin\AIUsageController::class, 'userStats'])->name('ai-usage.stats');
         
+        // ML Analytics (Machine Learning Insights)
+        Route::get('/ml-analytics', [\App\Http\Controllers\Admin\MLAnalyticsController::class, 'index'])->name('ml-analytics.index');
+        Route::get('/ml-analytics/export', [\App\Http\Controllers\Admin\MLAnalyticsController::class, 'exportTrainingData'])->name('ml-analytics.export');
+        
         // Package Management
         Route::get('/packages', [\App\Http\Controllers\Admin\PackageController::class, 'index'])->name('packages');
         Route::get('/packages/{package}/edit', [\App\Http\Controllers\Admin\PackageController::class, 'edit'])->name('packages.edit');
@@ -196,6 +203,11 @@ Route::middleware(['auth'])->group(function () {
 // API Routes
 Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::post('/ai/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generate'])->name('api.ai.generate');
+    Route::get('/check-first-time', [\App\Http\Controllers\Client\AIGeneratorController::class, 'checkFirstTime'])->name('api.check-first-time');
+    
+    // Caption Rating (Client)
+    Route::post('/caption/{id}/rate', [\App\Http\Controllers\Client\CaptionRatingController::class, 'rate'])->name('api.caption.rate');
+    
     Route::get('/notifications', function() {
         $notifications = \App\Models\Notification::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')

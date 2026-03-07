@@ -37,6 +37,16 @@
     </svg>
 </a>
 
+<!-- My Stats (ML Insights) -->
+<a href="{{ route('my-stats') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('my-stats') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="My Stats">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+    </svg>
+</a>
+
 <!-- Browse Operators -->
 <a href="{{ route('browse.operators') }}" 
    class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('browse.operators') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100' }}"

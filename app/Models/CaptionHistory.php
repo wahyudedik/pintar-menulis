@@ -14,10 +14,13 @@ class CaptionHistory extends Model
         'subcategory',
         'platform',
         'tone',
+        'local_language',
         'brief_summary',
         'hash',
         'times_generated',
         'last_generated_at',
+        'rating',
+        'feedback',
     ];
 
     protected $casts = [
@@ -100,6 +103,7 @@ class CaptionHistory extends Model
             'subcategory' => $params['subcategory'] ?? null,
             'platform' => $params['platform'] ?? null,
             'tone' => $params['tone'] ?? null,
+            'local_language' => $params['local_language'] ?? null,
             'brief_summary' => isset($params['brief']) ? substr($params['brief'], 0, 200) : null,
             'hash' => $hash,
             'last_generated_at' => now(),

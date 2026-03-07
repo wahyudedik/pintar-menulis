@@ -217,10 +217,37 @@ class GeminiService
         $autoHashtag = $params['auto_hashtag'] ?? true;
         $localLanguage = $params['local_language'] ?? '';
         $userId = $params['user_id'] ?? null;
+        $mode = $params['mode'] ?? 'simple'; // simple or advanced
         
-        // Default: 5 variasi (UMKM friendly)
-        // If generate_variations = true: 20 variasi (premium)
-        $variationCount = $generateVariations ? 20 : 5;
+        // SMART VARIATION LOGIC v2.0:
+        // 
+        // SIMPLE MODE (Pemula/UMKM):
+        // - First time: 5 caption GRATIS (wow factor!)
+        // - Returning: 1 caption (hemat & simple)
+        // 
+        // ADVANCED MODE (Pro/Agency):
+        // - User pilih: 5, 10, 15, atau 20 caption
+        // - Bayar sesuai pilihan
+        // - Default (no checkbox): 1 caption
+        
+        $isFirstTime = false;
+        if ($userId) {
+            $historyCount = \App\Models\CaptionHistory::where('user_id', $userId)->count();
+            $isFirstTime = ($historyCount === 0);
+        }
+        
+        // Determine variation count
+        if ($mode === 'simple') {
+            // Simple Mode: First time 5, then 1
+            $variationCount = $isFirstTime ? 5 : 1;
+        } else {
+            // Advanced Mode: User choice (5, 10, 15, 20) or default 1
+            if ($generateVariations && isset($params['variation_count'])) {
+                $variationCount = (int) $params['variation_count']; // 5, 10, 15, or 20
+            } else {
+                $variationCount = 1; // Default: 1 caption
+            }
+        }
 
         // Get user's recent captions to avoid repetition
         $recentCaptions = [];
@@ -302,21 +329,34 @@ class GeminiService
             $prompt .= "Keywords yang harus dimasukkan: {$keywords}\n\n";
         }
         
-        // Add variations instruction - ALWAYS generate variations (5 or 20)
-        $prompt .= "PENTING: Generate {$variationCount} variasi caption yang berbeda-beda!\n";
-        $prompt .= "Format: Nomor urut, lalu caption. Contoh:\n";
-        $prompt .= "1. [caption pertama]\n";
-        $prompt .= "2. [caption kedua]\n";
-        $prompt .= "... dst sampai {$variationCount} variasi\n\n";
+        // Add variations instruction - SMART LOGIC
+        if ($variationCount > 1) {
+            // Multiple variations (5 or 20)
+            $prompt .= "PENTING: Generate {$variationCount} variasi caption yang berbeda-beda!\n";
+            $prompt .= "Format: Nomor urut, lalu caption. Contoh:\n";
+            $prompt .= "1. [caption pertama]\n";
+            $prompt .= "2. [caption kedua]\n";
+            $prompt .= "... dst sampai {$variationCount} variasi\n\n";
+        } else {
+            // Single best caption (returning user)
+            $prompt .= "PENTING: Generate 1 caption TERBAIK yang paling efektif!\n";
+            $prompt .= "Fokus pada kualitas, bukan kuantitas. Buat caption yang:\n";
+            $prompt .= "- Hook paling menarik\n";
+            $prompt .= "- Paling sesuai dengan target audience\n";
+            $prompt .= "- Paling likely untuk convert\n";
+            $prompt .= "Format: Langsung caption tanpa nomor.\n\n";
+        }
         
         // Add hashtag instruction
         if ($autoHashtag) {
             $prompt .= "HASHTAG: Sertakan hashtag trending Indonesia yang relevan di akhir setiap caption.\n\n";
         }
         
-        // Add local language instruction
+        // Add local language instruction with specific examples
         if ($localLanguage) {
-            $prompt .= "BAHASA DAERAH: Tambahkan sentuhan bahasa {$localLanguage} yang natural (jangan berlebihan, cukup 1-2 kata/frasa untuk relate dengan audience lokal).\n\n";
+            $localLanguageGuide = $this->getLocalLanguageGuide($localLanguage);
+            $prompt .= "BAHASA DAERAH ({$localLanguage}):\n";
+            $prompt .= $localLanguageGuide . "\n\n";
         }
         
         // Add UMKM-friendly language instruction
@@ -758,5 +798,90 @@ class GeminiService
             'total_trainings' => 0,
             'last_trained' => null
         ];
+    }
+    
+    /**
+     * Get local language guide with specific examples
+     */
+    protected function getLocalLanguageGuide($language)
+    {
+        $guides = [
+            'jawa' => "Gunakan bahasa Jawa yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Jawa!\n" .
+                     "Contoh kata yang HARUS dipakai:\n" .
+                     "- 'Monggo' (silakan/ayo) - contoh: 'Monggo langsung order!'\n" .
+                     "- 'Murah meriah' atau 'Murah pol' (sangat murah)\n" .
+                     "- 'Enak tenan' (enak sekali)\n" .
+                     "- 'Apik' (bagus/cantik)\n" .
+                     "- 'Mantul' atau 'Mantap jiwa'\n" .
+                     "- 'Ojo nganti' (jangan sampai) - contoh: 'Ojo nganti kehabisan!'\n" .
+                     "- 'Lho kok' (ekspresi heran)\n" .
+                     "- 'Piye' (bagaimana)\n" .
+                     "- 'Rek' (teman/bro) - contoh: 'Rek, murah banget iki!'\n\n" .
+                     "CONTOH CAPTION YANG BENAR:\n" .
+                     "'Monggo Kak! Produk apik, harga murah pol! Enak tenan kualitasnya. Ojo nganti kehabisan ya! 🔥'\n\n" .
+                     "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Jawa!",
+            
+            'sunda' => "Gunakan bahasa Sunda yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Sunda!\n" .
+                      "Contoh kata yang HARUS dipakai:\n" .
+                      "- 'Mangga' (silakan/ayo) - contoh: 'Mangga langsung order!'\n" .
+                      "- 'Murah pisan' (murah sekali)\n" .
+                      "- 'Nuhun' (terima kasih)\n" .
+                      "- 'Alus' (bagus/halus)\n" .
+                      "- 'Saé' (bagus)\n" .
+                      "- 'Teu meunang' (jangan sampai) - contoh: 'Teu meunang telat!'\n" .
+                      "- 'Kumaha' (bagaimana)\n" .
+                      "- 'Atuh' (dong/lah) - contoh: 'Order atuh!'\n" .
+                      "- 'Euy' (ekspresi)\n\n" .
+                      "CONTOH CAPTION YANG BENAR:\n" .
+                      "'Mangga Kak! Produk saé pisan, murah pisan! Teu meunang telat order atuh! 🔥'\n\n" .
+                      "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Sunda!",
+            
+            'betawi' => "Gunakan bahasa Betawi yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Betawi!\n" .
+                       "Contoh kata yang HARUS dipakai:\n" .
+                       "- 'Aye/Gue' (saya)\n" .
+                       "- 'Elu/Lu' (kamu)\n" .
+                       "- 'Kagak/Kaga' (tidak)\n" .
+                       "- 'Nih ye' (nih)\n" .
+                       "- 'Mana tau' (mana tahu)\n" .
+                       "- 'Kece badai' (keren sekali)\n" .
+                       "- 'Mantep jiwa' (mantap)\n" .
+                       "- 'Jangan sampe' (jangan sampai)\n" .
+                       "- 'Bro/Bray' (bro)\n\n" .
+                       "CONTOH CAPTION YANG BENAR:\n" .
+                       "'Bro, nih ye produk kece badai! Harga kagak mahal, kualitas mantep jiwa! Jangan sampe kehabisan! 🔥'\n\n" .
+                       "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Betawi!",
+            
+            'minang' => "Gunakan bahasa Minang yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Minang!\n" .
+                       "Contoh kata yang HARUS dipakai:\n" .
+                       "- 'Lah' (sudah) - contoh: 'Lah murah bana!'\n" .
+                       "- 'Bana' (benar/sekali) - contoh: 'Murah bana!'\n" .
+                       "- 'Ndak' (tidak)\n" .
+                       "- 'Alun' (belum)\n" .
+                       "- 'Beko' (nanti)\n" .
+                       "- 'Ciek' (satu)\n" .
+                       "- 'Rancak' (bagus/cantik)\n" .
+                       "- 'Lamak' (enak)\n" .
+                       "- 'Uni/Uda' (kakak)\n\n" .
+                       "CONTOH CAPTION YANG BENAR:\n" .
+                       "'Uni, lah murah bana produk rancak ko! Kualitas lamak, harga ndak mahal! Order ciek dulu! 🔥'\n\n" .
+                       "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Minang!",
+            
+            'batak' => "Gunakan bahasa Batak yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Batak!\n" .
+                      "Contoh kata yang HARUS dipakai:\n" .
+                      "- 'Horas' (salam/sehat) - contoh: 'Horas Lae!'\n" .
+                      "- 'Lae/Ito' (bro/saudara laki-laki)\n" .
+                      "- 'Eda' (jangan) - contoh: 'Eda telat!'\n" .
+                      "- 'Sai' (sangat) - contoh: 'Murah sai!'\n" .
+                      "- 'Tung mansai' (sangat bagus/mantap)\n" .
+                      "- 'Hatop' (bagus/keren)\n" .
+                      "- 'Boasa' (bagaimana)\n" .
+                      "- 'Nunga' (sudah)\n" .
+                      "- 'Dang' (belum)\n\n" .
+                      "CONTOH CAPTION YANG BENAR:\n" .
+                      "'Horas Lae! Produk hatop, harga murah sai! Kualitas tung mansai! Eda telat order! 🔥'\n\n" .
+                      "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Batak seperti 'Horas', 'Lae', 'tung mansai', 'hatop', 'sai', 'eda'!",
+        ];
+        
+        return $guides[$language] ?? "Tambahkan 1-2 kata/frasa bahasa {$language} yang natural untuk relate dengan audience lokal.";
     }
 }

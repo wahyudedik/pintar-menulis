@@ -9,7 +9,7 @@
 @endpush
 
 @section('content')
-<div class="p-6" x-data="aiGenerator()">
+<div class="p-6" x-data="aiGenerator()" x-init="init()">
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">AI Copywriting Generator</h1>
         <p class="text-sm text-gray-500 mt-1">Generate copywriting berkualitas dengan AI</p>
@@ -181,7 +181,16 @@
                             Sedang Bikin...
                         </span>
                     </button>
-                    <p class="text-xs text-gray-500 text-center mt-2">Gratis 5 variasi caption + hashtag otomatis!</p>
+                    <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <p class="text-xs text-green-800 text-center" x-show="isFirstTimeUser">
+                            <strong>🎉 Generate pertama: 5 variasi GRATIS!</strong><br>
+                            Generate berikutnya: 1 caption terbaik (hemat & efisien)
+                        </p>
+                        <p class="text-xs text-green-800 text-center" x-show="!isFirstTimeUser" x-cloak>
+                            <strong>✨ Generate 1 caption terbaik</strong><br>
+                            Hemat waktu, langsung pakai! (GRATIS)
+                        </p>
+                    </div>
                 </form>
 
                 <!-- ADVANCED MODE -->
@@ -298,14 +307,56 @@
                     </div>
 
                     <!-- Generate Multiple Variations -->
-                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <label class="flex items-center cursor-pointer">
-                            <input type="checkbox" x-model="form.generate_variations" class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            <span class="ml-3">
-                                <span class="text-sm font-medium text-gray-900">🔥 Generate 20 Variasi (Premium)</span>
-                                <span class="block text-xs text-gray-600 mt-1">Default: 5 variasi gratis. Centang ini untuk dapat 20 variasi sekaligus!</span>
-                            </span>
-                        </label>
+                    <div class="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                        <div class="mb-3">
+                            <label class="flex items-center cursor-pointer mb-2">
+                                <input type="checkbox" x-model="form.generate_variations" class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-3">
+                                    <span class="text-sm font-medium text-gray-900">🔥 Generate Multiple Captions (Premium)</span>
+                                    <span class="block text-xs text-gray-600 mt-1">
+                                        Default: 1 caption terbaik (GRATIS)<br>
+                                        Centang untuk pilih jumlah caption (berbayar)
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <!-- Variation Count Options (shown when checkbox is checked) -->
+                        <div x-show="form.generate_variations" x-cloak class="mt-3 pl-8 space-y-2">
+                            <p class="text-xs font-semibold text-gray-700 mb-2">Pilih Jumlah Caption:</p>
+                            
+                            <label class="flex items-center cursor-pointer p-2 rounded hover:bg-white transition">
+                                <input type="radio" x-model="form.variation_count" value="5" name="variation_count" class="w-4 h-4 text-blue-600">
+                                <span class="ml-3 flex-1">
+                                    <span class="text-sm font-medium text-gray-900">5 Captions</span>
+                                    <span class="block text-xs text-gray-600">Rp 5,000 - Perfect untuk pilihan cepat</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center cursor-pointer p-2 rounded hover:bg-white transition">
+                                <input type="radio" x-model="form.variation_count" value="10" name="variation_count" class="w-4 h-4 text-blue-600">
+                                <span class="ml-3 flex-1">
+                                    <span class="text-sm font-medium text-gray-900">10 Captions</span>
+                                    <span class="block text-xs text-gray-600">Rp 9,000 - Hemat 10% untuk lebih banyak pilihan</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center cursor-pointer p-2 rounded hover:bg-white transition">
+                                <input type="radio" x-model="form.variation_count" value="15" name="variation_count" class="w-4 h-4 text-blue-600">
+                                <span class="ml-3 flex-1">
+                                    <span class="text-sm font-medium text-gray-900">15 Captions</span>
+                                    <span class="block text-xs text-gray-600">Rp 12,000 - Hemat 20% untuk A/B testing</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center cursor-pointer p-2 rounded hover:bg-white transition">
+                                <input type="radio" x-model="form.variation_count" value="20" name="variation_count" class="w-4 h-4 text-blue-600">
+                                <span class="ml-3 flex-1">
+                                    <span class="text-sm font-medium text-gray-900">20 Captions</span>
+                                    <span class="block text-xs text-gray-600">Rp 15,000 - Hemat 25% untuk campaign besar</span>
+                                </span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Auto Hashtag Generator -->
@@ -375,6 +426,39 @@
                 <div x-show="result && !loading" x-cloak>
                     <div class="bg-gray-50 rounded-lg p-4 mb-4 max-h-96 overflow-y-auto">
                         <pre class="whitespace-pre-wrap text-sm text-gray-800" x-text="result"></pre>
+                    </div>
+                    
+                    <!-- Rating Section -->
+                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200" x-show="!rated">
+                        <p class="text-sm font-medium text-gray-900 mb-2">⭐ Bagaimana hasilnya?</p>
+                        <p class="text-xs text-gray-600 mb-3">Rating Anda membantu AI belajar dan improve!</p>
+                        <div class="flex items-center justify-center space-x-2 mb-3">
+                            <template x-for="star in 5" :key="star">
+                                <button @click="selectedRating = star" 
+                                        class="text-3xl transition-transform hover:scale-110"
+                                        :style="star <= selectedRating ? 'filter: grayscale(0%);' : 'filter: grayscale(100%) brightness(1.5);'">
+                                    ⭐
+                                </button>
+                            </template>
+                        </div>
+                        <div x-show="selectedRating > 0" x-cloak>
+                            <textarea x-model="ratingFeedback" 
+                                      placeholder="Feedback (optional): Apa yang bisa diperbaiki?"
+                                      rows="2"
+                                      class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2"></textarea>
+                            <button @click="submitRating"
+                                    :disabled="submittingRating"
+                                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-sm disabled:bg-gray-400">
+                                <span x-show="!submittingRating">Submit Rating</span>
+                                <span x-show="submittingRating">Submitting...</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div x-show="rated" x-cloak class="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <p class="text-sm text-green-800 text-center">
+                            ✓ Terima kasih atas rating Anda! 🙏
+                        </p>
                     </div>
                     
                     <div class="space-y-2">
@@ -453,6 +537,12 @@
     function aiGenerator() {
         return {
             mode: 'simple', // default simple mode
+            isFirstTimeUser: true, // will be checked on init
+            selectedRating: 0,
+            ratingFeedback: '',
+            rated: false,
+            submittingRating: false,
+            lastCaptionId: null,
             form: {
                 category: '',
                 subcategory: '',
@@ -461,6 +551,7 @@
                 tone: 'casual',
                 keywords: '',
                 generate_variations: false,
+                variation_count: 5, // default 5 when checkbox is checked
                 auto_hashtag: true,
                 local_language: ''
             },
@@ -484,6 +575,32 @@
                 name: '',
                 brand_description: '',
                 is_default: false
+            },
+            
+            // Initialize - check if user is first time
+            async init() {
+                await this.checkFirstTimeStatus();
+            },
+            
+            async checkFirstTimeStatus() {
+                try {
+                    const response = await fetch('/api/check-first-time', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.isFirstTimeUser = data.is_first_time || false;
+                    }
+                } catch (error) {
+                    console.error('Check first time error:', error);
+                    // Default to true if error
+                    this.isFirstTimeUser = true;
+                }
             },
             
             subcategoryOptions: {
@@ -650,13 +767,19 @@
                 try {
                     console.log('Sending request with data:', this.form);
                     
+                    // Add mode to request
+                    const requestData = {
+                        ...this.form,
+                        mode: this.mode // simple or advanced
+                    };
+                    
                     const response = await fetch('/api/ai/generate', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         },
-                        body: JSON.stringify(this.form)
+                        body: JSON.stringify(requestData)
                     });
                     
                     console.log('Response status:', response.status);
@@ -675,7 +798,18 @@
                     
                     if (data.success) {
                         this.result = data.result;
+                        this.lastCaptionId = data.caption_id || null; // Store caption ID for rating
                         console.log('Success! Result:', this.result);
+                        
+                        // Update first-time status after successful generation
+                        if (this.isFirstTimeUser) {
+                            this.isFirstTimeUser = false;
+                        }
+                        
+                        // Reset rating state for new caption
+                        this.rated = false;
+                        this.selectedRating = 0;
+                        this.ratingFeedback = '';
                     } else {
                         const errorMessage = data.message || 'Terjadi kesalahan saat generate konten';
                         console.error('API returned error:', errorMessage);
@@ -789,6 +923,54 @@
                 this.result = '';
                 this.form.brief = '';
                 this.saved = false;
+                this.rated = false;
+                this.selectedRating = 0;
+                this.ratingFeedback = '';
+                this.lastCaptionId = null;
+            },
+            
+            async submitRating() {
+                if (this.selectedRating === 0) {
+                    alert('Pilih rating terlebih dahulu');
+                    return;
+                }
+                
+                if (!this.lastCaptionId) {
+                    alert('Caption ID tidak ditemukan. Generate ulang caption.');
+                    return;
+                }
+                
+                this.submittingRating = true;
+                
+                try {
+                    const response = await fetch(`/api/caption/${this.lastCaptionId}/rate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            rating: this.selectedRating,
+                            feedback: this.ratingFeedback || null
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.rated = true;
+                        setTimeout(() => {
+                            // Optional: Show success message
+                        }, 100);
+                    } else {
+                        alert('Failed to submit rating: ' + (data.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Rating error:', error);
+                    alert('Failed to submit rating');
+                } finally {
+                    this.submittingRating = false;
+                }
             },
             
             async saveForAnalytics() {

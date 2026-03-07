@@ -20,6 +20,21 @@ class AIGeneratorController extends Controller
         return view('client.ai-generator');
     }
 
+    /**
+     * Check if user is first-time (has no caption history)
+     */
+    public function checkFirstTime()
+    {
+        $userId = auth()->id();
+        $historyCount = \App\Models\CaptionHistory::where('user_id', $userId)->count();
+
+        return response()->json([
+            'success' => true,
+            'is_first_time' => ($historyCount === 0)
+        ]);
+    }
+
+
     public function generate(Request $request)
     {
         try {
@@ -31,8 +46,10 @@ class AIGeneratorController extends Controller
                 'tone' => 'required|string',
                 'keywords' => 'nullable|string',
                 'generate_variations' => 'nullable|boolean',
+                'variation_count' => 'nullable|integer|in:5,10,15,20',
                 'auto_hashtag' => 'nullable|boolean',
                 'local_language' => 'nullable|string',
+                'mode' => 'nullable|string|in:simple,advanced',
             ]);
 
             $params = [
@@ -43,30 +60,36 @@ class AIGeneratorController extends Controller
                 'platform' => $validated['platform'] ?? 'instagram',
                 'keywords' => $validated['keywords'] ?? '',
                 'generate_variations' => $validated['generate_variations'] ?? false,
+                'variation_count' => $validated['variation_count'] ?? 5,
                 'auto_hashtag' => $validated['auto_hashtag'] ?? true,
                 'local_language' => $validated['local_language'] ?? '',
+                'mode' => $validated['mode'] ?? 'simple',
                 'user_id' => auth()->id(), // Add user_id for history tracking
             ];
 
             $result = $this->aiService->generateCopywriting($params);
 
             // Record caption history for each generated caption
+            $lastCaptionId = null;
             if (isset($result) && is_string($result)) {
                 // Parse result to extract individual captions
                 $captions = $this->extractCaptions($result);
                 
                 foreach ($captions as $caption) {
-                    \App\Models\CaptionHistory::recordCaption(
+                    $history = \App\Models\CaptionHistory::recordCaption(
                         auth()->id(),
                         $caption,
                         $params
                     );
+                    // Store the last caption ID for rating
+                    $lastCaptionId = $history->id;
                 }
             }
 
             return response()->json([
                 'success' => true,
-                'result' => $result
+                'result' => $result,
+                'caption_id' => $lastCaptionId // Return caption ID for rating
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
