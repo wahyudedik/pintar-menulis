@@ -55,6 +55,15 @@
     </svg>
 </a>
 
+<!-- AI Usage Analytics -->
+<a href="{{ route('admin.ai-usage.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.ai-usage.*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="AI Usage">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+    </svg>
+</a>
+
 <!-- Settings -->
 <a href="{{ route('admin.payment-settings') }}" 
    class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.payment-settings*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"

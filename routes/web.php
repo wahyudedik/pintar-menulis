@@ -62,6 +62,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/brand-voices', [\App\Http\Controllers\Client\BrandVoiceController::class, 'store'])->name('brand-voices.store');
         Route::delete('/brand-voices/{brandVoice}', [\App\Http\Controllers\Client\BrandVoiceController::class, 'destroy'])->name('brand-voices.destroy');
         
+        // Caption History (for ML)
+        Route::get('/caption-history', [\App\Http\Controllers\Client\CaptionHistoryController::class, 'index'])->name('caption-history.index');
+        Route::get('/caption-history/{history}', [\App\Http\Controllers\Client\CaptionHistoryController::class, 'show'])->name('caption-history.show');
+        Route::delete('/caption-history/{history}', [\App\Http\Controllers\Client\CaptionHistoryController::class, 'destroy'])->name('caption-history.destroy');
+        Route::post('/caption-history/clear-all', [\App\Http\Controllers\Client\CaptionHistoryController::class, 'clearAll'])->name('caption-history.clear-all');
+        
         // Feedback & Support
         Route::get('/feedback', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
         Route::get('/feedback/create', [\App\Http\Controllers\FeedbackController::class, 'create'])->name('feedback.create');
@@ -147,6 +153,11 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
         Route::post('/users/{user}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verifyOperator'])->name('users.verify');
         Route::post('/users/{user}/unverify', [\App\Http\Controllers\Admin\UserController::class, 'unverifyOperator'])->name('users.unverify');
+        
+        // AI Usage Analytics
+        Route::get('/ai-usage', [\App\Http\Controllers\Admin\AIUsageController::class, 'index'])->name('ai-usage.index');
+        Route::get('/ai-usage/{user}', [\App\Http\Controllers\Admin\AIUsageController::class, 'show'])->name('ai-usage.show');
+        Route::get('/ai-usage/{user}/stats', [\App\Http\Controllers\Admin\AIUsageController::class, 'userStats'])->name('ai-usage.stats');
         
         // Package Management
         Route::get('/packages', [\App\Http\Controllers\Admin\PackageController::class, 'index'])->name('packages');
