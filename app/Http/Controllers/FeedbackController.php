@@ -53,10 +53,54 @@ class FeedbackController extends Controller
             default => 'medium',
         };
 
-        Feedback::create($validated);
+        $feedback = Feedback::create($validated);
+
+        // Create notification for all admins
+        $this->notifyAdmins($feedback);
 
         return redirect()->route('feedback.index')
             ->with('success', 'Terima kasih! Feedback Anda telah dikirim dan akan segera kami review.');
+    }
+
+    /**
+     * Notify all admins about new feedback
+     */
+    private function notifyAdmins(Feedback $feedback)
+    {
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        
+        $typeLabel = match($feedback->type) {
+            'bug' => 'Bug Report',
+            'feature' => 'Feature Request',
+            'improvement' => 'Improvement',
+            'question' => 'Question',
+            default => $feedback->type,
+        };
+        
+        $priorityEmoji = match($feedback->priority) {
+            'critical' => '🔴',
+            'high' => '🟠',
+            'medium' => '🟡',
+            'low' => '⚪',
+            default => '⚪',
+        };
+
+        foreach ($admins as $admin) {
+            \App\Models\Notification::create([
+                'user_id' => $admin->id,
+                'type' => \App\Models\Notification::TYPE_FEEDBACK_NEW,
+                'title' => $priorityEmoji . ' Feedback Baru: ' . $typeLabel,
+                'message' => 'User ' . $feedback->user->name . ' mengirim feedback: ' . $feedback->title,
+                'data' => [
+                    'feedback_id' => $feedback->id,
+                    'feedback_type' => $feedback->type,
+                    'priority' => $feedback->priority,
+                    'user_name' => $feedback->user->name,
+                ],
+                'action_url' => route('admin.feedback.show', $feedback->id),
+                'is_read' => false,
+            ]);
+        }
     }
 
     /**

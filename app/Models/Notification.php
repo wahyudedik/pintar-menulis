@@ -46,4 +46,6 @@ class Notification extends Model
     const TYPE_WITHDRAWAL_APPROVED = 'withdrawal_approved';
     const TYPE_WITHDRAWAL_REJECTED = 'withdrawal_rejected';
     const TYPE_WITHDRAWAL_COMPLETED = 'withdrawal_completed';
+    const TYPE_FEEDBACK_NEW = 'feedback_new';
+    const TYPE_FEEDBACK_RESPONSE = 'feedback_response';
 }

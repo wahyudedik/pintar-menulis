@@ -64,14 +64,47 @@ class FeedbackController extends Controller
             'admin_response' => 'nullable|string',
         ]);
 
+        $oldStatus = $feedback->status;
+        $hasNewResponse = $request->filled('admin_response') && $feedback->admin_response !== $request->admin_response;
+
         if ($request->filled('admin_response')) {
             $validated['responded_at'] = now();
         }
 
         $feedback->update($validated);
 
+        // Send notification to user if admin responded or status changed to resolved
+        if ($hasNewResponse || ($oldStatus !== 'resolved' && $validated['status'] === 'resolved')) {
+            $this->notifyUser($feedback, $hasNewResponse);
+        }
+
         return redirect()->back()
             ->with('success', 'Feedback berhasil diupdate');
+    }
+
+    /**
+     * Notify user about admin response
+     */
+    private function notifyUser(Feedback $feedback, bool $hasResponse)
+    {
+        $title = $hasResponse ? '💬 Admin Merespons Feedback Anda' : '✅ Feedback Anda Telah Diselesaikan';
+        $message = $hasResponse 
+            ? 'Admin telah merespons feedback Anda: ' . $feedback->title
+            : 'Feedback Anda "' . $feedback->title . '" telah diselesaikan';
+
+        \App\Models\Notification::create([
+            'user_id' => $feedback->user_id,
+            'type' => \App\Models\Notification::TYPE_FEEDBACK_RESPONSE,
+            'title' => $title,
+            'message' => $message,
+            'data' => [
+                'feedback_id' => $feedback->id,
+                'feedback_type' => $feedback->type,
+                'status' => $feedback->status,
+            ],
+            'action_url' => route('feedback.show', $feedback->id),
+            'is_read' => false,
+        ]);
     }
 
     /**
