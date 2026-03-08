@@ -213,11 +213,23 @@
                                 <option value="website_landing">Website & Landing Page</option>
                                 <option value="ads">Iklan (Ads)</option>
                                 <option value="social_media">Social Media Content</option>
-                                <option value="marketplace">Marketplace</option>
+                                <option value="marketplace">Marketplace / Toko Online</option>
                                 <option value="email_whatsapp">Email & WhatsApp Marketing</option>
                                 <option value="proposal_company">Proposal & Company Profile</option>
                                 <option value="personal_branding">Personal Branding</option>
                                 <option value="ux_writing">UX Writing</option>
+                            </optgroup>
+                            <optgroup label="💰 Monetisasi & Penghasilan">
+                                <option value="video_monetization">Video Monetization (TikTok, YouTube, dll)</option>
+                                <option value="photo_monetization">Photo/Image Monetization (Stock Photo)</option>
+                                <option value="print_on_demand">Print on Demand</option>
+                                <option value="freelance">Freelance (Lokal & Global)</option>
+                                <option value="digital_products">Produk Digital</option>
+                                <option value="ebook_publishing">eBook & Publishing</option>
+                                <option value="academic_writing">Jurnal & Paper Akademik</option>
+                                <option value="writing_monetization">Monetisasi Tulisan (Medium, Substack)</option>
+                                <option value="affiliate_marketing">Affiliate Marketing</option>
+                                <option value="blog_seo">Blog & SEO Content</option>
                             </optgroup>
                         </select>
                     </div>
@@ -238,15 +250,39 @@
                     </div>
 
                     <!-- Platform -->
-                    <div class="mb-4" x-show="form.category === 'social_media' || form.category === 'ads'" x-cloak>
+                    <div class="mb-4" x-show="form.category === 'social_media' || form.category === 'ads' || form.category === 'video_monetization' || form.category === 'marketplace'" x-cloak>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
                         <select x-model="form.platform"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="instagram">Instagram</option>
-                            <option value="facebook">Facebook</option>
-                            <option value="tiktok">TikTok</option>
-                            <option value="linkedin">LinkedIn</option>
-                            <option value="twitter">Twitter/X</option>
+                            <optgroup label="Social Media">
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="twitter">Twitter/X</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="youtube_shorts">YouTube Shorts</option>
+                            </optgroup>
+                            <optgroup label="Marketplace Indonesia">
+                                <option value="shopee">Shopee</option>
+                                <option value="tokopedia">Tokopedia</option>
+                                <option value="bukalapak">Bukalapak</option>
+                                <option value="lazada">Lazada</option>
+                                <option value="blibli">Blibli</option>
+                                <option value="tiktok_shop">TikTok Shop</option>
+                                <option value="olx">OLX</option>
+                                <option value="facebook_marketplace">Facebook Marketplace</option>
+                                <option value="carousell">Carousell</option>
+                            </optgroup>
+                            <optgroup label="Marketplace Global">
+                                <option value="amazon">Amazon</option>
+                                <option value="ebay">eBay</option>
+                                <option value="etsy">Etsy</option>
+                                <option value="alibaba">Alibaba</option>
+                                <option value="aliexpress">AliExpress</option>
+                                <option value="shopify">Shopify</option>
+                                <option value="walmart">Walmart</option>
+                            </optgroup>
                         </select>
                     </div>
 
@@ -608,6 +644,8 @@
                     {value: 'caption_instagram', label: '📸 Caption Instagram'},
                     {value: 'caption_facebook', label: '👥 Caption Facebook'},
                     {value: 'caption_tiktok', label: '🎵 Caption TikTok'},
+                    {value: 'caption_youtube', label: '📺 Caption YouTube'},
+                    {value: 'caption_linkedin', label: '💼 Caption LinkedIn'},
                     {value: 'hook_opening', label: '🎣 Hook Pembuka (3 detik)'},
                     {value: 'hook_video', label: '🎬 Hook Video Ads'},
                     {value: 'quotes_motivasi', label: '💪 Quotes Motivasi'},
@@ -651,6 +689,11 @@
                 ],
                 social_media: [
                     {value: 'instagram_caption', label: 'Caption Instagram'},
+                    {value: 'instagram_reels', label: 'Script Instagram Reels'},
+                    {value: 'facebook_post', label: 'Facebook Post'},
+                    {value: 'tiktok_caption', label: 'Caption TikTok'},
+                    {value: 'youtube_description', label: 'Deskripsi YouTube'},
+                    {value: 'linkedin_post', label: 'LinkedIn Post'},
                     {value: 'thread_edukasi', label: 'Thread Edukasi'},
                     {value: 'storytelling', label: 'Konten Storytelling'},
                     {value: 'soft_selling', label: 'Soft Selling'},
@@ -663,7 +706,123 @@
                     {value: 'product_description', label: 'Deskripsi Produk'},
                     {value: 'bullet_benefits', label: 'Bullet Benefit'},
                     {value: 'faq', label: 'FAQ Produk'},
-                    {value: 'auto_reply', label: 'Auto-Reply Chat'}
+                    {value: 'auto_reply', label: 'Auto-Reply Chat'},
+                    {value: 'promo_banner', label: 'Banner Promo'},
+                    {value: 'flash_sale', label: 'Flash Sale Copy'}
+                ],
+                video_monetization: [
+                    {value: 'tiktok_viral', label: '🎵 TikTok - Konten Viral'},
+                    {value: 'youtube_long', label: '📺 YouTube - Video Panjang'},
+                    {value: 'youtube_shorts', label: '🎬 YouTube Shorts'},
+                    {value: 'facebook_video', label: '👥 Facebook Video'},
+                    {value: 'snack_video', label: '🍿 Snack Video'},
+                    {value: 'likee', label: '❤️ Likee'},
+                    {value: 'kwai', label: '🎥 Kwai'},
+                    {value: 'bigo_live', label: '📹 Bigo Live'},
+                    {value: 'nimo_tv', label: '🎮 Nimo TV'}
+                ],
+                photo_monetization: [
+                    {value: 'shutterstock', label: '📷 Shutterstock - Deskripsi Foto'},
+                    {value: 'adobe_stock', label: '🎨 Adobe Stock - Keywords'},
+                    {value: 'getty_images', label: '🖼️ Getty Images - Caption'},
+                    {value: 'istock', label: '📸 iStock - Metadata'},
+                    {value: 'freepik', label: '🎭 Freepik - Tags'},
+                    {value: 'vecteezy', label: '🎨 Vecteezy - Description'}
+                ],
+                print_on_demand: [
+                    {value: 'redbubble', label: '🎨 Redbubble - Product Title'},
+                    {value: 'teespring', label: '👕 Teespring - Description'},
+                    {value: 'spreadshirt', label: '👔 Spreadshirt - Tags'},
+                    {value: 'zazzle', label: '🎁 Zazzle - Product Copy'},
+                    {value: 'society6', label: '🖼️ Society6 - Bio'}
+                ],
+                freelance: [
+                    {value: 'upwork_proposal', label: '💼 Upwork - Proposal'},
+                    {value: 'fiverr_gig', label: '🎯 Fiverr - Gig Description'},
+                    {value: 'freelancer_bid', label: '📝 Freelancer - Bid'},
+                    {value: 'sribulancer', label: '🇮🇩 Sribulancer - Penawaran'},
+                    {value: 'projects_id', label: '🇮🇩 Projects.co.id - Proposal'},
+                    {value: 'portfolio', label: '📁 Portfolio Description'},
+                    {value: 'cover_letter', label: '✉️ Cover Letter'}
+                ],
+                digital_products: [
+                    {value: 'gumroad', label: '🛍️ Gumroad - Product Page'},
+                    {value: 'sellfy', label: '💳 Sellfy - Sales Copy'},
+                    {value: 'payhip', label: '💰 Payhip - Description'},
+                    {value: 'ebook_description', label: '📚 E-book Description'},
+                    {value: 'course_landing', label: '🎓 Course Landing Page'},
+                    {value: 'template_description', label: '📄 Template Description'}
+                ],
+                ebook_publishing: [
+                    {value: 'kindle_description', label: '📱 Amazon Kindle - Book Description'},
+                    {value: 'kindle_blurb', label: '📖 Kindle - Back Cover Blurb'},
+                    {value: 'google_play_books', label: '📚 Google Play Books - Description'},
+                    {value: 'apple_books', label: '🍎 Apple Books - Synopsis'},
+                    {value: 'kobo', label: '📘 Kobo Writing Life - Description'},
+                    {value: 'barnes_noble', label: '📕 Barnes & Noble Press - Copy'},
+                    {value: 'leanpub', label: '📗 Leanpub - Sales Page'},
+                    {value: 'gumroad_ebook', label: '🛍️ Gumroad - eBook Landing'},
+                    {value: 'gramedia_digital', label: '🇮🇩 Gramedia Digital - Deskripsi'},
+                    {value: 'mizanstore', label: '🇮🇩 Mizanstore - Sinopsis'},
+                    {value: 'kubuku', label: '🇮🇩 Kubuku - Description'},
+                    {value: 'storial', label: '🇮🇩 Storial - Cerita'},
+                    {value: 'book_title', label: '✨ Book Title Generator'},
+                    {value: 'chapter_outline', label: '📋 Chapter Outline'},
+                    {value: 'author_bio', label: '👤 Author Bio'}
+                ],
+                academic_writing: [
+                    {value: 'abstract', label: '📄 Abstract / Abstrak'},
+                    {value: 'research_title', label: '🎯 Research Title'},
+                    {value: 'introduction', label: '📝 Introduction'},
+                    {value: 'literature_review', label: '📚 Literature Review Outline'},
+                    {value: 'methodology', label: '🔬 Methodology Description'},
+                    {value: 'conclusion', label: '✅ Conclusion'},
+                    {value: 'keywords', label: '🔑 Keywords Generator'},
+                    {value: 'researchgate_profile', label: '🔬 ResearchGate - Profile'},
+                    {value: 'academia_bio', label: '🎓 Academia.edu - Bio'},
+                    {value: 'paper_summary', label: '📊 Paper Summary'},
+                    {value: 'conference_abstract', label: '🎤 Conference Abstract'}
+                ],
+                writing_monetization: [
+                    {value: 'medium_article', label: '📝 Medium - Article'},
+                    {value: 'medium_headline', label: '✨ Medium - Headline'},
+                    {value: 'substack_post', label: '📧 Substack - Newsletter Post'},
+                    {value: 'substack_welcome', label: '👋 Substack - Welcome Email'},
+                    {value: 'patreon_tier', label: '💎 Patreon - Tier Description'},
+                    {value: 'patreon_post', label: '📢 Patreon - Exclusive Post'},
+                    {value: 'kofi_page', label: '☕ Ko-fi - Page Description'},
+                    {value: 'newsletter_intro', label: '📬 Newsletter Introduction'},
+                    {value: 'paid_content', label: '💰 Paid Content Teaser'}
+                ],
+                affiliate_marketing: [
+                    {value: 'shopee_affiliate', label: '🛒 Shopee Affiliate - Review'},
+                    {value: 'tokopedia_affiliate', label: '🛍️ Tokopedia Affiliate - Caption'},
+                    {value: 'tiktok_affiliate', label: '🎵 TikTok Affiliate - Script'},
+                    {value: 'amazon_associates', label: '📦 Amazon Associates - Review'},
+                    {value: 'product_comparison', label: '⚖️ Product Comparison'},
+                    {value: 'honest_review', label: '⭐ Honest Review'}
+                ],
+                blog_seo: [
+                    {value: 'blog_post', label: '📝 Blog Post (SEO Optimized)'},
+                    {value: 'article_intro', label: '🎯 Article Introduction'},
+                    {value: 'meta_description', label: '🔍 Meta Description'},
+                    {value: 'seo_title', label: '📌 SEO Title / H1'},
+                    {value: 'h2_h3_headings', label: '📑 H2/H3 Headings Generator'},
+                    {value: 'listicle', label: '📋 Listicle Article (Top 10, Best 5)'},
+                    {value: 'how_to_guide', label: '📖 How-to Guide / Tutorial'},
+                    {value: 'product_review', label: '⭐ Product Review Blog'},
+                    {value: 'comparison_post', label: '⚖️ Comparison Post (A vs B)'},
+                    {value: 'pillar_content', label: '🏛️ Pillar Content / Ultimate Guide'},
+                    {value: 'faq_schema', label: '❓ FAQ Schema Markup'},
+                    {value: 'featured_snippet', label: '🎯 Featured Snippet Optimization'},
+                    {value: 'local_seo', label: '📍 Local SEO Content'},
+                    {value: 'keyword_cluster', label: '🔑 Keyword Cluster Content'},
+                    {value: 'internal_linking', label: '🔗 Internal Linking Anchor Text'},
+                    {value: 'alt_text', label: '🖼️ Image Alt Text'},
+                    {value: 'schema_markup', label: '📊 Schema Markup Description'},
+                    {value: 'guest_post', label: '✍️ Guest Post Pitch'},
+                    {value: 'content_update', label: '🔄 Content Update/Refresh'},
+                    {value: 'roundup_post', label: '🎁 Roundup Post (Expert Roundup)'}
                 ],
                 email_whatsapp: [
                     {value: 'broadcast_promo', label: 'Broadcast Promo'},
