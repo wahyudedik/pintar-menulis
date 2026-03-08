@@ -205,6 +205,8 @@
                             <option value="">Pilih Kategori</option>
                             <optgroup label="🚀 Quick Templates">
                                 <option value="quick_templates">Quick Templates (Caption, Hook, Quotes)</option>
+                                <option value="viral_clickbait">Viral & Clickbait Content</option>
+                                <option value="trend_fresh_ideas">Trend & Fresh Ideas</option>
                             </optgroup>
                             <optgroup label="🏭 Industry Presets (Khusus UMKM)">
                                 <option value="industry_presets">Industry Presets (Fashion, Makanan, Jasa)</option>
@@ -214,6 +216,10 @@
                                 <option value="ads">Iklan (Ads)</option>
                                 <option value="social_media">Social Media Content</option>
                                 <option value="marketplace">Marketplace / Toko Online</option>
+                                <option value="event_promo">Event & Promosi</option>
+                                <option value="hr_recruitment">HR & Recruitment</option>
+                                <option value="branding_tagline">Branding & Tagline</option>
+                                <option value="education_institution">Pendidikan & Lembaga</option>
                                 <option value="email_whatsapp">Email & WhatsApp Marketing</option>
                                 <option value="proposal_company">Proposal & Company Profile</option>
                                 <option value="personal_branding">Personal Branding</option>
@@ -656,6 +662,50 @@
                     {value: 'cta_powerful', label: '⚡ Call To Action Kuat'},
                     {value: 'headline_catchy', label: '✨ Headline Menarik'}
                 ],
+                viral_clickbait: [
+                    {value: 'clickbait_title', label: '🎯 Clickbait Title (Honest)'},
+                    {value: 'curiosity_gap', label: '🤔 Curiosity Gap Hook'},
+                    {value: 'shocking_statement', label: '😱 Shocking Statement'},
+                    {value: 'controversial_take', label: '🔥 Controversial Take'},
+                    {value: 'before_after', label: '📊 Before & After Story'},
+                    {value: 'secret_reveal', label: '🔓 Secret Reveal'},
+                    {value: 'mistake_warning', label: '⚠️ Mistake Warning'},
+                    {value: 'myth_busting', label: '💥 Myth Busting'},
+                    {value: 'unpopular_opinion', label: '🗣️ Unpopular Opinion'},
+                    {value: 'life_hack', label: '💡 Life Hack / Tips Viral'},
+                    {value: 'challenge_trend', label: '🎮 Challenge / Trend'},
+                    {value: 'reaction_bait', label: '💬 Reaction Bait'},
+                    {value: 'cliffhanger', label: '⏸️ Cliffhanger Ending'},
+                    {value: 'number_list', label: '🔢 Number List (5 Cara, 10 Tips)'},
+                    {value: 'question_hook', label: '❓ Question Hook'},
+                    {value: 'emotional_trigger', label: '💔 Emotional Trigger'},
+                    {value: 'fomo_content', label: '⏰ FOMO Content'},
+                    {value: 'plot_twist', label: '🎭 Plot Twist Story'},
+                    {value: 'relatable_content', label: '😂 Relatable Content'},
+                    {value: 'storytime', label: '📖 Storytime (Viral Format)'}
+                ],
+                trend_fresh_ideas: [
+                    {value: 'trending_topic', label: '🔥 Trending Topic Ideas'},
+                    {value: 'viral_challenge', label: '🎯 Viral Challenge Ideas'},
+                    {value: 'seasonal_content', label: '📅 Seasonal Content Ideas'},
+                    {value: 'holiday_campaign', label: '🎉 Holiday Campaign Ideas'},
+                    {value: 'current_events', label: '📰 Current Events Angle'},
+                    {value: 'meme_marketing', label: '😂 Meme Marketing Ideas'},
+                    {value: 'tiktok_trend', label: '🎵 TikTok Trend Ideas'},
+                    {value: 'instagram_trend', label: '📱 Instagram Trend Ideas'},
+                    {value: 'youtube_trend', label: '📺 YouTube Trend Ideas'},
+                    {value: 'twitter_trend', label: '🐦 Twitter/X Trend Ideas'},
+                    {value: 'content_series', label: '📺 Content Series Ideas'},
+                    {value: 'collaboration_ideas', label: '🤝 Collaboration Ideas'},
+                    {value: 'giveaway_ideas', label: '🎁 Giveaway Campaign Ideas'},
+                    {value: 'user_generated', label: '👥 User Generated Content Ideas'},
+                    {value: 'behind_scenes', label: '🎬 Behind The Scenes Ideas'},
+                    {value: 'educational_series', label: '🎓 Educational Series Ideas'},
+                    {value: 'storytelling_series', label: '📖 Storytelling Series Ideas'},
+                    {value: 'product_launch', label: '🚀 Product Launch Ideas'},
+                    {value: 'rebranding_ideas', label: '✨ Rebranding Campaign Ideas'},
+                    {value: 'crisis_content', label: '🆘 Crisis/Comeback Content Ideas'}
+                ],
                 industry_presets: [
                     {value: 'fashion_clothing', label: '👗 Fashion & Pakaian'},
                     {value: 'food_beverage', label: '🍔 Makanan & Minuman'},
@@ -709,6 +759,104 @@
                     {value: 'auto_reply', label: 'Auto-Reply Chat'},
                     {value: 'promo_banner', label: 'Banner Promo'},
                     {value: 'flash_sale', label: 'Flash Sale Copy'}
+                ],
+                event_promo: [
+                    {value: 'grand_opening', label: '🎉 Grand Opening'},
+                    {value: 'flash_sale', label: '⚡ Flash Sale / Sale Kilat'},
+                    {value: 'discount_promo', label: '💰 Diskon & Promo Spesial'},
+                    {value: 'bazaar', label: '🛍️ Bazaar / Pameran'},
+                    {value: 'exhibition', label: '🎨 Exhibition / Pameran Seni'},
+                    {value: 'workshop', label: '👨‍🏫 Workshop / Seminar'},
+                    {value: 'product_launch', label: '🚀 Product Launch'},
+                    {value: 'anniversary', label: '🎂 Anniversary / Ulang Tahun'},
+                    {value: 'seasonal_promo', label: '🎄 Promo Musiman (Lebaran, Natal, dll)'},
+                    {value: 'clearance_sale', label: '🏷️ Clearance Sale / Obral'},
+                    {value: 'buy_1_get_1', label: '🎁 Buy 1 Get 1 / Bundling'},
+                    {value: 'loyalty_program', label: '⭐ Program Loyalitas / Member'},
+                    {value: 'giveaway', label: '🎁 Giveaway / Kuis Berhadiah'},
+                    {value: 'pre_order', label: '📦 Pre-Order Campaign'},
+                    {value: 'limited_edition', label: '💎 Limited Edition / Exclusive'},
+                    {value: 'collaboration', label: '🤝 Kolaborasi Brand'},
+                    {value: 'charity_event', label: '❤️ Event Charity / Sosial'},
+                    {value: 'meet_greet', label: '👋 Meet & Greet / Gathering'},
+                    {value: 'live_shopping', label: '📱 Live Shopping / Live Selling'},
+                    {value: 'countdown_promo', label: '⏰ Countdown Promo (24 Jam, 3 Hari, dll)'}
+                ],
+                hr_recruitment: [
+                    {value: 'job_description', label: '📋 Job Description / JD'},
+                    {value: 'job_vacancy', label: '📢 Lowongan Kerja / Vacancy Post'},
+                    {value: 'job_requirements', label: '✅ Job Requirements / Kualifikasi'},
+                    {value: 'company_culture', label: '🏢 Company Culture Description'},
+                    {value: 'employee_benefits', label: '🎁 Employee Benefits Package'},
+                    {value: 'interview_questions', label: '❓ Interview Questions'},
+                    {value: 'offer_letter', label: '💌 Offer Letter'},
+                    {value: 'rejection_letter', label: '📧 Rejection Letter (Polite)'},
+                    {value: 'onboarding_message', label: '👋 Onboarding Welcome Message'},
+                    {value: 'internship_program', label: '🎓 Internship Program Description'},
+                    {value: 'career_page', label: '💼 Career Page Content'},
+                    {value: 'linkedin_job_post', label: '💼 LinkedIn Job Post'},
+                    {value: 'instagram_hiring', label: '📱 Instagram Hiring Post'},
+                    {value: 'whatsapp_recruitment', label: '💬 WhatsApp Recruitment Message'},
+                    {value: 'employee_referral', label: '🤝 Employee Referral Program'},
+                    {value: 'job_fair_booth', label: '🎪 Job Fair Booth Description'},
+                    {value: 'campus_recruitment', label: '🎓 Campus Recruitment Pitch'},
+                    {value: 'remote_job', label: '🏠 Remote Job Description'},
+                    {value: 'freelance_job', label: '💻 Freelance Job Brief'},
+                    {value: 'part_time_job', label: '⏰ Part-Time Job Post'}
+                ],
+                branding_tagline: [
+                    {value: 'brand_tagline', label: '✨ Brand Tagline / Slogan'},
+                    {value: 'company_tagline', label: '🏢 Company Tagline'},
+                    {value: 'product_tagline', label: '📦 Product Tagline'},
+                    {value: 'brand_name', label: '🎯 Brand Name Ideas'},
+                    {value: 'product_name', label: '🏷️ Product Name Ideas'},
+                    {value: 'business_name', label: '💼 Business Name Ideas'},
+                    {value: 'tshirt_quote', label: '👕 T-Shirt Quote / Text'},
+                    {value: 'hoodie_text', label: '🧥 Hoodie Text'},
+                    {value: 'tote_bag_text', label: '👜 Tote Bag Text'},
+                    {value: 'mug_text', label: '☕ Mug Text'},
+                    {value: 'sticker_text', label: '🏷️ Sticker Text'},
+                    {value: 'poster_quote', label: '🖼️ Poster Quote'},
+                    {value: 'motivational_quote', label: '💪 Motivational Quote'},
+                    {value: 'funny_quote', label: '😂 Funny Quote'},
+                    {value: 'inspirational_quote', label: '✨ Inspirational Quote'},
+                    {value: 'logo_text', label: '🎨 Logo Text / Wordmark'},
+                    {value: 'brand_story', label: '📖 Brand Story (Short)'},
+                    {value: 'brand_mission', label: '🎯 Brand Mission Statement'},
+                    {value: 'brand_vision', label: '🔮 Brand Vision Statement'},
+                    {value: 'brand_values', label: '💎 Brand Values'},
+                    {value: 'usp', label: '⚡ USP (Unique Selling Proposition)'},
+                    {value: 'elevator_pitch', label: '🎤 Elevator Pitch (30 detik)'},
+                    {value: 'brand_positioning', label: '📍 Brand Positioning Statement'},
+                    {value: 'catchphrase', label: '🗣️ Catchphrase / Jargon Brand'},
+                    {value: 'merchandise_collection', label: '🎁 Merchandise Collection Name'}
+                ],
+                education_institution: [
+                    {value: 'school_achievement', label: '🏆 Pencapaian Sekolah/Kampus'},
+                    {value: 'student_achievement', label: '⭐ Prestasi Siswa/Mahasiswa'},
+                    {value: 'graduation_announcement', label: '🎓 Pengumuman Kelulusan'},
+                    {value: 'new_student_admission', label: '📝 Penerimaan Siswa Baru (PSB/PPDB)'},
+                    {value: 'school_event', label: '🎉 Event Sekolah/Kampus'},
+                    {value: 'national_holiday', label: '🇮🇩 Hari Besar Nasional'},
+                    {value: 'education_day', label: '📚 Hari Pendidikan (Hardiknas, dll)'},
+                    {value: 'teacher_day', label: '👨‍🏫 Hari Guru'},
+                    {value: 'independence_day', label: '🎊 HUT RI / Kemerdekaan'},
+                    {value: 'religious_holiday', label: '🕌 Hari Besar Keagamaan'},
+                    {value: 'school_anniversary', label: '🎂 HUT Sekolah/Kampus'},
+                    {value: 'academic_info', label: '📢 Informasi Akademik'},
+                    {value: 'exam_announcement', label: '📝 Pengumuman Ujian'},
+                    {value: 'scholarship_info', label: '💰 Info Beasiswa'},
+                    {value: 'extracurricular', label: '⚽ Kegiatan Ekstrakurikuler'},
+                    {value: 'parent_meeting', label: '👨‍👩‍👧 Rapat Orang Tua'},
+                    {value: 'school_facility', label: '🏫 Fasilitas Sekolah/Kampus'},
+                    {value: 'teacher_profile', label: '👩‍🏫 Profil Guru/Dosen'},
+                    {value: 'alumni_success', label: '🌟 Kisah Sukses Alumni'},
+                    {value: 'government_program', label: '🏛️ Program Pemerintah/Dinas'},
+                    {value: 'public_service', label: '📋 Layanan Publik'},
+                    {value: 'government_announcement', label: '📢 Pengumuman Resmi Instansi'},
+                    {value: 'community_program', label: '🤝 Program Kemasyarakatan'},
+                    {value: 'health_campaign', label: '🏥 Kampanye Kesehatan'},
+                    {value: 'safety_awareness', label: '⚠️ Sosialisasi Keselamatan'}
                 ],
                 video_monetization: [
                     {value: 'tiktok_viral', label: '🎵 TikTok - Konten Viral'},
