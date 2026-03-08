@@ -331,7 +331,9 @@
                         <li><a href="{{ route('login') }}" class="hover:text-white transition">Login</a></li>
                         @auth
                             <li><a href="{{ route('dashboard') }}" class="hover:text-white transition">Dashboard</a></li>
-                            <li><a href="{{ route('ai-generator') }}" class="hover:text-white transition">AI Generator</a></li>
+                            @if(auth()->user()->role === 'client')
+                                <li><a href="{{ route('ai.generator') }}" class="hover:text-white transition">AI Generator</a></li>
+                            @endif
                         @endauth
                     </ul>
                 </div>
