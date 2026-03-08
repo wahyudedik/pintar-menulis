@@ -4,21 +4,37 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class GeminiService
 {
     protected $apiKey;
     protected $apiUrl;
+    protected $validator;
+    protected $qualityScorer;
+    protected $fallbackManager;
+    protected $currentModel;
 
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key');
-        // Use gemini-2.5-flash - the latest stable model
-        $this->apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+        $this->validator = new OutputValidator();
+        $this->qualityScorer = new QualityScorer();
+        $this->fallbackManager = new ModelFallbackManager();
+        
+        // Get best available model dynamically
+        $selectedModel = $this->fallbackManager->getBestAvailableModel();
+        $this->currentModel = $selectedModel['name'];
+        $this->apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$this->currentModel}:generateContent";
+        
+        Log::info('GeminiService initialized', [
+            'model' => $this->currentModel,
+            'url' => $this->apiUrl
+        ]);
     }
 
     /**
-     * Generate copywriting content using Gemini AI
+     * Generate copywriting content using Gemini AI with quality validation and caching
      */
     public function generateCopywriting(array $params)
     {
@@ -26,6 +42,18 @@ class GeminiService
         if (empty($this->apiKey)) {
             Log::error('Gemini API Key not configured');
             throw new \Exception('API Key tidak dikonfigurasi. Hubungi administrator.');
+        }
+
+        // Check cache for similar requests (only for returning users)
+        $cacheKey = $this->generateCacheKey($params);
+        $isFirstTime = $this->isFirstTimeUser($params['user_id'] ?? null);
+        
+        if (!$isFirstTime && !($params['skip_cache'] ?? false)) {
+            $cached = Cache::get($cacheKey);
+            if ($cached) {
+                Log::info('Cache hit for copywriting request', ['cache_key' => $cacheKey]);
+                return $cached;
+            }
         }
 
         $prompt = $this->buildPrompt($params);
@@ -103,6 +131,9 @@ class GeminiService
             if ($response->successful()) {
                 $data = $response->json();
                 
+                // Track successful usage
+                $this->fallbackManager->trackUsage($this->currentModel);
+                
                 // Log response structure for debugging
                 Log::info('Gemini API Response Structure', [
                     'has_candidates' => isset($data['candidates']),
@@ -136,7 +167,50 @@ class GeminiService
                 if (isset($candidate['content']['parts']) && is_array($candidate['content']['parts'])) {
                     foreach ($candidate['content']['parts'] as $part) {
                         if (isset($part['text']) && !empty($part['text'])) {
-                            return trim($part['text']);
+                            $output = trim($part['text']);
+                            
+                            // Validate output quality
+                            $validation = $this->validator->validate($output, $params);
+                            
+                            // Log validation results
+                            Log::info('Output validation', [
+                                'score' => $validation['score'],
+                                'valid' => $validation['valid'],
+                                'warnings' => $validation['warnings'],
+                                'errors' => $validation['errors']
+                            ]);
+                            
+                            // Retry if quality too low (max 2 retries)
+                            $retryCount = $params['_retry_count'] ?? 0;
+                            if ($this->validator->shouldRetry($validation, $retryCount) && $retryCount < 2) {
+                                Log::info('Retrying due to low quality', [
+                                    'score' => $validation['score'],
+                                    'retry' => $retryCount + 1
+                                ]);
+                                
+                                // Add retry count to params
+                                $params['_retry_count'] = $retryCount + 1;
+                                $params['skip_cache'] = true; // Don't use cache on retry
+                                
+                                // Recursive retry
+                                return $this->generateCopywriting($params);
+                            }
+                            
+                            // Score quality for analytics
+                            $qualityScore = $this->qualityScorer->score($output, $params);
+                            Log::info('Quality score', [
+                                'total_score' => $qualityScore['total_score'],
+                                'grade' => $qualityScore['grade'],
+                                'breakdown' => $qualityScore['breakdown']
+                            ]);
+                            
+                            // Cache successful result (24 hours)
+                            if ($validation['score'] >= 6.0) {
+                                Cache::put($cacheKey, $output, now()->addHours(24));
+                                Log::info('Cached successful result', ['cache_key' => $cacheKey]);
+                            }
+                            
+                            return $output;
                         }
                     }
                 }
@@ -158,6 +232,34 @@ class GeminiService
                 $errorData = $response->json();
                 if (isset($errorData['error']['message'])) {
                     $errorMessage = $errorData['error']['message'];
+                    
+                    // Handle rate limit errors with fallback
+                    if (strpos($errorMessage, 'rate limit') !== false || strpos($errorMessage, 'quota') !== false || $statusCode === 429) {
+                        Log::warning('Rate limit detected, attempting fallback', [
+                            'current_model' => $this->currentModel,
+                            'error' => $errorMessage
+                        ]);
+                        
+                        // Get fallback model
+                        $fallbackModel = $this->fallbackManager->handleRateLimitError($this->currentModel);
+                        
+                        if ($fallbackModel && $fallbackModel['name'] !== $this->currentModel) {
+                            // Retry with fallback model
+                            $this->currentModel = $fallbackModel['name'];
+                            $this->apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$this->currentModel}:generateContent";
+                            
+                            Log::info('Retrying with fallback model', [
+                                'model' => $this->currentModel,
+                                'url' => $this->apiUrl
+                            ]);
+                            
+                            // Recursive retry with new model
+                            $params['_fallback_retry'] = true;
+                            return $this->generateCopywriting($params);
+                        }
+                        
+                        throw new \Exception('Semua model sedang sibuk. Silakan tunggu beberapa saat dan coba lagi.');
+                    }
                     
                     // Handle specific error cases
                     if (strpos($errorMessage, 'API key') !== false) {
@@ -883,5 +985,84 @@ class GeminiService
         ];
         
         return $guides[$language] ?? "Tambahkan 1-2 kata/frasa bahasa {$language} yang natural untuk relate dengan audience lokal.";
+    }
+
+    /**
+     * Generate cache key for request
+     */
+    protected function generateCacheKey(array $params): string
+    {
+        // Create unique cache key based on important params
+        $keyData = [
+            'category' => $params['category'] ?? '',
+            'subcategory' => $params['subcategory'] ?? '',
+            'brief' => substr($params['brief'] ?? '', 0, 150), // First 150 chars
+            'tone' => $params['tone'] ?? '',
+            'platform' => $params['platform'] ?? '',
+            'keywords' => $params['keywords'] ?? '',
+            'local_language' => $params['local_language'] ?? '',
+        ];
+        
+        $key = md5(json_encode($keyData));
+        return "copywriting:v2:{$key}";
+    }
+    
+    /**
+     * Check if user is first time
+     */
+    protected function isFirstTimeUser($userId): bool
+    {
+        if (!$userId) {
+            return true;
+        }
+        
+        $historyCount = \App\Models\CaptionHistory::where('user_id', $userId)->count();
+        return $historyCount === 0;
+    }
+
+    /**
+     * Get current model being used
+     */
+    public function getCurrentModel(): string
+    {
+        return $this->currentModel;
+    }
+    
+    /**
+     * Get model usage statistics
+     */
+    public function getModelUsageStats(): array
+    {
+        return $this->fallbackManager->getUsageStats();
+    }
+    
+    /**
+     * Force switch to specific model
+     */
+    public function switchModel(string $modelName): bool
+    {
+        $model = $this->fallbackManager->getModelByName($modelName);
+        
+        if ($model) {
+            $this->currentModel = $model['name'];
+            $this->apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$this->currentModel}:generateContent";
+            
+            Log::info('Manually switched model', [
+                'model' => $this->currentModel,
+                'url' => $this->apiUrl
+            ]);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Reset model usage stats (for testing)
+     */
+    public function resetModelStats(): void
+    {
+        $this->fallbackManager->resetUsageStats();
     }
 }
