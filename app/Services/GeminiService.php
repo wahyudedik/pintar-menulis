@@ -557,6 +557,7 @@ class GeminiService
     protected function getPlatformGuidelines($platform)
     {
         $guidelines = [
+            // Social Media Platforms
             'instagram' => "- Maksimal 150 kata untuk caption\n- Gunakan 8-12 hashtag relevan\n- Sertakan emoji yang sesuai\n- Hook di 3 kalimat pertama\n- Visual-first mindset (caption mendukung visual)\n- Ajak engagement (like, comment, save, share)",
             
             'tiktok' => "- Maksimal 100 kata (sangat singkat)\n- Gunakan bahasa Gen Z yang natural\n- Hook HARUS di 3 detik pertama\n- Sertakan 5-8 hashtag trending\n- CTA untuk like, comment, share\n- Fokus pada entertainment value",
@@ -566,6 +567,47 @@ class GeminiService
             'linkedin' => "- Tone profesional dan formal\n- Fokus pada value dan insights\n- Maksimal 300 kata\n- Gunakan data/fakta jika relevan\n- CTA untuk networking atau diskusi\n- Hindari emoji berlebihan",
             
             'twitter' => "- Maksimal 280 karakter (sangat singkat!)\n- Langsung to the point\n- Gunakan thread jika perlu lebih panjang\n- 1-3 hashtag maksimal\n- Cocok untuk announcement atau quick tips",
+            
+            // Video Platforms
+            'youtube' => "- Title: 60-70 karakter, keyword di awal, clickable\n- Description: 5,000 karakter max, keyword rich, timestamps\n- Tags: 10-15 tags relevan\n- Hook di 15 detik pertama (retention crucial)\n- CTA: Subscribe, like, comment, share\n- End screen: Link ke video lain",
+            
+            'youtube_shorts' => "- Title: Catchy, maksimal 40 karakter\n- Description: Singkat, hashtag #Shorts di awal\n- Hashtag: #Shorts + 3-5 trending\n- Hook: 1 detik pertama CRUCIAL\n- Vertical format: 9:16\n- CTA: Like, subscribe, follow",
+            
+            // Indonesian Marketplace Platforms
+            'shopee' => "- Judul: Maksimal 60 karakter, keyword di awal\n- Deskripsi: Bullet points untuk benefit, spesifikasi lengkap\n- Keywords: 10-15 keywords relevan (bukan hashtag!)\n- Highlight: Gratis ongkir, cashback, voucher, COD\n- CTA: 'Klik Beli Sekarang', 'Masukkan Keranjang'\n- Foto: Minimal 5 foto, white background untuk foto utama",
+            
+            'tokopedia' => "- Judul: Maksimal 70 karakter, keyword rich\n- Deskripsi: Paragraf pembuka + bullet points\n- Spesifikasi: Lengkap dan detail (wajib diisi)\n- Highlight: Bebas ongkir, cicilan 0%, cashback\n- CTA: 'Beli Sekarang', 'Chat Penjual', 'Tambah Wishlist'\n- Badge: Official Store, Power Merchant Plus (jika ada)",
+            
+            'bukalapak' => "- Judul: Maksimal 70 karakter, deskriptif\n- Deskripsi: Detail produk, kondisi, garansi\n- Keywords: Gunakan kata kunci pencarian populer\n- Highlight: Gratis ongkir, cicilan, promo\n- CTA: 'Beli Sekarang', 'Nego', 'Chat Penjual'\n- Foto: Minimal 3 foto, tampilkan detail produk",
+            
+            'lazada' => "- Judul: Maksimal 255 karakter, keyword optimized\n- Deskripsi: HTML format, rich content\n- Highlight: Free shipping, voucher, flash sale\n- Spesifikasi: Lengkap (brand, model, warranty)\n- CTA: 'Buy Now', 'Add to Cart'\n- Foto: High quality, white background",
+            
+            'blibli' => "- Judul: Jelas dan deskriptif, include brand\n- Deskripsi: Professional, detail spesifikasi\n- Highlight: Cicilan 0%, gratis ongkir, official store\n- Garansi: Jelas mention garansi resmi\n- CTA: 'Beli Sekarang', 'Tambah Keranjang'\n- Foto: Professional, multiple angles",
+            
+            'tiktok_shop' => "- Judul: Catchy, maksimal 34 karakter\n- Deskripsi: Singkat, fokus benefit, emoji friendly\n- Live Selling: Script untuk live, interactive\n- Flash Sale: Urgency & scarcity (Stok 10! Diskon 50%!)\n- CTA: 'Klik Keranjang Kuning', 'Checkout Sekarang', 'Buruan!'\n- Hashtag: 5-8 trending hashtags",
+            
+            // Classifieds & Marketplace
+            'olx' => "- Judul: Jelas, include lokasi dan kondisi\n- Deskripsi: Detail kondisi, alasan jual, nego/tidak\n- Harga: Cantumkan harga jelas atau 'Nego'\n- Lokasi: Spesifik (kecamatan/kota)\n- CTA: 'Chat untuk nego', 'COD available'\n- Foto: Real photo, multiple angles",
+            
+            'facebook_marketplace' => "- Judul: Deskriptif, include brand/model\n- Deskripsi: Kondisi, lokasi, cara transaksi\n- Harga: Jelas, mention nego atau fixed\n- Lokasi: Spesifik untuk local pickup\n- CTA: 'Message untuk detail', 'Available for pickup'\n- Foto: Clear, well-lit, multiple angles",
+            
+            'carousell' => "- Judul: Catchy, include condition (New/Like New/Used)\n- Deskripsi: Honest condition, reason for selling\n- Price: Clear, negotiable or fixed\n- Meetup: Suggest safe meetup locations\n- CTA: 'Chat to offer', 'Make an offer'\n- Photos: Authentic, show any flaws",
+            
+            // International Marketplaces
+            'amazon' => "- Title: 200 characters max, keyword rich, include brand\n- Bullet Points: 5 key features, benefit-focused\n- Description: Detailed, HTML formatted, SEO optimized\n- Keywords: Backend search terms (250 bytes)\n- A+ Content: Enhanced brand content (if eligible)\n- CTA: 'Add to Cart', 'Buy Now'",
+            
+            'ebay' => "- Title: 80 characters, keyword optimized\n- Description: Detailed, condition, shipping info\n- Item Specifics: Fill all relevant fields\n- Shipping: Clear shipping costs and times\n- Returns: Clear return policy\n- Photos: 12 photos max, show all angles",
+            
+            'etsy' => "- Title: 140 characters, descriptive and searchable\n- Description: Story behind product, materials, dimensions\n- Tags: 13 tags max, use all, specific to broad\n- Shipping: Clear processing time and shipping options\n- Personalization: Mention if customizable\n- Photos: 10 photos, lifestyle + detail shots",
+            
+            'alibaba' => "- Title: Professional, include specifications\n- Description: B2B focused, MOQ, lead time, certifications\n- Specifications: Complete technical specs\n- Trade Terms: FOB, CIF, payment terms\n- Certifications: ISO, CE, etc. (if applicable)\n- Photos: Professional, factory shots, certificates",
+            
+            'aliexpress' => "- Title: Keyword rich, include key features\n- Description: Detailed specs, size chart, shipping info\n- Variations: Clear options (color, size, etc.)\n- Shipping: Free shipping (if possible)\n- Buyer Protection: Mention guarantee\n- Photos: High quality, show variations",
+            
+            // eCommerce Platforms
+            'shopify' => "- Product Title: Clear, SEO-friendly\n- Description: Benefit-focused, storytelling\n- Meta Description: 160 characters for SEO\n- Collections: Organize products logically\n- Variants: Clear options and pricing\n- CTA: 'Add to Cart', 'Buy It Now'",
+            
+            'walmart' => "- Title: 50-75 characters, keyword optimized\n- Short Description: 1,000 characters, key features\n- Long Description: 4,000 characters, detailed\n- Specifications: Complete all required fields\n- Images: High resolution, white background\n- Pricing: Competitive, clear",
         ];
         
         return $guidelines[$platform] ?? "- Sesuaikan dengan best practice platform\n- Fokus pada engagement\n- CTA yang jelas";
@@ -644,29 +686,203 @@ class GeminiService
     protected function getIndustryGuidelines($industry)
     {
         $guidelines = [
-            'fashion_clothing' => "- Highlight style & trend terkini\n- Fokus pada fit, bahan, dan kenyamanan\n- Gunakan istilah fashion yang familiar (ootd, outfit, style)\n- CTA: 'Order sekarang', 'DM untuk order', 'Klik link bio'\n- Pain point: Bingung mix & match, cari baju yang pas\n- Closing: Stok terbatas, diskon hari ini",
+            'fashion_clothing' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ SIZE CHART: Mention 'Size S, M, L, XL, XXL tersedia' atau 'Chart size di foto'\n" .
+                "✅ MATERIAL: Sebutkan bahan (katun, polyester, denim, dll)\n" .
+                "✅ CARE INSTRUCTIONS: 'Cuci dengan tangan' atau 'Machine washable'\n" .
+                "✅ FIT TYPE: Slim fit, regular fit, oversized, dll\n" .
+                "✅ COLOR OPTIONS: Sebutkan warna yang tersedia\n" .
+                "✅ MEASUREMENTS: Panjang, lebar, lingkar (jika relevan)\n\n" .
+                "Style & Trend:\n" .
+                "- Gunakan istilah fashion (ootd, outfit, style, trendy)\n" .
+                "- Highlight style: casual, formal, streetwear, vintage\n" .
+                "- Mention occasion: daily wear, party, office, dll\n\n" .
+                "CTA: 'Order sekarang', 'DM untuk tanya size', 'Klik link bio'\n" .
+                "Pain point: Bingung mix & match, cari baju yang pas, takut salah size\n" .
+                "Closing: Stok terbatas per warna, diskon hari ini, free ongkir",
             
-            'food_beverage' => "- Highlight rasa, porsi, dan harga\n- Gunakan kata yang bikin ngiler (lezat, gurih, segar)\n- Fokus pada kepraktisan (delivery, ready stock)\n- CTA: 'Pesan sekarang', 'Order via WA', 'Grab/GoFood'\n- Pain point: Lapar, bingung mau makan apa, budget terbatas\n- Closing: Promo hari ini, free ongkir",
+            'food_beverage' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ HALAL CERTIFICATION: 'Halal & higienis' atau 'Sertifikat halal'\n" .
+                "✅ INGREDIENTS: Bahan utama (ayam, sapi, sayur, dll)\n" .
+                "✅ PORTION SIZE: 'Porsi untuk 1-2 orang' atau 'Netto 500gr'\n" .
+                "✅ SHELF LIFE: 'Tahan 3 hari di kulkas' atau 'Best before date'\n" .
+                "✅ ALLERGEN INFO: 'Mengandung kacang' atau 'Gluten-free'\n" .
+                "✅ NUTRITION (optional): Kalori, protein, dll\n\n" .
+                "Taste & Appeal:\n" .
+                "- Gunakan kata sensory (lezat, gurih, segar, renyah, manis)\n" .
+                "- Highlight unique selling point: resep rahasia, bahan premium\n" .
+                "- Mention serving suggestion: dingin/panas, dengan nasi/roti\n\n" .
+                "CTA: 'Pesan sekarang', 'Order via WA', 'Grab/GoFood available'\n" .
+                "Pain point: Lapar, bingung mau makan apa, cari yang halal & enak\n" .
+                "Closing: Promo hari ini, free ongkir, diskon paket",
             
-            'beauty_skincare' => "- Highlight manfaat & hasil (glowing, cerah, halus)\n- Fokus pada keamanan (BPOM, halal, aman)\n- Gunakan before-after mindset\n- CTA: 'Konsultasi gratis', 'Cek testimoni', 'Order sekarang'\n- Pain point: Kulit bermasalah, insecure, cari produk aman\n- Closing: Stok terbatas, bonus untuk pembelian hari ini",
+            'beauty_skincare' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ BPOM NUMBER: 'BPOM NA18xxx' atau 'Terdaftar BPOM'\n" .
+                "✅ HALAL CERTIFICATION: 'Halal MUI' atau 'Halal certified'\n" .
+                "✅ INGREDIENTS: Key ingredients (niacinamide, vitamin C, hyaluronic acid)\n" .
+                "✅ SKIN TYPE: 'Untuk kulit berminyak/kering/sensitif/normal'\n" .
+                "✅ USAGE INSTRUCTIONS: 'Pakai pagi & malam' atau 'Apply setelah toner'\n" .
+                "✅ VOLUME/SIZE: '30ml', '50gr', dll\n" .
+                "✅ EXPIRY DATE: 'Exp 2026' atau 'PAO 12M'\n\n" .
+                "Benefits & Results:\n" .
+                "- Highlight manfaat: glowing, cerah, halus, lembab, anti-aging\n" .
+                "- Mention timeline: 'Hasil terlihat dalam 2 minggu'\n" .
+                "- Use before-after mindset: 'Dari kusam jadi glowing'\n" .
+                "- Safety first: 'Aman untuk ibu hamil/menyusui' (jika applicable)\n\n" .
+                "CTA: 'Konsultasi gratis', 'Cek testimoni', 'Order sekarang'\n" .
+                "Pain point: Kulit bermasalah, insecure, takut produk palsu/berbahaya\n" .
+                "Closing: Stok terbatas, bonus serum untuk pembelian hari ini, garansi uang kembali",
             
-            'printing_service' => "- Highlight kualitas cetak & harga\n- Fokus pada kecepatan (express, same day)\n- Gunakan istilah teknis yang simple (full color, laminasi)\n- CTA: 'Konsultasi gratis', 'Minta quotation', 'Order sekarang'\n- Pain point: Butuh cepat, budget pas-pasan, takut hasil jelek\n- Closing: Diskon untuk order hari ini, gratis desain",
+            'printing_service' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ FILE FORMAT: 'Terima file PDF, AI, CDR, PSD, JPG'\n" .
+                "✅ PAPER TYPE: Art paper, HVS, ivory, sticker, vinyl, dll\n" .
+                "✅ SIZE OPTIONS: A4, A3, A5, custom size\n" .
+                "✅ FINISHING: Laminating (doff/glossy), jilid, pond, dll\n" .
+                "✅ COLOR: Full color, black & white, spot color\n" .
+                "✅ QUANTITY: Minimum order & price per piece\n" .
+                "✅ TURNAROUND TIME: 'Express 3 jam', 'Regular 1-2 hari'\n" .
+                "✅ RESOLUTION: 'Minimal 300 DPI untuk hasil terbaik'\n\n" .
+                "Quality & Speed:\n" .
+                "- Highlight: Mesin digital printing terbaru, hasil tajam\n" .
+                "- Mention: Free konsultasi desain, free revisi minor\n" .
+                "- Service: Antar/jemput file (area tertentu)\n\n" .
+                "CTA: 'Konsultasi gratis', 'Minta quotation', 'WA untuk order'\n" .
+                "Pain point: Butuh cepat, budget terbatas, takut hasil blur/pudar\n" .
+                "Closing: Diskon untuk order hari ini, gratis desain simple, member get discount",
             
-            'photography' => "- Highlight portfolio & style\n- Fokus pada momen spesial (wedding, prewedding, wisuda)\n- Gunakan emotional trigger\n- CTA: 'Book sekarang', 'Cek portfolio', 'DM untuk tanya'\n- Pain point: Cari fotografer yang cocok, budget terbatas\n- Closing: Slot terbatas, early bird discount",
+            'photography' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ PACKAGE DETAILS: 'Paket A: 4 jam, 100 foto edited, 1 album'\n" .
+                "✅ DELIVERABLES: Jumlah foto (raw + edited), video, album, flashdisk\n" .
+                "✅ EDITING STYLE: Natural, vintage, moody, bright & airy\n" .
+                "✅ TURNAROUND TIME: 'Foto jadi 7-14 hari kerja'\n" .
+                "✅ COVERAGE AREA: 'Melayani area Jabodetabek' atau 'Bisa ke luar kota'\n" .
+                "✅ EQUIPMENT: 'Full frame camera, professional lighting'\n" .
+                "✅ BOOKING TERMS: 'DP 30%, pelunasan H-7', 'Reschedule 1x gratis'\n" .
+                "✅ ADDITIONAL SERVICES: Makeup artist, venue, props (jika ada)\n\n" .
+                "Portfolio & Style:\n" .
+                "- Mention specialty: Wedding, prewedding, maternity, product, dll\n" .
+                "- Highlight: 'Portfolio di Instagram @xxx' atau 'Cek highlight'\n" .
+                "- Experience: '5 tahun pengalaman', '100+ couple'\n\n" .
+                "CTA: 'Book sekarang', 'Cek portfolio', 'DM untuk tanya paket'\n" .
+                "Pain point: Cari fotografer yang cocok, budget terbatas, takut hasil mengecewakan\n" .
+                "Closing: Slot terbatas (max 2 event per hari), early bird discount 20%, free pre-wedding untuk paket wedding",
             
-            'catering' => "- Highlight menu, porsi, dan harga per pax\n- Fokus pada kepraktisan (antar, setup, bersih-bersih)\n- Gunakan kata yang bikin ngiler\n- CTA: 'Pesan sekarang', 'Konsultasi menu', 'WA untuk order'\n- Pain point: Ribet masak sendiri, cari yang enak & murah\n- Closing: Diskon untuk pemesanan minggu ini",
+            'catering' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ MENU LIST: Sebutkan menu yang tersedia (nasi kotak, prasmanan, snack box)\n" .
+                "✅ PRICE PER PAX: 'Mulai Rp 25.000/pax' atau 'Paket 50 pax: Rp 1.250.000'\n" .
+                "✅ MINIMUM ORDER: 'Min order 20 pax' atau 'Min order Rp 500.000'\n" .
+                "✅ INCLUDED SERVICES: Antar, setup, alat makan, bersih-bersih\n" .
+                "✅ CUSTOMIZATION: 'Menu bisa request' atau 'Bisa custom sesuai budget'\n" .
+                "✅ BOOKING LEAD TIME: 'Order H-3' atau 'Untuk event besar H-7'\n" .
+                "✅ COVERAGE AREA: 'Free ongkir radius 5km' atau 'Melayani area Jabodetabek'\n" .
+                "✅ HALAL & HYGIENE: 'Halal, higienis, dapur bersih'\n\n" .
+                "Taste & Quality:\n" .
+                "- Highlight: Bahan fresh, bumbu meresap, porsi pas\n" .
+                "- Mention: Spesialisasi (masakan Padang, Chinese, Western)\n" .
+                "- Testimonial: 'Dipercaya 100+ event' atau 'Rating 4.9/5'\n\n" .
+                "CTA: 'Pesan sekarang', 'Konsultasi menu gratis', 'WA untuk quotation'\n" .
+                "Pain point: Ribet masak sendiri, cari yang enak & murah, takut telat/kurang\n" .
+                "Closing: Diskon 10% untuk pemesanan minggu ini, free tester menu, paket hemat untuk acara besar",
             
-            'tiktok_shop' => "- Highlight promo & diskon (gratis ongkir, cashback)\n- Fokus pada viral & trending\n- Gunakan bahasa Gen Z yang catchy\n- CTA: 'Klik keranjang kuning', 'Checkout sekarang', 'Buruan sebelum habis'\n- Pain point: Cari barang murah & viral\n- Closing: Flash sale, stok terbatas, diskon 50%",
+            'tiktok_shop' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ FLASH SALE INFO: 'Flash sale jam 12.00!', 'Diskon 50% hari ini!'\n" .
+                "✅ STOCK QUANTITY: 'Stok 100 pcs!', 'Stok terbatas!'\n" .
+                "✅ SHIPPING: 'Gratis ongkir min 50rb', 'Bebas ongkir se-Indonesia'\n" .
+                "✅ VOUCHER CODE: 'Pakai kode DISKON50', 'Klaim voucher di halaman produk'\n" .
+                "✅ CASHBACK: 'Cashback 10%', 'Coins 5000'\n" .
+                "✅ BUNDLE DEALS: 'Beli 2 gratis 1', 'Paket hemat 3 pcs'\n" .
+                "✅ LIVE SCHEDULE: 'Live jam 8 malam!', 'Nonton live dapat diskon extra'\n\n" .
+                "Viral & Trending:\n" .
+                "- Gunakan bahasa Gen Z: 'Gak boong!', 'Murah banget!', 'Viral abis!'\n" .
+                "- Highlight: Produk viral, best seller, trending\n" .
+                "- FOMO trigger: 'Cuma hari ini!', 'Besok naik harga!'\n\n" .
+                "CTA: 'Klik keranjang kuning', 'Checkout sekarang', 'Buruan sebelum sold out'\n" .
+                "Pain point: Cari barang murah & viral, takut kehabisan, FOMO\n" .
+                "Closing: Flash sale berakhir 23:59, stok tinggal sedikit, diskon 70% off",
             
-            'shopee_affiliate' => "- Highlight komisi & passive income\n- Fokus pada kemudahan (tanpa modal, tanpa stok)\n- Gunakan success story\n- CTA: 'Daftar sekarang', 'Mulai jualan', 'Klik link'\n- Pain point: Cari side income, modal terbatas\n- Closing: Bonus untuk pendaftar hari ini",
+            'shopee_affiliate' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ COMMISSION RATE: 'Komisi 5-15%', 'Komisi hingga Rp 500rb per produk'\n" .
+                "✅ PAYMENT TERMS: 'Dibayar setiap tanggal 15', 'Minimal withdraw Rp 50rb'\n" .
+                "✅ REQUIREMENTS: 'Tanpa modal', 'Tanpa stok', 'Cukup share link'\n" .
+                "✅ EARNING POTENTIAL: 'Potensi income 1-10 juta/bulan'\n" .
+                "✅ SUPPORT: 'Training gratis', 'Grup support', 'Materi promosi'\n" .
+                "✅ REGISTRATION: 'Daftar gratis', 'Approval 1-3 hari'\n" .
+                "✅ TOOLS: 'Dashboard analytics', 'Link tracker', 'Product catalog'\n\n" .
+                "Success Story:\n" .
+                "- Share testimonial: 'Member kami ada yang income 5 juta/bulan'\n" .
+                "- Highlight: Passive income, flexible time, work from home\n" .
+                "- Proof: Screenshot earnings, testimonial video\n\n" .
+                "CTA: 'Daftar sekarang', 'Mulai jualan', 'Klik link registrasi'\n" .
+                "Pain point: Cari side income, modal terbatas, takut ribet\n" .
+                "Closing: Bonus Rp 100rb untuk 10 pendaftar pertama, free training, join komunitas 1000+ affiliates",
             
-            'home_decor' => "- Highlight estetika & fungsi\n- Fokus pada transformasi ruangan\n- Gunakan kata yang bikin pengen punya (cozy, aesthetic, minimalis)\n- CTA: 'Order sekarang', 'DM untuk custom', 'Cek katalog'\n- Pain point: Rumah kurang nyaman, bingung dekor\n- Closing: Diskon, free konsultasi desain",
+            'home_decor' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ DIMENSIONS: 'Ukuran 30x40cm', 'Tinggi 150cm', 'Diameter 20cm'\n" .
+                "✅ MATERIALS: 'Kayu jati', 'Rotan sintetis', 'Kain linen', 'Metal powder coated'\n" .
+                "✅ COLOR OPTIONS: 'Tersedia 5 warna: putih, hitam, natural, grey, navy'\n" .
+                "✅ WEIGHT CAPACITY: 'Kuat hingga 50kg' (untuk rak/meja)\n" .
+                "✅ ASSEMBLY: 'Sudah dirakit' atau 'Knock down (easy assembly)'\n" .
+                "✅ CARE INSTRUCTIONS: 'Lap dengan kain lembab', 'Hindari sinar matahari langsung'\n" .
+                "✅ ROOM SUITABILITY: 'Cocok untuk ruang tamu/kamar/dapur'\n" .
+                "✅ STYLE: 'Minimalis', 'Scandinavian', 'Industrial', 'Bohemian'\n\n" .
+                "Aesthetic & Function:\n" .
+                "- Highlight: Transformasi ruangan, space-saving, multifungsi\n" .
+                "- Describe: Cozy, aesthetic, minimalis, modern, vintage\n" .
+                "- Benefit: Bikin ruangan lebih nyaman, rapi, instagrammable\n\n" .
+                "CTA: 'Order sekarang', 'DM untuk custom warna/ukuran', 'Cek katalog lengkap'\n" .
+                "Pain point: Rumah kurang nyaman, bingung dekor, budget terbatas\n" .
+                "Closing: Diskon 20%, free konsultasi desain interior, bisa custom request",
             
-            'handmade_craft' => "- Highlight keunikan & handmade value\n- Fokus pada kualitas & detail\n- Gunakan emotional trigger (hadiah spesial, limited edition)\n- CTA: 'Order custom', 'DM untuk request', 'Cek katalog'\n- Pain point: Cari hadiah unik, support local\n- Closing: Limited stock, bisa custom",
+            'handmade_craft' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ MATERIALS: 'Bahan kulit asli', 'Benang wol import', 'Kayu mahoni'\n" .
+                "✅ DIMENSIONS: Ukuran detail produk\n" .
+                "✅ PRODUCTION TIME: 'Ready stock' atau 'Pre-order 7-14 hari'\n" .
+                "✅ CUSTOMIZATION: 'Bisa custom nama', 'Pilih warna sendiri', 'Request design'\n" .
+                "✅ PACKAGING: 'Free gift box', 'Packaging cantik siap hadiah'\n" .
+                "✅ CARE INSTRUCTIONS: Cara merawat produk handmade\n" .
+                "✅ UNIQUENESS: 'Setiap produk unik', 'Limited edition', 'Handmade by artisan'\n" .
+                "✅ STORY: Cerita di balik produk, proses pembuatan\n\n" .
+                "Handmade Value:\n" .
+                "- Highlight: Kualitas premium, detail rapi, made with love\n" .
+                "- Emotional: Perfect gift, support local artisan, eco-friendly\n" .
+                "- Exclusive: Limited stock, tidak mass production\n\n" .
+                "CTA: 'Order custom', 'DM untuk request design', 'Cek katalog'\n" .
+                "Pain point: Cari hadiah unik & bermakna, support local, bosan produk massal\n" .
+                "Closing: Limited stock (hanya buat 10 pcs/bulan), bisa custom, free gift wrapping",
             
-            'digital_service' => "- Highlight hasil & portfolio\n- Fokus pada profesionalitas & kecepatan\n- Gunakan istilah teknis yang simple\n- CTA: 'Konsultasi gratis', 'Minta quotation', 'Order sekarang'\n- Pain point: Butuh jasa profesional, budget terbatas\n- Closing: Diskon untuk order hari ini, free revisi",
+            'digital_service' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ SERVICE SCOPE: 'Logo design', 'Website development', 'Social media management'\n" .
+                "✅ DELIVERABLES: 'File AI, PNG, JPG', '3 konsep design', 'Source code'\n" .
+                "✅ REVISION POLICY: 'Free revisi 3x', 'Unlimited minor revision'\n" .
+                "✅ TURNAROUND TIME: 'Selesai 3-5 hari kerja', 'Express 24 jam (+ biaya)'\n" .
+                "✅ PRICE RANGE: 'Mulai Rp 500rb', 'Paket lengkap Rp 2 juta'\n" .
+                "✅ PAYMENT TERMS: 'DP 50%, pelunasan setelah approve', 'Bisa cicil 2x'\n" .
+                "✅ TOOLS/TECH: 'Adobe Illustrator', 'WordPress', 'React JS'\n" .
+                "✅ PORTFOLIO: 'Portfolio di Behance/Dribbble' atau 'Cek Instagram @xxx'\n\n" .
+                "Professional & Quality:\n" .
+                "- Highlight: Pengalaman, sertifikasi, client list\n" .
+                "- Showcase: Before-after, case study, testimonial\n" .
+                "- Guarantee: Satisfaction guarantee, money back guarantee\n\n" .
+                "CTA: 'Konsultasi gratis', 'Minta quotation', 'Order sekarang'\n" .
+                "Pain point: Butuh jasa profesional, budget terbatas, takut hasil tidak sesuai\n" .
+                "Closing: Diskon 20% untuk order hari ini, free konsultasi 30 menit, bonus minor revision unlimited",
             
-            'automotive' => "- Highlight kualitas & harga\n- Fokus pada keamanan & performa\n- Gunakan istilah otomotif yang familiar\n- CTA: 'Order sekarang', 'Konsultasi gratis', 'Cek stok'\n- Pain point: Cari spare part ori, harga terjangkau\n- Closing: Garansi, diskon, free pasang",
+            'automotive' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
+                "✅ PART NUMBER: 'Part number: 12345-ABC-000'\n" .
+                "✅ COMPATIBILITY: 'Untuk Honda Jazz 2015-2020', 'Universal fit'\n" .
+                "✅ BRAND: 'Original', 'OEM', 'Aftermarket (merk xxx)'\n" .
+                "✅ WARRANTY: 'Garansi 1 tahun', 'Garansi toko 6 bulan'\n" .
+                "✅ CONDITION: 'Baru', 'Bekas (kondisi 90%)'\n" .
+                "✅ INSTALLATION: 'Free pasang', 'Plug & play', 'Butuh instalasi bengkel'\n" .
+                "✅ SPECIFICATIONS: Material, dimensi, kapasitas, dll\n" .
+                "✅ CERTIFICATION: 'SNI', 'ISO certified', 'DOT approved'\n\n" .
+                "Quality & Safety:\n" .
+                "- Highlight: Kualitas OEM/original, tested & proven\n" .
+                "- Safety: Aman, sesuai standar, tidak void garansi mobil\n" .
+                "- Performance: Improve performa, hemat BBM, lebih awet\n\n" .
+                "CTA: 'Order sekarang', 'Konsultasi gratis', 'Cek stok & harga'\n" .
+                "Pain point: Cari spare part original, harga terjangkau, takut palsu/KW\n" .
+                "Closing: Garansi uang kembali jika palsu, diskon 15%, free pasang (area tertentu), COD available",
         ];
         
         return $guidelines[$industry] ?? "- Fokus pada value proposition\n- Highlight keunggulan produk\n- CTA yang jelas\n- Closing yang kuat";
@@ -870,7 +1086,8 @@ class GeminiService
                     "Buatkan sekarang:";
 
             default:
-                return $basePrompt . "Buatkan konten copywriting yang menarik sesuai brief di atas dan sangat relate dengan target audience.";
+                // Use TemplatePrompts for all other subcategories
+                return \App\Services\TemplatePrompts::getPrompt($subcategory, $basePrompt, $adjustedTone, $audienceContext);
         }
     }
 

@@ -29,7 +29,7 @@ class OutputValidator
         
         // 2. Check hashtags if requested
         if ($params['auto_hashtag'] ?? false) {
-            $hashtagCount = preg_match_all('/#[\w\u0080-\uFFFF]+/u', $output);
+            $hashtagCount = preg_match_all('/#[\w\x{0080}-\x{FFFF}]+/u', $output);
             if ($hashtagCount === 0) {
                 $warnings[] = 'Hashtag tidak ditemukan';
                 $score -= 1.5;
@@ -118,8 +118,8 @@ class OutputValidator
         $str2 = strtolower(trim($str2));
         
         // Remove hashtags and emojis for comparison
-        $str1 = preg_replace('/#[\w\u0080-\uFFFF]+/u', '', $str1);
-        $str2 = preg_replace('/#[\w\u0080-\uFFFF]+/u', '', $str2);
+        $str1 = preg_replace('/#[\w\x{0080}-\x{FFFF}]+/u', '', $str1);
+        $str2 = preg_replace('/#[\w\x{0080}-\x{FFFF}]+/u', '', $str2);
         $str1 = preg_replace('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $str1);
         $str2 = preg_replace('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $str2);
         

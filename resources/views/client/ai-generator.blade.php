@@ -1020,19 +1020,48 @@
                         return;
                     }
                     
-                    // Convert simple form to advanced form
+                    // IMPROVED CONVERSION LOGIC v2.0
+                    // Convert simple form to advanced form with smart mapping
+                    
                     if (this.simpleForm.business_type) {
                         // If business type selected, use industry preset
                         this.form.category = 'industry_presets';
                         this.form.subcategory = this.simpleForm.business_type;
                     } else {
-                        // Otherwise use quick templates
+                        // Use quick templates based on PLATFORM (not always Instagram!)
                         this.form.category = 'quick_templates';
-                        this.form.subcategory = 'caption_instagram';
+                        
+                        // Platform-specific subcategory mapping
+                        const platformMap = {
+                            'instagram': 'caption_instagram',
+                            'facebook': 'caption_facebook',
+                            'tiktok': 'caption_tiktok',
+                            'youtube': 'caption_youtube',
+                            'youtube_shorts': 'caption_youtube',
+                            'linkedin': 'caption_linkedin',
+                            'twitter': 'caption_instagram', // fallback
+                            'shopee': 'caption_instagram', // marketplace uses general
+                            'tokopedia': 'caption_instagram',
+                            'bukalapak': 'caption_instagram',
+                            'lazada': 'caption_instagram',
+                            'blibli': 'caption_instagram',
+                            'tiktok_shop': 'caption_tiktok',
+                        };
+                        
+                        this.form.subcategory = platformMap[this.simpleForm.platform] || 'caption_instagram';
                     }
                     
                     this.form.platform = this.simpleForm.platform;
-                    this.form.tone = this.simpleForm.goal === 'closing' ? 'persuasive' : 'casual';
+                    
+                    // GOAL-BASED TONE MAPPING (Smart!)
+                    const goalToneMap = {
+                        'closing': 'persuasive',      // Closing → Persuasive
+                        'awareness': 'educational',   // Awareness → Educational
+                        'engagement': 'casual',       // Engagement → Casual
+                        'viral': 'funny'              // Viral → Funny
+                    };
+                    this.form.tone = goalToneMap[this.simpleForm.goal] || 'casual';
+                    
                     this.form.generate_variations = false; // default 5 variasi
                     this.form.auto_hashtag = true;
                     
@@ -1043,6 +1072,20 @@
                     }
                     brief += `Target: ${this.getTargetLabel(this.simpleForm.target_market)}\n`;
                     brief += `Tujuan: ${this.getGoalLabel(this.simpleForm.goal)}`;
+                    
+                    // TARGET MARKET-BASED LANGUAGE ADAPTATION
+                    const targetLanguageMap = {
+                        'remaja': '\n\nGaya Bahasa: Gen Z language (singkat, emoji banyak, slang, relate dengan anak muda)',
+                        'ibu_muda': '\n\nGaya Bahasa: Friendly & caring (Bun, Kak, emoji ❤️🙏, bahasa ibu-ibu)',
+                        'profesional': '\n\nGaya Bahasa: Professional & efficient (formal, to the point, minimal emoji)',
+                        'pelajar': '\n\nGaya Bahasa: Casual & relatable (hemat, promo, diskon, bahasa anak sekolah)',
+                        'umum': '\n\nGaya Bahasa: Universal (balance semua, mudah dipahami semua kalangan)'
+                    };
+                    
+                    // Add language style to brief
+                    if (targetLanguageMap[this.simpleForm.target_market]) {
+                        brief += targetLanguageMap[this.simpleForm.target_market];
+                    }
                     
                     this.form.brief = brief;
                 } else {

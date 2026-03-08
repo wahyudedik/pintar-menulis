@@ -292,7 +292,7 @@ class QualityScorer
                     $score += 1;
                 }
                 // Check hashtags
-                $hashtagCount = preg_match_all('/#[\w\u0080-\uFFFF]+/u', $caption);
+                $hashtagCount = preg_match_all('/#[\w\x{0080}-\x{FFFF}]+/u', $caption);
                 if ($hashtagCount >= 8 && $hashtagCount <= 15) {
                     $score += 2;
                 } elseif ($hashtagCount >= 5) {
@@ -308,7 +308,7 @@ class QualityScorer
                     $score += 2;
                 }
                 // Check hashtags
-                $hashtagCount = preg_match_all('/#[\w\u0080-\uFFFF]+/u', $caption);
+                $hashtagCount = preg_match_all('/#[\w\x{0080}-\x{FFFF}]+/u', $caption);
                 if ($hashtagCount >= 5 && $hashtagCount <= 10) {
                     $score += 1;
                 }
