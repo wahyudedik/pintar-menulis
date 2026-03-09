@@ -57,4 +57,24 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Disconnect Google account from user profile.
+     */
+    public function disconnectGoogle(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        
+        // Ensure user has a password set before disconnecting
+        if (!$user->password || strlen($user->password) < 10) {
+            return Redirect::route('profile.edit')->with('error', 'Please set a password before disconnecting your Google account.');
+        }
+        
+        $user->update([
+            'google_id' => null,
+            'provider' => 'email',
+        ]);
+        
+        return Redirect::route('profile.edit')->with('status', 'google-disconnected');
+    }
 }

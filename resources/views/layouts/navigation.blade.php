@@ -38,7 +38,16 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            class="inline-flex items-center gap-2 px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            <!-- Avatar -->
+                            @if($user->avatar)
+                                <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-8 h-8 rounded-full object-cover">
+                            @else
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                            @endif
+                            
                             <div>{{ $user->name }}</div>
 
                             <div class="ms-1">
@@ -97,9 +106,20 @@
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ $user->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ $user->email }}</div>
+            <div class="px-4 flex items-center gap-3">
+                <!-- Avatar -->
+                @if($user->avatar)
+                    <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-10 h-10 rounded-full object-cover">
+                @else
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    </div>
+                @endif
+                
+                <div>
+                    <div class="font-medium text-base text-gray-800">{{ $user->name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ $user->email }}</div>
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">

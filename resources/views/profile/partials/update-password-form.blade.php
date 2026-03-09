@@ -1,11 +1,19 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Update Password') }}
+            @if($user->google_id && (!$user->password || strlen($user->password) < 10))
+                {{ __('Set Password') }}
+            @else
+                {{ __('Update Password') }}
+            @endif
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+            @if($user->google_id && (!$user->password || strlen($user->password) < 10))
+                {{ __('Set a password to enable email/password login alongside your Google account.') }}
+            @else
+                {{ __('Ensure your account is using a long, random password to stay secure.') }}
+            @endif
         </p>
     </header>
 
@@ -13,11 +21,13 @@
         @csrf
         @method('put')
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+        @if(!($user->google_id && (!$user->password || strlen($user->password) < 10)))
+            <div>
+                <x-input-label for="update_password_current_password" :value="__('Current Password')" />
+                <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
+                <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+            </div>
+        @endif
 
         <div>
             <x-input-label for="update_password_password" :value="__('New Password')" />
