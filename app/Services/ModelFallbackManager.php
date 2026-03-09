@@ -263,6 +263,11 @@ class ModelFallbackManager
     {
         $modelName = $model['name'];
         
+        // DEVELOPMENT MODE: Skip rate limit checks if in local environment
+        if (config('app.env') === 'local' || config('app.debug')) {
+            return true; // Always available in development
+        }
+        
         // Check RPM (Requests Per Minute)
         $rpmKey = "model_rpm:{$modelName}";
         $currentRpm = Cache::get($rpmKey, 0);

@@ -10,7 +10,7 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
@@ -32,61 +32,269 @@
     </nav>
 
     <!-- Hero Section -->
-    <div class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
+        <!-- Circuit Lines SVG -->
+        <svg class="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="circuit-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <!-- Horizontal Lines -->
+            <line x1="0" y1="100" x2="400" y2="100" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            <circle cx="400" cy="100" r="4" fill="#06b6d4" class="circuit-node" />
+            <line x1="400" y1="100" x2="400" y2="200" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            <circle cx="400" cy="200" r="4" fill="#3b82f6" class="circuit-node" />
+            <line x1="400" y1="200" x2="600" y2="200" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            
+            <line x1="1440" y1="150" x2="1040" y2="150" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            <circle cx="1040" cy="150" r="4" fill="#06b6d4" class="circuit-node" />
+            <line x1="1040" y1="150" x2="1040" y2="250" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            <circle cx="1040" cy="250" r="4" fill="#3b82f6" class="circuit-node" />
+            
+            <line x1="200" y1="400" x2="500" y2="400" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            <circle cx="500" cy="400" r="4" fill="#06b6d4" class="circuit-node" />
+            <line x1="500" y1="400" x2="500" y2="500" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            
+            <line x1="1200" y1="350" x2="900" y2="350" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            <circle cx="900" cy="350" r="4" fill="#3b82f6" class="circuit-node" />
+            <line x1="900" y1="350" x2="900" y2="450" stroke="url(#circuit-gradient)" stroke-width="2" class="circuit-line" />
+            <circle cx="900" cy="450" r="4" fill="#06b6d4" class="circuit-node" />
+        </svg>
+        
+        <!-- Animated Gradient Orbs -->
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-screen filter blur-3xl animate-blob"></div>
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-screen filter blur-3xl animate-blob animation-delay-2000"></div>
+            <div class="absolute bottom-0 left-1/2 w-96 h-96 bg-teal-500 rounded-full mix-blend-screen filter blur-3xl animate-blob animation-delay-4000"></div>
+        </div>
+        
+        <!-- Tech Grid Pattern -->
+        <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(rgba(6, 182, 212, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.5) 1px, transparent 1px); background-size: 50px 50px;"></div>
+        
+        <!-- Floating Tech Elements -->
+        <div class="absolute inset-0">
+            <div class="tech-chip tech-chip-1"></div>
+            <div class="tech-chip tech-chip-2"></div>
+            <div class="tech-chip tech-chip-3"></div>
+            <div class="tech-chip tech-chip-4"></div>
+        </div>
+        
+        <!-- Content -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div class="text-center">
                 <!-- Pain Point Hook -->
-                <div class="mb-6 space-y-2">
-                    <p class="text-red-600 font-semibold text-lg">😰 Capek posting tapi sepi orderan?</p>
-                    <p class="text-red-600 font-semibold text-lg">😰 Bingung bikin caption yang bikin orang beli?</p>
-                    <p class="text-red-600 font-semibold text-lg">😰 Gak punya tim marketing tapi pengen closing naik?</p>
+                <div class="mb-10 space-y-3">
+                    <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800/60 backdrop-blur-sm border border-cyan-500/30 rounded-full">
+                        <span class="text-2xl">😰</span>
+                        <p class="text-cyan-100 font-medium text-sm">Capek posting tapi sepi orderan?</p>
+                    </div>
+                    <br>
+                    <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800/60 backdrop-blur-sm border border-cyan-500/30 rounded-full">
+                        <span class="text-2xl">😰</span>
+                        <p class="text-cyan-100 font-medium text-sm">Bingung bikin caption yang bikin orang beli?</p>
+                    </div>
+                    <br>
+                    <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800/60 backdrop-blur-sm border border-cyan-500/30 rounded-full">
+                        <span class="text-2xl">😰</span>
+                        <p class="text-cyan-100 font-medium text-sm">Gak punya tim marketing tapi pengen closing naik?</p>
+                    </div>
                 </div>
                 
-                <h1 class="text-5xl font-bold text-gray-900 mb-6 mt-8">
-                    AI Caption Generator Khusus UMKM Indonesia<br>
-                    <span class="text-blue-600">yang Ingin Closing, Bukan Cuma Estetik</span>
+                <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
+                    AI Caption Generator<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400 animate-gradient-x">Khusus UMKM Indonesia</span>
                 </h1>
-                <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                <p class="text-xl md:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
                     Bikin caption jualan yang bikin customer langsung action dalam hitungan detik. Gak perlu pusing mikir kata-kata, AI kami yang kerja buat kamu!
                 </p>
-                <div class="flex justify-center gap-4">
+                <div class="flex justify-center gap-4 flex-wrap">
                     @auth
-                        <a href="{{ route('dashboard') }}" class="px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition font-semibold">
-                            🚀 Mulai Generate Caption
+                        <a href="{{ route('dashboard') }}" class="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-lg font-bold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 shadow-2xl shadow-cyan-500/50 hover:shadow-cyan-400/60">
+                            <span class="relative z-10 flex items-center gap-2">
+                                🚀 Mulai Generate Caption
+                                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </a>
                     @else
-                        <a href="{{ route('register') }}" class="px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition font-semibold">
-                            🚀 Coba Gratis Sekarang
+                        <a href="{{ route('register') }}" class="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-lg font-bold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 shadow-2xl shadow-cyan-500/50 hover:shadow-cyan-400/60">
+                            <span class="relative z-10 flex items-center gap-2">
+                                🚀 Coba Gratis Sekarang
+                                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </a>
-                        <a href="{{ route('login') }}" class="px-8 py-4 border-2 border-gray-300 text-gray-700 text-lg rounded-lg hover:border-gray-400 transition font-semibold">
+                        <a href="{{ route('login') }}" class="px-8 py-4 bg-slate-800/80 backdrop-blur-sm border-2 border-cyan-500/50 text-white text-lg font-bold rounded-xl hover:bg-slate-700/80 hover:border-cyan-400 transition-all duration-300 hover:scale-105">
                             Login
                         </a>
                     @endauth
                 </div>
-                <p class="text-sm text-gray-500 mt-4">✨ Gratis 5 variasi caption per hari • Gak pakai kartu kredit • Langsung pakai!</p>
+                <p class="text-sm text-cyan-200/80 mt-6 flex items-center justify-center gap-2">
+                    <span class="inline-block w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                    Gratis 5 variasi caption per hari • Gak pakai kartu kredit • Langsung pakai!
+                </p>
             </div>
         </div>
     </div>
 
+    <style>
+        /* Circuit Animation */
+        @keyframes circuit-pulse {
+            0%, 100% {
+                opacity: 0.3;
+                stroke-width: 2;
+            }
+            50% {
+                opacity: 1;
+                stroke-width: 3;
+            }
+        }
+        
+        .circuit-line {
+            animation: circuit-pulse 3s ease-in-out infinite;
+        }
+        
+        .circuit-line:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .circuit-line:nth-child(4) {
+            animation-delay: 1s;
+        }
+        
+        .circuit-line:nth-child(6) {
+            animation-delay: 1.5s;
+        }
+        
+        @keyframes node-glow {
+            0%, 100% {
+                opacity: 0.5;
+                r: 4;
+            }
+            50% {
+                opacity: 1;
+                r: 6;
+                filter: drop-shadow(0 0 8px currentColor);
+            }
+        }
+        
+        .circuit-node {
+            animation: node-glow 2s ease-in-out infinite;
+        }
+        
+        /* Tech Chips */
+        .tech-chip {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            border-radius: 2px;
+            opacity: 0.4;
+            animation: float-chip 8s ease-in-out infinite;
+        }
+        
+        .tech-chip-1 {
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .tech-chip-2 {
+            top: 25%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        
+        .tech-chip-3 {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        .tech-chip-4 {
+            bottom: 20%;
+            right: 25%;
+            animation-delay: 6s;
+        }
+        
+        @keyframes float-chip {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.8;
+            }
+        }
+        
+        /* Blob Animation */
+        @keyframes blob {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+        
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+        
+        /* Gradient Text Animation */
+        @keyframes gradient-x {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        
+        .animate-gradient-x {
+            background-size: 200% 200%;
+            animation: gradient-x 3s ease infinite;
+        }
+    </style>
+
     <!-- Stats Section -->
-    <div class="bg-blue-50 border-b border-gray-200 py-12">
+    <div class="bg-gradient-to-r from-slate-900 to-blue-900 border-b border-cyan-500/20 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <div>
-                    <div class="text-4xl font-bold text-blue-600 mb-2">57+</div>
-                    <div class="text-sm text-gray-600">Template Spesifik</div>
+                    <div class="text-4xl font-bold text-cyan-400 mb-2">200+</div>
+                    <div class="text-sm text-slate-300">Jenis Konten</div>
                 </div>
                 <div>
-                    <div class="text-4xl font-bold text-blue-600 mb-2">5</div>
-                    <div class="text-sm text-gray-600">Platform Sosmed</div>
+                    <div class="text-4xl font-bold text-cyan-400 mb-2">23</div>
+                    <div class="text-sm text-slate-300">Platform Sosmed</div>
                 </div>
                 <div>
-                    <div class="text-4xl font-bold text-blue-600 mb-2">100%</div>
-                    <div class="text-sm text-gray-600">Bahasa Indonesia</div>
+                    <div class="text-4xl font-bold text-cyan-400 mb-2">12</div>
+                    <div class="text-sm text-slate-300">Industry Presets</div>
                 </div>
                 <div>
-                    <div class="text-4xl font-bold text-blue-600 mb-2">3 Detik</div>
-                    <div class="text-sm text-gray-600">Hook Generator</div>
+                    <div class="text-4xl font-bold text-cyan-400 mb-2">5</div>
+                    <div class="text-sm text-slate-300">Bahasa Daerah</div>
                 </div>
             </div>
         </div>
@@ -181,69 +389,117 @@
     <div class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-3">Fitur Khusus UMKM</h2>
-                <p class="text-gray-600">Semua yang kamu butuhkan untuk jualan online</p>
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">Fitur Lengkap untuk UMKM</h2>
+                <p class="text-gray-600">Semua yang kamu butuhkan untuk jualan online & konten marketing</p>
             </div>
             
             <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-lg p-6 border-2 border-blue-200">
-                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-cyan-200 hover:border-cyan-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🏭 12 Industry Presets</h3>
-                    <p class="text-sm text-gray-600">Fashion, Makanan, Skincare, Printing, Fotografi, Catering, TikTok Shop, Shopee Affiliate, dan lainnya</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🤖 AI Generator 200+ Konten</h3>
+                    <p class="text-sm text-gray-700 mb-3">Mode Simpel (6 pertanyaan) & Mode Advanced (200+ jenis konten) untuk semua kebutuhan marketing</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Quick Templates (15 jenis)</li>
+                        <li>✓ Viral & Clickbait Content (20 jenis)</li>
+                        <li>✓ Industry Presets (12 industri)</li>
+                        <li>✓ Social Media (Instagram, TikTok, FB, LinkedIn)</li>
+                        <li>✓ Marketplace (Shopee, Tokopedia, dll)</li>
+                        <li>✓ Email & WhatsApp Marketing</li>
+                    </ul>
                 </div>
 
-                <div class="bg-white rounded-lg p-6 border-2 border-green-200">
-                    <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200 hover:border-purple-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🗣️ Bahasa Daerah</h3>
-                    <p class="text-sm text-gray-600">Tambah sentuhan lokal dengan bahasa Jawa, Sunda, Betawi, Minang, atau Batak</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🗣️ Bahasa UMKM + Daerah</h3>
+                    <p class="text-sm text-gray-700 mb-3">AI otomatis pakai bahasa yang relate dengan target market kamu</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Auto "Kak", "Bun", "Gaes"</li>
+                        <li>✓ Bahasa Jawa (Halus/Ngoko)</li>
+                        <li>✓ Bahasa Sunda</li>
+                        <li>✓ Bahasa Betawi</li>
+                        <li>✓ Bahasa Minang</li>
+                        <li>✓ Bahasa Batak</li>
+                    </ul>
                 </div>
 
-                <div class="bg-white rounded-lg p-6 border-2 border-purple-200">
-                    <div class="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-6 border-2 border-green-200 hover:border-green-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🏷️ Auto Hashtag</h3>
-                    <p class="text-sm text-gray-600">Otomatis generate hashtag trending Indonesia yang relevan dengan produk kamu</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">💼 Brand Voice Saver</h3>
+                    <p class="text-sm text-gray-700 mb-3">Save preferensi brand untuk generate lebih cepat & konsisten</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Save unlimited brand voices</li>
+                        <li>✓ Set default brand voice</li>
+                        <li>✓ Load dengan 1 klik</li>
+                        <li>✓ Konsistensi brand</li>
+                        <li>✓ Perfect untuk agency</li>
+                        <li>✓ Multiple business support</li>
+                    </ul>
                 </div>
 
-                <div class="bg-white rounded-lg p-6 border-2 border-yellow-200">
-                    <div class="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border-2 border-yellow-200 hover:border-yellow-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">📊 Analytics Tracking</h3>
-                    <p class="text-sm text-gray-600">Track performa caption kamu: likes, comments, shares, dan engagement rate</p>
+                    <p class="text-sm text-gray-700 mb-3">Track performa caption & optimize strategy dengan data</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Track likes, comments, shares</li>
+                        <li>✓ Auto-calculate engagement rate</li>
+                        <li>✓ Platform comparison</li>
+                        <li>✓ Category performance</li>
+                        <li>✓ Export PDF & CSV</li>
+                        <li>✓ Data-driven decisions</li>
+                    </ul>
                 </div>
 
-                <div class="bg-white rounded-lg p-6 border-2 border-red-200">
-                    <div class="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-6 border-2 border-red-200 hover:border-red-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🔄 5-20 Variasi</h3>
-                    <p class="text-sm text-gray-600">Generate 5 variasi gratis, atau 20 variasi sekaligus untuk premium users</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🔄 Multiple Variations</h3>
+                    <p class="text-sm text-gray-700 mb-3">Generate 1-20 variasi caption untuk A/B testing</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ 1 caption: GRATIS</li>
+                        <li>✓ 5 captions: Rp 5.000</li>
+                        <li>✓ 10 captions: Rp 9.000</li>
+                        <li>✓ 15 captions: Rp 12.000</li>
+                        <li>✓ 20 captions: Rp 15.000</li>
+                        <li>✓ Auto hashtag Indonesia</li>
+                    </ul>
                 </div>
 
-                <div class="bg-white rounded-lg p-6 border-2 border-indigo-200">
-                    <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-200 hover:border-indigo-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🎯 Mode Simpel</h3>
-                    <p class="text-sm text-gray-600">Gaptek? Tenang! Jawab 5 pertanyaan simpel, langsung jadi caption!</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🎯 12 Industry Presets</h3>
+                    <p class="text-sm text-gray-700 mb-3">AI yang paham industri spesifik dengan prompt khusus</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Fashion & Pakaian</li>
+                        <li>✓ Makanan & Minuman</li>
+                        <li>✓ Kecantikan & Skincare</li>
+                        <li>✓ Jasa Printing & Fotografi</li>
+                        <li>✓ Catering & TikTok Shop</li>
+                        <li>✓ Dan 6 industri lainnya</li>
+                    </ul>
                 </div>
             </div>
         </div>

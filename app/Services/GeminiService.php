@@ -266,8 +266,12 @@ class GeminiService
                         throw new \Exception('API Key tidak valid. Silakan generate API key baru di https://aistudio.google.com/app/apikey');
                     } elseif (strpos($errorMessage, 'not found') !== false || strpos($errorMessage, 'not supported') !== false) {
                         throw new \Exception('Model Gemini tidak tersedia. API key mungkin tidak valid atau expired. Silakan generate API key baru di https://aistudio.google.com/app/apikey');
-                    } elseif (strpos($errorMessage, 'quota') !== false) {
-                        throw new \Exception('Kuota API habis. Hubungi administrator.');
+                    } elseif (strpos($errorMessage, 'quota') !== false || strpos($errorMessage, 'exceeded your current quota') !== false) {
+                        // Check if free tier limit
+                        if (strpos($errorMessage, 'free_tier') !== false) {
+                            throw new \Exception('⚠️ Kuota Free Tier habis (20 requests/hari). Solusi: 1) Setup billing di Google AI Studio untuk upgrade ke Paid Tier (300 RPM), atau 2) Generate API key baru. Kunjungi: https://aistudio.google.com/app/apikey');
+                        }
+                        throw new \Exception('Kuota API habis. Setup billing di Google AI Studio: https://aistudio.google.com/app/apikey');
                     } elseif (strpos($errorMessage, 'rate limit') !== false) {
                         throw new \Exception('Terlalu banyak request. Silakan tunggu beberapa saat.');
                     }
