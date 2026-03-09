@@ -198,6 +198,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'show'])->name('feedback.show');
         Route::put('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'update'])->name('feedback.update');
         Route::delete('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'destroy'])->name('feedback.destroy');
+        
+        // Banner Information Management
+        Route::get('/banner-information', [\App\Http\Controllers\Admin\BannerInformationController::class, 'index'])->name('banner-information.index');
+        Route::put('/banner-information/{banner}', [\App\Http\Controllers\Admin\BannerInformationController::class, 'update'])->name('banner-information.update');
     });
 });
 
@@ -216,6 +220,11 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
             ->get();
         return response()->json(['notifications' => $notifications]);
     });
+});
+
+// Public API Routes (no auth required)
+Route::prefix('api')->group(function () {
+    Route::get('/banner/{type}', [\App\Http\Controllers\BannerInformationController::class, 'getByType']);
 });
 
 // Test route for debugging Gemini API

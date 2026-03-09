@@ -83,6 +83,15 @@
     </svg>
 </a>
 
+<!-- Banner Information -->
+<a href="{{ route('admin.banner-information.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.banner-information*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="Banner Information">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+    </svg>
+</a>
+
 <!-- Feedback Management -->
 <a href="{{ route('admin.feedback') }}" 
    class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.feedback*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"

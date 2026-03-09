@@ -136,4 +136,7 @@
         @endif
     </div>
 </div>
+
+<!-- Banner Popup -->
+<x-banner-popup type="operator" />
 @endsection

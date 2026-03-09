@@ -635,5 +635,8 @@
             </div>
         </div>
     </footer>
+
+    <!-- Banner Popup -->
+    <x-banner-popup type="landing" />
 </body>
 </html>

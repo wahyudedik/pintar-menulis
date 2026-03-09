@@ -20,6 +20,7 @@
                         <a href="{{ route('admin.packages') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md {{ request()->routeIs('admin.packages*') ? 'bg-blue-50 text-blue-600' : '' }}">Packages</a>
                         <a href="{{ route('admin.reports') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md {{ request()->routeIs('admin.reports') ? 'bg-blue-50 text-blue-600' : '' }}">Reports</a>
                         <a href="{{ route('admin.payments') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md {{ request()->routeIs('admin.payments') ? 'bg-blue-50 text-blue-600' : '' }}">Payments</a>
+                        <a href="{{ route('admin.banner-information.index') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md {{ request()->routeIs('admin.banner-information*') ? 'bg-blue-50 text-blue-600' : '' }}">Banners</a>
                         <a href="{{ route('admin.payment-settings') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md {{ request()->routeIs('admin.payment-settings*') ? 'bg-blue-50 text-blue-600' : '' }}">Settings</a>
                         <a href="{{ route('admin.withdrawals') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md {{ request()->routeIs('admin.withdrawals*') ? 'bg-blue-50 text-blue-600' : '' }}">Withdrawals</a>
                     </div>

@@ -144,4 +144,7 @@
         @endif
     </div>
 </div>
+
+<!-- Banner Popup -->
+<x-banner-popup type="client" />
 @endsection

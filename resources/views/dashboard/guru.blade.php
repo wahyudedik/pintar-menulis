@@ -187,4 +187,7 @@
         </div>
     </div>
 </div>
+
+<!-- Banner Popup -->
+<x-banner-popup type="guru" />
 @endsection
