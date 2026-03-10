@@ -19,6 +19,10 @@
     <!-- Additional head content from child views -->
     @yield('head')
     
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2771325503977360"
+            crossorigin="anonymous"></script>
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased bg-gray-50">
