@@ -23,7 +23,7 @@
 - Buka: https://console.cloud.google.com/apis/credentials
 - Click "CREATE CREDENTIALS" → "API key"
 - Copy API key yang muncul
-- Contoh: `AIzaSyB6dtMwbQr4_w-OA5MNbf7yfC6a28F1B8U`
+- Contoh: `AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
 
 **5. Setup Billing (Wajib tapi GRATIS!)**
 - Buka: https://console.cloud.google.com/billing
@@ -34,7 +34,7 @@
 
 **6. Tambahkan ke .env**
 ```env
-GOOGLE_PLACES_API_KEY=AIzaSyB6dtMwbQr4_w-OA5MNbf7yfC6a28F1B8U
+GOOGLE_PLACES_API_KEY=your_api_key_here
 ```
 
 **7. Test**
@@ -147,7 +147,7 @@ php artisan ml:train-daily
 ### Untuk Development:
 ```env
 # Cukup ini aja (sudah ada)
-GEMINI_API_KEY=AIzaSyB6dtMwbQr4_w-OA5MNbf7yfC6a28F1B8U
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # Google API: SKIP DULU
 # GOOGLE_PLACES_API_KEY=

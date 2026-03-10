@@ -59,7 +59,7 @@
    - Click "CREATE CREDENTIALS"
    - Pilih "API key"
    - API key akan dibuat otomatis
-   - Copy API key (contoh: `AIzaSyB6dtMwbQr4_w-OA5MNbf7yfC6a28F1B8U`)
+   - Copy API key (contoh: `AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`)
 
 3. **Restrict API Key (Recommended)**
    - Click "RESTRICT KEY" atau edit API key
@@ -99,7 +99,7 @@
 
 ```env
 # Google Places API (Optional - for real data)
-GOOGLE_PLACES_API_KEY=AIzaSyB6dtMwbQr4_w-OA5MNbf7yfC6a28F1B8U
+GOOGLE_PLACES_API_KEY=your_api_key_here
 ```
 
 #### 6. Test API Key
