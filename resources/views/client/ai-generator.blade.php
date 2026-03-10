@@ -656,7 +656,7 @@
 
                 <div x-show="result && !loading" x-cloak>
                     <div class="bg-gray-50 rounded-lg p-4 mb-4 max-h-96 overflow-y-auto">
-                        <pre class="whitespace-pre-wrap text-sm text-gray-800" x-text="result"></pre>
+                        <pre class="whitespace-pre-wrap text-sm text-gray-800" x-text="cleanMarkdown(result)"></pre>
                     </div>
                     
                     <!-- 🔍 KEYWORD INSIGHTS SECTION -->
@@ -1611,26 +1611,45 @@
                 return labels[value] || value;
             },
             
-            copyToClipboard() {
+            copyToClipboard(event) {
+                // Prevent default if event is passed
+                if (event && event.preventDefault) {
+                    event.preventDefault();
+                }
+                
                 try {
+                    // Clean markdown formatting before copying
+                    let textToCopy = this.result || '';
+                    
+                    // Remove markdown bold (**text** or __text__)
+                    textToCopy = textToCopy.replace(/\*\*(.+?)\*\*/g, '$1');
+                    textToCopy = textToCopy.replace(/__(.+?)__/g, '$1');
+                    
+                    // Remove markdown italic (*text* or _text_)
+                    textToCopy = textToCopy.replace(/\*(.+?)\*/g, '$1');
+                    textToCopy = textToCopy.replace(/_(.+?)_/g, '$1');
+                    
+                    // Remove markdown headers (## or ###)
+                    textToCopy = textToCopy.replace(/^#{1,6}\s+/gm, '');
+                    
                     // Modern method
                     if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(this.result)
+                        navigator.clipboard.writeText(textToCopy)
                             .then(() => {
                                 this.copied = true;
                                 setTimeout(() => this.copied = false, 2000);
                             })
                             .catch(err => {
                                 console.error('Clipboard error:', err);
-                                this.fallbackCopy();
+                                this.fallbackCopy(textToCopy);
                             });
                     } else {
                         // Fallback method
-                        this.fallbackCopy();
+                        this.fallbackCopy(textToCopy);
                     }
                 } catch (err) {
                     console.error('Copy error:', err);
-                    this.fallbackCopy();
+                    this.fallbackCopy(this.result);
                 }
             },
             
@@ -2065,16 +2084,26 @@
                 this.result += ' ' + emoji;
             },
 
-            copyToClipboard(text = null) {
-                const textToCopy = text || this.result;
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(textToCopy).then(() => {
-                        this.copied = true;
-                        setTimeout(() => { this.copied = false; }, 2000);
-                    });
-                } else {
-                    this.fallbackCopy(textToCopy);
-                }
+            // Remove duplicate copyToClipboard - already defined above
+            
+            // Clean markdown formatting for display
+            cleanMarkdown(text) {
+                if (!text) return '';
+                
+                let cleaned = text;
+                
+                // Remove markdown bold (**text** or __text__)
+                cleaned = cleaned.replace(/\*\*(.+?)\*\*/g, '$1');
+                cleaned = cleaned.replace(/__(.+?)__/g, '$1');
+                
+                // Remove markdown italic (*text* or _text_)  
+                cleaned = cleaned.replace(/\*(.+?)\*/g, '$1');
+                cleaned = cleaned.replace(/_(.+?)_/g, '$1');
+                
+                // Remove markdown headers (## or ###)
+                cleaned = cleaned.replace(/^#{1,6}\s+/gm, '');
+                
+                return cleaned;
             },
 
             // 🤖 ML FEATURES - Additional Methods
