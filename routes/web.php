@@ -29,6 +29,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
 Route::get('/packages/{package}', [PackageController::class, 'show'])->name('packages.show');
 
+// Article routes
+Route::get('/articles', [\App\Http\Controllers\ArticleController::class, 'index'])->name('articles.index');
+Route::get('/articles/{slug}', [\App\Http\Controllers\ArticleController::class, 'show'])->name('articles.show');
+
+// SEO Routes
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap.xml');
+
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
     // Profile
@@ -48,6 +55,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:client'])->group(function () {
         // AI Generator
         Route::get('/ai-generator', [\App\Http\Controllers\Client\AIGeneratorController::class, 'index'])->name('ai.generator');
+        
+        // Keyword Research
+        Route::get('/keyword-research', [\App\Http\Controllers\Client\KeywordResearchController::class, 'index'])->name('keyword-research.index');
         
         // Analytics
         Route::get('/analytics', [\App\Http\Controllers\Client\AnalyticsController::class, 'index'])->name('analytics.index');
@@ -71,6 +81,15 @@ Route::middleware(['auth'])->group(function () {
         
         // My Stats (Personal ML Insights)
         Route::get('/my-stats', [\App\Http\Controllers\Client\CaptionRatingController::class, 'myStats'])->name('my-stats');
+        
+        // Bulk Content Generator
+        Route::get('/bulk-content', [\App\Http\Controllers\Client\BulkContentController::class, 'index'])->name('bulk-content.index');
+        Route::get('/bulk-content/create', [\App\Http\Controllers\Client\BulkContentController::class, 'create'])->name('bulk-content.create');
+        Route::post('/bulk-content/generate', [\App\Http\Controllers\Client\BulkContentController::class, 'generate'])->name('bulk-content.generate');
+        Route::get('/bulk-content/{calendar}', [\App\Http\Controllers\Client\BulkContentController::class, 'show'])->name('bulk-content.show');
+        Route::get('/bulk-content/{calendar}/export/{format}', [\App\Http\Controllers\Client\BulkContentController::class, 'export'])->name('bulk-content.export');
+        Route::delete('/bulk-content/{calendar}', [\App\Http\Controllers\Client\BulkContentController::class, 'destroy'])->name('bulk-content.destroy');
+        Route::post('/bulk-content/{calendar}/update/{dayNumber}', [\App\Http\Controllers\Client\BulkContentController::class, 'updateContent'])->name('bulk-content.update-content');
         
         // Feedback & Support
         Route::get('/feedback', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
@@ -202,13 +221,40 @@ Route::middleware(['auth'])->group(function () {
         // Banner Information Management
         Route::get('/banner-information', [\App\Http\Controllers\Admin\BannerInformationController::class, 'index'])->name('banner-information.index');
         Route::put('/banner-information/{banner}', [\App\Http\Controllers\Admin\BannerInformationController::class, 'update'])->name('banner-information.update');
+        
+        // Ad Placements Management
+        Route::get('/ad-placements', [\App\Http\Controllers\Admin\AdPlacementController::class, 'index'])->name('ad-placements.index');
+        Route::put('/ad-placements/{placement}', [\App\Http\Controllers\Admin\AdPlacementController::class, 'update'])->name('ad-placements.update');
+        Route::patch('/ad-placements/{placement}/toggle', [\App\Http\Controllers\Admin\AdPlacementController::class, 'toggle'])->name('ad-placements.toggle');
     });
 });
 
 // API Routes
 Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::post('/ai/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generate'])->name('api.ai.generate');
+    Route::post('/ai/generate-image-caption', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->name('api.ai.generate-image-caption');
     Route::get('/check-first-time', [\App\Http\Controllers\Client\AIGeneratorController::class, 'checkFirstTime'])->name('api.check-first-time');
+    
+    // 🤖 ML System API
+    Route::get('/ml/status', [\App\Http\Controllers\MLSuggestionsController::class, 'getStatus'])->name('api.ml.status');
+    Route::get('/ml/preview', [\App\Http\Controllers\MLSuggestionsController::class, 'getPreview'])->name('api.ml.preview');
+    Route::get('/ml/weekly-trends', [\App\Http\Controllers\MLSuggestionsController::class, 'getWeeklyTrends'])->name('api.ml.weekly-trends');
+    Route::post('/ml/refresh', [\App\Http\Controllers\MLSuggestionsController::class, 'refreshSuggestions'])->name('api.ml.refresh');
+    Route::get('/ml/cache-stats', [\App\Http\Controllers\MLSuggestionsController::class, 'getCacheStats'])->name('api.ml.cache-stats');
+    
+    // 🔍 AI Analysis API
+    Route::post('/analysis/sentiment', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeSentiment'])->name('api.analysis.sentiment');
+    Route::post('/analysis/image', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeImage'])->name('api.analysis.image');
+    Route::post('/analysis/score-caption', [\App\Http\Controllers\AIAnalysisController::class, 'scoreCaption'])->name('api.analysis.score-caption');
+    Route::post('/analysis/recommendations', [\App\Http\Controllers\AIAnalysisController::class, 'getRecommendations'])->name('api.analysis.recommendations');
+    Route::post('/analysis/campaign', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeCampaign'])->name('api.analysis.campaign');
+    Route::post('/analysis/article', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeArticle'])->name('api.analysis.article');
+    Route::get('/analysis/history', [\App\Http\Controllers\AIAnalysisController::class, 'getHistory'])->name('api.analysis.history');
+    Route::get('/analysis/dashboard', [\App\Http\Controllers\AIAnalysisController::class, 'getDashboard'])->name('api.analysis.dashboard');
+    
+    // Keyword Research API
+    Route::post('/keyword-research/search', [\App\Http\Controllers\Client\KeywordResearchController::class, 'search'])->name('api.keyword-research.search');
+    Route::get('/keyword-research/history', [\App\Http\Controllers\Client\KeywordResearchController::class, 'history'])->name('api.keyword-research.history');
     
     // Caption Rating (Client)
     Route::post('/caption/{id}/rate', [\App\Http\Controllers\Client\CaptionRatingController::class, 'rate'])->name('api.caption.rate');
@@ -220,6 +266,22 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
             ->get();
         return response()->json(['notifications' => $notifications]);
     });
+});
+
+// Article API Routes (public)
+Route::prefix('api/articles')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ArticleApiController::class, 'index'])->name('api.articles.index');
+    Route::get('/today', [\App\Http\Controllers\ArticleApiController::class, 'today'])->name('api.articles.today');
+    Route::get('/category/{category}', [\App\Http\Controllers\ArticleApiController::class, 'byCategory'])->name('api.articles.by-category');
+    Route::get('/industry/{industry}', [\App\Http\Controllers\ArticleApiController::class, 'byIndustry'])->name('api.articles.by-industry');
+    Route::get('/{slug}', [\App\Http\Controllers\ArticleApiController::class, 'show'])->name('api.articles.show');
+});
+
+// 🤖 AI Assistant API (Public - no auth required, with rate limiting)
+Route::prefix('api')->middleware('throttle:30,1')->group(function () {
+    Route::post('/assistant/chat', [\App\Http\Controllers\AIAssistantController::class, 'chat'])->name('api.assistant.chat');
+    Route::get('/assistant/suggestions', [\App\Http\Controllers\AIAssistantController::class, 'getSuggestions'])->name('api.assistant.suggestions');
+    Route::get('/assistant/tips', [\App\Http\Controllers\AIAssistantController::class, 'getTips'])->name('api.assistant.tips');
 });
 
 // Public API Routes (no auth required)

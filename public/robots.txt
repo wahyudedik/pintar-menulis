@@ -1,2 +1,24 @@
 User-agent: *
-Disallow:
+Allow: /
+Allow: /articles
+Allow: /api/articles
+
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/admin
+
+# Sitemap
+Sitemap: {{ url('/sitemap.xml') }}
+
+# Crawl delay
+Crawl-delay: 1
+
+# Specific rules for search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

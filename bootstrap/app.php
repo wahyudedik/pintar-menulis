@@ -16,5 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Return JSON for API requests
+        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage() ?: 'An error occurred',
+                    'message' => $e->getMessage() ?: 'An error occurred',
+                ], 500);
+            }
+        });
     })->create();

@@ -6,13 +6,25 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<script src="{{ asset('js/caption-analysis.js') }}"></script>
 @endpush
 
 @section('content')
 <div class="p-6" x-data="aiGenerator()" x-init="init()">
-    <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-900">AI Copywriting Generator</h1>
-        <p class="text-sm text-gray-500 mt-1">Generate copywriting berkualitas dengan AI</p>
+    <!-- Header dengan ML Insights Button -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">AI Copywriting Generator</h1>
+            <p class="text-sm text-gray-500 mt-1">Generate copywriting berkualitas dengan AI</p>
+        </div>
+        <!-- 🤖 ML Insights Button (Top Right) -->
+        <button @click="toggleMLPreview()" 
+                class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition flex items-center space-x-2 text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+            <span>ML Insights</span>
+        </button>
     </div>
 
     <!-- Load Brand Voice -->
@@ -55,27 +67,59 @@
 
     <!-- Mode Toggle -->
     <div class="mb-6 flex justify-center">
-        <div class="inline-flex rounded-lg border border-gray-300 p-1 bg-gray-50">
-            <button @click="mode = 'simple'" 
-                    :class="mode === 'simple' ? 'bg-white shadow-sm' : 'text-gray-600'"
-                    class="px-6 py-2 rounded-md text-sm font-medium transition">
-                🎯 Mode Simpel (Untuk Pemula)
+        <div class="inline-flex rounded-lg border border-gray-300 p-1 bg-gray-50 flex-wrap gap-1">
+            <button @click="generatorType = 'text'; mode = 'simple'" 
+                    :class="generatorType === 'text' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📝 Text Generator
             </button>
-            <button @click="mode = 'advanced'" 
-                    :class="mode === 'advanced' ? 'bg-white shadow-sm' : 'text-gray-600'"
-                    class="px-6 py-2 rounded-md text-sm font-medium transition">
-                ⚙️ Mode Lengkap (Advanced)
+            <button @click="generatorType = 'image'" 
+                    :class="generatorType === 'image' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🖼️ Image Caption
+            </button>
+            <button @click="generatorType = 'bulk'" 
+                    :class="generatorType === 'bulk' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📅 Bulk Content
+            </button>
+            <button @click="generatorType = 'history'" 
+                    :class="generatorType === 'history' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📜 History
+            </button>
+            <button @click="generatorType = 'stats'" 
+                    :class="generatorType === 'stats' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📊 My Stats
             </button>
         </div>
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Text Mode Toggle (only show when text generator is active) -->
+    <div class="mb-6 flex justify-center" x-show="generatorType === 'text'" x-cloak>
+        <div class="inline-flex rounded-lg border border-gray-300 p-1 bg-gray-50">
+            <button @click="mode = 'simple'" 
+                    :class="mode === 'simple' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-6 py-2 rounded-md text-sm font-medium transition">
+                🎯 Mode Simpel
+            </button>
+            <button @click="mode = 'advanced'" 
+                    :class="mode === 'advanced' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-6 py-2 rounded-md text-sm font-medium transition">
+                ⚙️ Mode Lengkap
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="w-full">
         <!-- Form Input -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="w-full">
+            <div class="bg-white rounded-lg border border-gray-200 p-6" x-show="generatorType === 'text' || generatorType === 'image'" x-cloak>
                 
                 <!-- SIMPLE MODE -->
-                <form @submit.prevent="generateCopywriting" x-show="mode === 'simple'" x-cloak>
+                <form @submit.prevent="generateCopywriting" x-show="generatorType === 'text' && mode === 'simple'" x-cloak>
                     <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <p class="text-sm text-blue-800 font-medium">✨ Mode Simpel - Isi 6 pertanyaan, langsung jadi!</p>
                     </div>
@@ -194,7 +238,7 @@
                 </form>
 
                 <!-- ADVANCED MODE -->
-                <form @submit.prevent="generateCopywriting" x-show="mode === 'advanced'" x-cloak>
+                <form @submit.prevent="generateCopywriting" x-show="generatorType === 'text' && mode === 'advanced'" x-cloak>
                     <!-- Category -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -442,12 +486,157 @@
                         </span>
                     </button>
                 </form>
+
+                <!-- IMAGE CAPTION MODE -->
+                <form @submit.prevent="generateImageCaption" x-show="generatorType === 'image'" x-cloak enctype="multipart/form-data">
+                    <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <p class="text-sm text-purple-800 font-medium">🖼️ Upload foto produk, AI generate caption otomatis!</p>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Produk *</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition cursor-pointer" 
+                             @click="$refs.imageInput.click()"
+                             @dragover.prevent="$el.classList.add('border-blue-400', 'bg-blue-50')"
+                             @dragleave.prevent="$el.classList.remove('border-blue-400', 'bg-blue-50')"
+                             @drop.prevent="handleImageDrop($event)">
+                            
+                            <input type="file" 
+                                   x-ref="imageInput" 
+                                   @change="handleImageSelect($event)" 
+                                   accept="image/*" 
+                                   class="hidden">
+                            
+                            <div x-show="!imageForm.preview">
+                                <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p class="text-gray-600 mb-2">Klik atau drag & drop foto di sini</p>
+                                <p class="text-xs text-gray-500">JPG, PNG (Max 5MB)</p>
+                            </div>
+
+                            <div x-show="imageForm.preview" class="relative">
+                                <img :src="imageForm.preview" alt="Preview" class="max-h-64 mx-auto rounded-lg">
+                                <button type="button" 
+                                        @click.stop="removeImage()" 
+                                        class="mt-3 text-sm text-red-600 hover:text-red-700">
+                                    Ganti Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optional Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Bisnis (Opsional)</label>
+                            <input type="text" 
+                                   x-model="imageForm.business_type" 
+                                   placeholder="Contoh: Kuliner, Fashion, Kosmetik" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk (Opsional)</label>
+                            <input type="text" 
+                                   x-model="imageForm.product_name" 
+                                   placeholder="Contoh: Nasi Goreng Spesial" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <div class="flex gap-3">
+                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="text-sm text-blue-800">
+                                <p class="font-medium mb-1">AI akan generate:</p>
+                                <ul class="list-disc list-inside space-y-1 text-blue-700 text-xs">
+                                    <li>Caption untuk single post</li>
+                                    <li>Caption untuk carousel (3 slide)</li>
+                                    <li>Deteksi objek dalam foto</li>
+                                    <li>Tips editing & filter</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            :disabled="loading || !imageForm.file"
+                            class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <span x-show="!loading" class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Generate Caption dari Foto
+                        </span>
+                        <span x-show="loading" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Analyzing Image...
+                        </span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- BULK CONTENT MODE -->
+            <div x-show="generatorType === 'bulk'" x-cloak class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Bulk Content Generator</h3>
+                <p class="text-gray-600 mb-4">Generate 7 atau 30 hari konten sekaligus dengan content calendar</p>
+                <a href="{{ route('bulk-content.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Buka Bulk Content Generator
+                </a>
+            </div>
+
+            <!-- CAPTION HISTORY MODE -->
+            <div x-show="generatorType === 'history'" x-cloak class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Caption History</h3>
+                <p class="text-gray-600 mb-4">Lihat semua caption yang pernah kamu generate</p>
+                <a href="{{ route('caption-history.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                        Lihat Caption History
+                    </a>
+                </div>
+
+            <!-- MY STATS MODE -->
+            <div x-show="generatorType === 'stats'" x-cloak class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">My Stats & ML Insights</h3>
+                <p class="text-gray-600 mb-4">Lihat statistik dan insights dari AI kamu</p>
+                <a href="{{ route('my-stats') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Lihat My Stats
+                </a>
             </div>
         </div>
 
-        <!-- Result -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg border border-gray-200 p-6 sticky top-6">
+        </div>
+
+        <!-- Result Section -->
+        <div x-show="generatorType === 'text' || generatorType === 'image'" x-cloak class="mt-6">
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Hasil Generate</h3>
                 
                 <div x-show="!result && !loading" class="text-center py-12 text-gray-400">
@@ -468,6 +657,61 @@
                 <div x-show="result && !loading" x-cloak>
                     <div class="bg-gray-50 rounded-lg p-4 mb-4 max-h-96 overflow-y-auto">
                         <pre class="whitespace-pre-wrap text-sm text-gray-800" x-text="result"></pre>
+                    </div>
+                    
+                    <!-- 🔍 KEYWORD INSIGHTS SECTION -->
+                    <div x-show="keywordInsights && keywordInsights.length > 0" x-cloak class="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                        <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            Analisis Keyword
+                        </h4>
+                        
+                        <template x-for="(kw, index) in keywordInsights" :key="index">
+                            <div class="mb-3 p-3 bg-white rounded-lg shadow-sm">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex-1">
+                                        <span class="font-medium text-gray-900" x-text="kw.keyword"></span>
+                                        <span class="ml-2 text-xs px-2 py-1 rounded-full"
+                                              :class="{
+                                                  'bg-green-100 text-green-700': kw.competition === 'LOW',
+                                                  'bg-yellow-100 text-yellow-700': kw.competition === 'MEDIUM',
+                                                  'bg-red-100 text-red-700': kw.competition === 'HIGH'
+                                              }"
+                                              x-text="kw.competition === 'LOW' ? 'Rendah' : (kw.competition === 'MEDIUM' ? 'Sedang' : 'Tinggi')">
+                                        </span>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-semibold text-blue-600" x-text="kw.search_volume ? kw.search_volume.toLocaleString('id-ID') + '/bln' : '-'"></div>
+                                        <div class="text-xs text-gray-500">pencarian</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between text-xs text-gray-600 mb-2">
+                                    <span>CPC:</span>
+                                    <span class="font-medium">
+                                        Rp <span x-text="kw.cpc_low ? kw.cpc_low.toLocaleString('id-ID') : '0'"></span> - 
+                                        Rp <span x-text="kw.cpc_high ? kw.cpc_high.toLocaleString('id-ID') : '0'"></span>
+                                    </span>
+                                </div>
+                                
+                                <template x-if="kw.related_keywords && kw.related_keywords.length > 0">
+                                    <div class="mt-2 pt-2 border-t border-gray-100">
+                                        <div class="text-xs text-gray-500 mb-1">Related Keywords:</div>
+                                        <div class="flex flex-wrap gap-1">
+                                            <template x-for="(related, idx) in kw.related_keywords.slice(0, 5)" :key="idx">
+                                                <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded" x-text="related"></span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        
+                        <div class="mt-3 p-2 bg-blue-100 rounded text-xs text-blue-800">
+                            <strong>💡 Tips:</strong> Fokus ke keyword dengan volume tinggi & kompetisi rendah untuk hasil maksimal!
+                        </div>
                     </div>
                     
                     <!-- Rating Section -->
@@ -503,88 +747,107 @@
                         </p>
                     </div>
                     
-                    <div class="space-y-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                         <button @click="copyToClipboard" 
-                                class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-sm">
-                            <span x-show="!copied">Copy to Clipboard</span>
-                            <span x-show="copied">Copied!</span>
+                                class="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition text-sm">
+                            <span x-show="!copied">📋 Copy</span>
+                            <span x-show="copied">✓ Copied!</span>
+                        </button>
+                        <button @click="analyzeCaption()"
+                                :disabled="analysisLoading"
+                                class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition text-sm flex items-center justify-center space-x-2 disabled:bg-gray-400">
+                            <svg x-show="!analysisLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <!-- Loading spinner -->
+                            <div x-show="analysisLoading" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            <span x-show="!analysisLoading">🔍 Analyze</span>
+                            <span x-show="analysisLoading">Analyzing...</span>
                         </button>
                         <button @click="saveForAnalytics"
                                 :disabled="saved"
-                                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-sm disabled:bg-gray-400">
-                            <span x-show="!saved">💾 Save for Analytics</span>
+                                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition text-sm disabled:bg-gray-400">
+                            <span x-show="!saved">💾 Save</span>
                             <span x-show="saved">✓ Saved!</span>
                         </button>
                         <button @click="showSaveBrandVoiceModal = true"
-                                class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition text-sm">
-                            💼 Save as Brand Voice
-                        </button>
-                        <button @click="reset"
-                                class="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
-                            Generate Lagi
+                                class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition text-sm">
+                            💼 Brand Voice
                         </button>
                     </div>
+                    
+                    <button @click="reset"
+                            class="w-full mt-3 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
+                        🔄 Generate Lagi
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Save Brand Voice Modal -->
-    <div x-show="showSaveBrandVoiceModal" x-cloak 
-         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-         @click.self="showSaveBrandVoiceModal = false">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">💼 Save Brand Voice</h3>
-            <p class="text-sm text-gray-600 mb-4">Simpan preferensi ini untuk generate lebih cepat di lain waktu</p>
-            
-            <form @submit.prevent="saveBrandVoice">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Brand Voice <span class="text-red-600">*</span></label>
-                    <input type="text" x-model="brandVoiceForm.name" required
-                           placeholder="Contoh: Toko Baju Anak Saya"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                </div>
+        
+        <!-- 🔍 Caption Analysis Modal - Full Screen -->
+        @include('client.partials.caption-analysis')
+        
+        <!-- Save Brand Voice Modal -->
+        <div x-show="showSaveBrandVoiceModal" x-cloak 
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+             @click.self="showSaveBrandVoiceModal = false">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">💼 Save Brand Voice</h3>
+                <p class="text-sm text-gray-600 mb-4">Simpan preferensi ini untuk generate lebih cepat di lain waktu</p>
                 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Singkat</label>
-                    <textarea x-model="brandVoiceForm.brand_description" rows="2"
-                              placeholder="Contoh: Brand baju anak umur 2-5 tahun, target ibu muda"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" x-model="brandVoiceForm.is_default" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
-                        <span class="ml-2 text-sm text-gray-700">Set sebagai default (auto-load)</span>
-                    </label>
-                </div>
-                
-                <div class="flex space-x-3">
-                    <button type="button" @click="showSaveBrandVoiceModal = false"
-                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                        Batal
-                    </button>
-                    <button type="submit" :disabled="savingBrandVoice"
-                            class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:bg-gray-400">
-                        <span x-show="!savingBrandVoice">Simpan</span>
-                        <span x-show="savingBrandVoice">Menyimpan...</span>
-                    </button>
-                </div>
-            </form>
+                <form @submit.prevent="saveBrandVoice">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Brand Voice <span class="text-red-600">*</span></label>
+                        <input type="text" x-model="brandVoiceForm.name" required
+                               placeholder="Contoh: Toko Baju Anak Saya"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Singkat</label>
+                        <textarea x-model="brandVoiceForm.brand_description" rows="2"
+                                  placeholder="Contoh: Brand baju anak umur 2-5 tahun, target ibu muda"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="brandVoiceForm.is_default" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                            <span class="ml-2 text-sm text-gray-700">Set sebagai default (auto-load)</span>
+                        </label>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" @click="showSaveBrandVoiceModal = false"
+                                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                        <button type="submit" :disabled="savingBrandVoice"
+                                class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:bg-gray-400">
+                            <span x-show="!savingBrandVoice">Simpan</span>
+                            <span x-show="savingBrandVoice">Menyimpan...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
+        
+        <!-- 🤖 ML Upgrade Modal & Features -->
+        @include('client.partials.ml-upgrade-modal')
     </div>
-</div>
 
 <script>
     function aiGenerator() {
         return {
             mode: 'simple', // default simple mode
+            generatorType: 'text', // text or image
             isFirstTimeUser: true, // will be checked on init
             selectedRating: 0,
             ratingFeedback: '',
             rated: false,
             submittingRating: false,
             lastCaptionId: null,
+            keywordInsights: [], // 🔍 Keyword insights data
             form: {
                 category: '',
                 subcategory: '',
@@ -605,6 +868,12 @@
                 goal: '',
                 platform: 'instagram'
             },
+            imageForm: {
+                file: null,
+                preview: null,
+                business_type: '',
+                product_name: ''
+            },
             subcategories: [],
             loading: false,
             result: '',
@@ -619,6 +888,13 @@
                 is_default: false
             },
             
+            // Analysis state
+            showAnalysis: false,
+            analysisLoading: false,
+            analysisError: null,
+            analysisResult: null,
+            analysisTab: 'quality',
+
             // Initialize - check if user is first time
             async init() {
                 await this.checkFirstTimeStatus();
@@ -1011,6 +1287,108 @@
                 this.subcategories = this.subcategoryOptions[this.form.category] || [];
                 this.form.subcategory = '';
             },
+
+            // Image Caption Methods
+            handleImageSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.imageForm.file = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imageForm.preview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            handleImageDrop(event) {
+                event.target.classList.remove('border-blue-400', 'bg-blue-50');
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this.imageForm.file = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imageForm.preview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            removeImage() {
+                this.imageForm.file = null;
+                this.imageForm.preview = null;
+                this.$refs.imageInput.value = '';
+            },
+
+            async generateImageCaption() {
+                if (!this.imageForm.file) {
+                    alert('Mohon upload foto terlebih dahulu');
+                    return;
+                }
+
+                this.loading = true;
+                this.result = '';
+                this.error = '';
+
+                const formData = new FormData();
+                formData.append('image', this.imageForm.file);
+                formData.append('business_type', this.imageForm.business_type);
+                formData.append('product_name', this.imageForm.product_name);
+
+                try {
+                    const response = await fetch('/api/ai/generate-image-caption', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Format result untuk ditampilkan
+                        let resultText = '🖼️ IMAGE CAPTION RESULT\n\n';
+                        
+                        if (data.detected_objects && data.detected_objects.length > 0) {
+                            resultText += '🔍 Objek Terdeteksi:\n';
+                            data.detected_objects.forEach(obj => {
+                                resultText += `• ${obj}\n`;
+                            });
+                            resultText += '\n';
+                        }
+
+                        if (data.caption_single) {
+                            resultText += '📝 CAPTION SINGLE POST:\n';
+                            resultText += data.caption_single + '\n\n';
+                        }
+
+                        if (data.caption_carousel && data.caption_carousel.length > 0) {
+                            resultText += '📱 CAPTION CAROUSEL:\n\n';
+                            data.caption_carousel.forEach((slide, index) => {
+                                resultText += `Slide ${index + 1}:\n${slide}\n\n`;
+                            });
+                        }
+
+                        if (data.editing_tips && data.editing_tips.length > 0) {
+                            resultText += '💡 TIPS EDITING:\n';
+                            data.editing_tips.forEach(tip => {
+                                resultText += `• ${tip}\n`;
+                            });
+                        }
+
+                        this.result = resultText;
+                        this.lastCaptionId = data.caption_id;
+                    } else {
+                        throw new Error(data.message || 'Generation failed');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.error = error.message || 'Terjadi kesalahan saat generate caption';
+                } finally {
+                    this.loading = false;
+                }
+            },
             
             async generateCopywriting() {
                 // Handle Simple Mode
@@ -1117,10 +1495,13 @@
                 try {
                     console.log('Sending request with data:', this.form);
                     
-                    // Add mode to request
+                    // 🤖 Add ML data to request
+                    const industry = this.getIndustryFromForm();
                     const requestData = {
                         ...this.form,
-                        mode: this.mode // simple or advanced
+                        mode: this.mode, // simple or advanced
+                        industry: industry, // 🤖 ML: industry
+                        goal: this.form.goal || 'closing', // 🤖 ML: goal
                     };
                     
                     const response = await fetch('/api/ai/generate', {
@@ -1149,7 +1530,16 @@
                     if (data.success) {
                         this.result = data.result;
                         this.lastCaptionId = data.caption_id || null; // Store caption ID for rating
+                        this.keywordInsights = data.keyword_insights || []; // 🔍 Store keyword insights
+                        
+                        // 🤖 ML: Store ML data
+                        if (data.ml_data) {
+                            this.mlPreview = data.ml_data;
+                            console.log('ML Data:', data.ml_data);
+                        }
+                        
                         console.log('Success! Result:', this.result);
+                        console.log('Keyword Insights:', this.keywordInsights);
                         
                         // Update first-time status after successful generation
                         if (this.isFirstTimeUser) {
@@ -1244,11 +1634,12 @@
                 }
             },
             
-            fallbackCopy() {
+            fallbackCopy(text = null) {
                 try {
+                    const textToCopy = text || this.result;
                     // Create temporary textarea
                     const textarea = document.createElement('textarea');
-                    textarea.value = this.result;
+                    textarea.value = textToCopy;
                     textarea.style.position = 'fixed';
                     textarea.style.opacity = '0';
                     document.body.appendChild(textarea);
@@ -1309,6 +1700,7 @@
                     
                     if (data.success) {
                         this.rated = true;
+                        
                         setTimeout(() => {
                             // Optional: Show success message
                         }, 100);
@@ -1430,9 +1822,361 @@
                 } finally {
                     this.savingBrandVoice = false;
                 }
-            }
+            },
+            
+            // 🤖 ML FEATURES (Simplified - no upgrade modal)
+            mlStatus: null,
+            mlPreview: {},
+            showMLPreview: false,
+            
+            // Initialize ML features
+            async initML() {
+                try {
+                    const response = await fetch('/api/ml/status', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.mlStatus = data;
+                    }
+                } catch (error) {
+                    console.error('ML Init Error:', error);
+                }
+            },
+            
+            // Toggle ML preview
+            async toggleMLPreview() {
+                if (!this.showMLPreview) {
+                    // Get industry from form
+                    const industry = this.getIndustryFromForm();
+                    const platform = this.form?.platform || 'instagram';
+                    
+                    try {
+                        const response = await fetch(`/api/ml/preview?industry=${industry}&platform=${platform}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.mlPreview = data;
+                        }
+                    } catch (error) {
+                        console.error('ML Preview Error:', error);
+                    }
+                }
+                this.showMLPreview = !this.showMLPreview;
+            },
+            
+            // Get industry from form
+            getIndustryFromForm() {
+                if (this.mode === 'simple') {
+                    const businessTypeMap = {
+                        'fashion': 'fashion',
+                        'food': 'food',
+                        'beauty': 'beauty',
+                        'printing': 'printing',
+                        'photography': 'photography',
+                        'catering': 'catering',
+                        'tiktok_shop': 'tiktok_shop',
+                        'shopee_affiliate': 'shopee_affiliate',
+                        'home_decor': 'home_decor',
+                        'handmade': 'handmade',
+                        'digital_service': 'digital_service',
+                        'automotive': 'automotive',
+                    };
+                    return businessTypeMap[this.simpleForm?.business_type] || 'fashion';
+                } else {
+                    const industryMap = {
+                        'fashion_pakaian': 'fashion',
+                        'makanan_minuman': 'food',
+                        'kecantikan_skincare': 'beauty',
+                        'jasa_printing': 'printing',
+                        'jasa_fotografi': 'photography',
+                        'catering': 'catering',
+                        'tiktok_shop': 'tiktok_shop',
+                        'affiliate_shopee': 'shopee_affiliate',
+                        'dekorasi_rumah': 'home_decor',
+                        'kerajinan_tangan': 'handmade',
+                        'jasa_digital': 'digital_service',
+                        'otomotif': 'automotive',
+                    };
+                    return industryMap[this.form?.category] || 'general';
+                }
+            },
+
+            // 🔍 ANALYSIS METHODS
+            async analyzeCaption() {
+                if (!this.result) {
+                    alert('Generate caption terlebih dahulu');
+                    return;
+                }
+
+                this.showAnalysis = true; // Show analysis widget
+                this.analysisLoading = true;
+                this.analysisError = null;
+                this.analysisTab = 'quality';
+
+                try {
+                    // Truncate caption if too long (max 2000 chars for analysis)
+                    const captionToAnalyze = this.result.length > 2000 ? this.result.substring(0, 2000) : this.result;
+
+                    // Map platform to valid analysis platform
+                    const platformMap = {
+                        'shopee': 'instagram',
+                        'tokopedia': 'instagram',
+                        'bukalapak': 'instagram',
+                        'lazada': 'instagram',
+                        'blibli': 'instagram',
+                        'tiktok_shop': 'tiktok',
+                        'olx': 'facebook',
+                        'facebook_marketplace': 'facebook',
+                        'carousell': 'instagram',
+                        'amazon': 'instagram',
+                        'ebay': 'instagram',
+                        'etsy': 'instagram',
+                        'alibaba': 'instagram',
+                        'aliexpress': 'instagram',
+                        'shopify': 'instagram',
+                        'walmart': 'instagram',
+                        'youtube': 'instagram',
+                        'youtube_shorts': 'tiktok',
+                        'twitter': 'twitter',
+                        'linkedin': 'linkedin'
+                    };
+                    
+                    const rawPlatform = this.form.platform || this.simpleForm.platform || 'instagram';
+                    const validPlatform = platformMap[rawPlatform] || rawPlatform;
+                    
+                    // Ensure platform is one of: instagram, tiktok, facebook, twitter, linkedin
+                    const finalPlatform = ['instagram', 'tiktok', 'facebook', 'twitter', 'linkedin'].includes(validPlatform) 
+                        ? validPlatform 
+                        : 'instagram';
+
+                    // Get quality score
+                    const qualityRes = await fetch('/api/analysis/score-caption', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            caption: captionToAnalyze,
+                            platform: finalPlatform,
+                            industry: this.getIndustryFromForm()
+                        })
+                    });
+
+                    if (!qualityRes.ok) {
+                        const text = await qualityRes.text();
+                        console.error('Quality response error:', qualityRes.status, text);
+                        throw new Error(`Quality analysis failed: ${qualityRes.status}`);
+                    }
+
+                    // Get sentiment
+                    const sentimentRes = await fetch('/api/analysis/sentiment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ caption: captionToAnalyze })
+                    });
+
+                    if (!sentimentRes.ok) {
+                        const text = await sentimentRes.text();
+                        console.error('Sentiment response error:', sentimentRes.status, text);
+                        throw new Error(`Sentiment analysis failed: ${sentimentRes.status}`);
+                    }
+
+                    // Get recommendations
+                    const recsRes = await fetch('/api/analysis/recommendations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            caption: captionToAnalyze,
+                            platform: finalPlatform,
+                            target_audience: this.simpleForm.target_market || 'umum'
+                        })
+                    });
+
+                    if (!recsRes.ok) {
+                        const text = await recsRes.text();
+                        console.error('Recommendations response error:', recsRes.status, text);
+                        throw new Error(`Recommendations failed: ${recsRes.status}`);
+                    }
+
+                    const quality = await qualityRes.json();
+                    const sentiment = await sentimentRes.json();
+                    const recommendations = await recsRes.json();
+
+                    // Check if all responses were successful
+                    if (!quality.success || !sentiment.success || !recommendations.success) {
+                        const errors = [];
+                        if (!quality.success) errors.push('Quality: ' + (quality.error || 'Invalid JSON response'));
+                        if (!sentiment.success) errors.push('Sentiment: ' + (sentiment.error || 'Invalid JSON response'));
+                        if (!recommendations.success) errors.push('Recommendations: ' + (recommendations.error || 'Invalid JSON response'));
+                        
+                        // User-friendly error message
+                        throw new Error('⚠️ Gemini API sedang tidak stabil. Coba lagi dalam beberapa saat atau gunakan caption yang lebih pendek.');
+                    }
+
+                    this.analysisResult = {
+                        quality: quality.data,
+                        sentiment: sentiment.data,
+                        recommendations: recommendations.data
+                    };
+
+                    this.showAnalysis = true;
+                } catch (error) {
+                    console.error('Analysis error:', error);
+                    this.analysisError = error.message || 'Gagal menganalisis caption. Silakan coba lagi.';
+                } finally {
+                    this.analysisLoading = false;
+                }
+            },
+
+            useImprovedCaption() {
+                if (this.analysisResult?.quality?.improved_caption) {
+                    this.result = this.analysisResult.quality.improved_caption;
+                    alert('✓ Caption updated!');
+                }
+            },
+
+            addHashtag(hashtag) {
+                if (!this.result.includes(hashtag)) {
+                    this.result += ' ' + hashtag;
+                    this.copyToClipboard();
+                }
+            },
+
+            addEmoji(emoji) {
+                this.result += ' ' + emoji;
+            },
+
+            copyToClipboard(text = null) {
+                const textToCopy = text || this.result;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        this.copied = true;
+                        setTimeout(() => { this.copied = false; }, 2000);
+                    });
+                } else {
+                    this.fallbackCopy(textToCopy);
+                }
+            },
+
+            // 🤖 ML FEATURES - Additional Methods
+            weeklyTrends: {},
+            refreshing: false,
+
+            // Refresh ML suggestions manually
+            async refreshSuggestions() {
+                this.refreshing = true;
+                try {
+                    const response = await fetch('/api/ml/refresh', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    if (response.ok) {
+                        // Reload preview data
+                        const industry = this.getIndustryFromForm();
+                        const platform = this.form?.platform || 'instagram';
+                        
+                        const previewRes = await fetch(`/api/ml/preview?industry=${industry}&platform=${platform}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        });
+                        
+                        if (previewRes.ok) {
+                            this.mlPreview = await previewRes.json();
+                        }
+
+                        const trendsRes = await fetch(`/api/ml/weekly-trends?industry=${industry}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        });
+                        
+                        if (trendsRes.ok) {
+                            this.weeklyTrends = await trendsRes.json();
+                        }
+                        
+                        alert('✅ ML Suggestions berhasil diperbarui dengan data terbaru!');
+                    } else {
+                        alert('❌ Gagal memperbarui suggestions. Coba lagi nanti.');
+                    }
+                } catch (error) {
+                    console.error('Refresh error:', error);
+                    alert('❌ Terjadi kesalahan saat memperbarui suggestions.');
+                } finally {
+                    this.refreshing = false;
+                }
+            },
+
+            // Get freshness indicator
+            getFreshnessIndicator() {
+                if (!this.mlPreview?.generated_at) return '';
+                
+                const generatedAt = new Date(this.mlPreview.generated_at);
+                const now = new Date();
+                const hoursAgo = Math.floor((now - generatedAt) / (1000 * 60 * 60));
+                
+                if (hoursAgo < 1) return '🟢 Baru saja diperbarui';
+                if (hoursAgo < 6) return '🟢 Diperbarui ' + hoursAgo + ' jam lalu';
+                if (hoursAgo < 24) return '🟡 Diperbarui hari ini';
+                if (hoursAgo < 48) return '🟡 Diperbarui kemarin';
+                return '🔴 Perlu diperbarui';
+            },
+
+            // Check if data is fresh (less than 24 hours)
+            isDataFresh() {
+                if (!this.mlPreview?.generated_at) return false;
+                
+                const generatedAt = new Date(this.mlPreview.generated_at);
+                const now = new Date();
+                const hoursAgo = Math.floor((now - generatedAt) / (1000 * 60 * 60));
+                
+                return hoursAgo < 24;
+            },
         }
     }
+    
+    // Initialize ML features on page load
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('aiGenerator', aiGenerator);
+    });
+    
+    // Auto-init ML after component is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const generator = Alpine.$data(document.querySelector('[x-data="aiGenerator()"]'));
+            if (generator && generator.initML) {
+                generator.initML();
+            }
+        }, 1000);
+    });
+
 </script>
 
 <style>

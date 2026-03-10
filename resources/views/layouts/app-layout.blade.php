@@ -12,33 +12,43 @@
     @stack('head')
     <style>
         [x-cloak] { display: none !important; }
-        .tooltip { position: relative; }
-        .tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 12px;
-            padding: 6px 12px;
+        
+        /* Tooltip Styles - Simple & Reliable */
+        .tooltip-container {
+            position: fixed;
+            left: 72px;
+            padding: 8px 12px;
             background: #1f2937;
             color: white;
             border-radius: 6px;
             font-size: 13px;
             white-space: nowrap;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 99999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
         }
-        .tooltip:hover::before {
+        .tooltip-container.show {
+            opacity: 1;
+        }
+        .tooltip-container::before {
             content: '';
             position: absolute;
-            left: 100%;
+            right: 100%;
             top: 50%;
             transform: translateY(-50%);
-            margin-left: 6px;
             border: 6px solid transparent;
             border-right-color: #1f2937;
-            z-index: 1000;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari and Opera */
         }
     </style>
 </head>
@@ -70,19 +80,19 @@
 
         <!-- Sidebar -->
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-               class="fixed lg:static inset-y-0 left-0 z-40 w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2 transition-transform duration-300 ease-in-out">
+               class="fixed lg:static inset-y-0 left-0 z-40 w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 transition-transform duration-300 ease-in-out">
             <!-- Logo -->
-            <div class="mb-4">
+            <div class="mb-4 flex-shrink-0">
                 <img src="{{ asset('logo.png') }}" alt="Logo" class="w-10 h-10 rounded-lg object-cover">
             </div>
 
-            <!-- Menu Items -->
-            <div class="flex-1 flex flex-col space-y-1 w-full px-2">
+            <!-- Menu Items (Scrollable) -->
+            <div class="flex-1 flex flex-col space-y-1 w-full px-2 overflow-y-auto scrollbar-hide">
                 @yield('sidebar-menu')
             </div>
 
-            <!-- Bottom Items -->
-            <div class="flex flex-col space-y-1 w-full px-2 pt-2 border-t border-gray-200">
+            <!-- Bottom Items (Fixed) -->
+            <div class="flex-shrink-0 flex flex-col space-y-1 w-full px-2 pt-2 border-t border-gray-200">
                 <!-- Notifications -->
                 <div x-data="notificationBell()" x-init="init()" class="relative">
                     <a href="{{ route('notifications.index') }}" 
@@ -168,6 +178,38 @@
             }
         }
     }
+
+    // Tooltip Handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipEl = document.createElement('div');
+        tooltipEl.className = 'tooltip-container';
+        document.body.appendChild(tooltipEl);
+
+        document.querySelectorAll('.tooltip').forEach(el => {
+            el.addEventListener('mouseenter', function(e) {
+                const text = this.getAttribute('data-tooltip');
+                if (!text) return;
+
+                const rect = this.getBoundingClientRect();
+                tooltipEl.textContent = text;
+                
+                // Position tooltip vertically centered with the icon
+                const iconCenterY = rect.top + (rect.height / 2);
+                tooltipEl.style.top = iconCenterY + 'px';
+                tooltipEl.style.transform = 'translateY(-50%)';
+                
+                // Small delay for smooth appearance
+                setTimeout(() => tooltipEl.classList.add('show'), 10);
+            });
+
+            el.addEventListener('mouseleave', function() {
+                tooltipEl.classList.remove('show');
+            });
+        });
+    });
     </script>
+
+    <!-- 🤖 AI Assistant Widget -->
+    @include('partials.ai-assistant-widget')
 </body>
 </html>

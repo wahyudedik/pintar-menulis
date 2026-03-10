@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
     <title>Aplikasi Pembuat Caption Jualan Otomatis untuk UMKM Indonesia | Smart Copy SMK</title>
     <meta name="description" content="Bikin caption jualan yang bikin closing dalam 10 detik. Khusus UMKM Indonesia. Gratis 5 variasi caption per hari. Auto hashtag Indonesia.">
@@ -20,7 +21,9 @@
                 <div class="flex items-center space-x-3">
                     @auth
                         <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Dashboard</a>
+                        <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
                     @else
+                        <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
                         <a href="{{ route('login') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Login</a>
                         <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                             Register
@@ -400,7 +403,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🤖 AI Generator 200+ Konten</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🤖 AI Text Generator</h3>
                     <p class="text-sm text-gray-700 mb-3">Mode Simpel (6 pertanyaan) & Mode Advanced (200+ jenis konten) untuk semua kebutuhan marketing</p>
                     <ul class="text-xs text-gray-600 space-y-1">
                         <li>✓ Quick Templates (15 jenis)</li>
@@ -414,6 +417,42 @@
 
                 <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200 hover:border-purple-400 transition-all">
                     <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">🖼️ Image Caption Generator</h3>
+                    <p class="text-sm text-gray-700 mb-3">Upload foto produk, AI otomatis generate caption yang menarik!</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Upload foto produk</li>
+                        <li>✓ AI detect objek & warna</li>
+                        <li>✓ Caption single post</li>
+                        <li>✓ Caption carousel (3 slide)</li>
+                        <li>✓ Tips editing & filter</li>
+                        <li>✓ ChatGPT gak bisa ini!</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-6 border-2 border-green-200 hover:border-green-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">📅 Bulk Content Generator</h3>
+                    <p class="text-sm text-gray-700 mb-3">Generate 7-30 hari konten sekaligus dengan content calendar!</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Generate 7 atau 30 hari</li>
+                        <li>✓ Auto-schedule posting time</li>
+                        <li>✓ Smart daily themes</li>
+                        <li>✓ Calendar view</li>
+                        <li>✓ Export to CSV</li>
+                        <li>✓ INSTANT! (< 1 detik)</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border-2 border-orange-200 hover:border-orange-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                         </svg>
@@ -430,8 +469,26 @@
                     </ul>
                 </div>
 
-                <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-6 border-2 border-green-200 hover:border-green-400 transition-all">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center mb-4">
+                <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-6 border-2 border-pink-200 hover:border-pink-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">📜 Caption History & ML</h3>
+                    <p class="text-sm text-gray-700 mb-3">AI belajar dari caption kamu untuk hasil yang makin personal</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li>✓ Semua caption tersimpan</li>
+                        <li>✓ ML learning dari pattern</li>
+                        <li>✓ Hasil makin personal</li>
+                        <li>✓ Quality tracking</li>
+                        <li>✓ Performance insights</li>
+                        <li>✓ Makin sering pakai = makin bagus!</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border-2 border-indigo-200 hover:border-indigo-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                         </svg>
@@ -448,13 +505,13 @@
                     </ul>
                 </div>
 
-                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border-2 border-yellow-200 hover:border-yellow-400 transition-all">
-                    <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mb-4">
+                <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-6 border-2 border-yellow-200 hover:border-yellow-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">📊 Analytics Tracking</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">📊 Analytics & My Stats</h3>
                     <p class="text-sm text-gray-700 mb-3">Track performa caption & optimize strategy dengan data</p>
                     <ul class="text-xs text-gray-600 space-y-1">
                         <li>✓ Track likes, comments, shares</li>
@@ -466,8 +523,8 @@
                     </ul>
                 </div>
 
-                <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-6 border-2 border-red-200 hover:border-red-400 transition-all">
-                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center mb-4">
+                <div class="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-6 border-2 border-teal-200 hover:border-teal-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
@@ -484,8 +541,8 @@
                     </ul>
                 </div>
 
-                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-200 hover:border-indigo-400 transition-all">
-                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
+                <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-6 border-2 border-violet-200 hover:border-violet-400 transition-all">
+                    <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                         </svg>
@@ -550,6 +607,64 @@
                 🚀 Mulai Gratis Sekarang
             </a>
             <p class="text-sm text-blue-100 mt-4">Gak pakai kartu kredit • Langsung bisa pakai • 5 variasi gratis per hari</p>
+        </div>
+    </div>
+
+    <!-- Today's Articles Section -->
+    <div class="bg-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">📰 Artikel Hari Ini</h2>
+                <p class="text-lg text-gray-600">Inspirasi caption, quotes, dan tips terbaru untuk konten marketing kamu</p>
+            </div>
+
+            @php
+                $todayArticles = \App\Models\Article::today()->latest('created_at')->get()->groupBy('category');
+            @endphp
+
+            @if($todayArticles->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    @foreach($todayArticles as $category => $articles)
+                        @foreach($articles->take(1) as $article)
+                            <a href="{{ route('articles.show', $article->slug) }}" class="group bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-md hover:shadow-lg transition-all overflow-hidden border-2 border-blue-200 hover:border-blue-400">
+                                <div class="p-6">
+                                    <div class="mb-3">
+                                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full
+                                            @if($category === 'caption') bg-blue-100 text-blue-800
+                                            @elseif($category === 'quote') bg-purple-100 text-purple-800
+                                            @else bg-green-100 text-green-800
+                                            @endif">
+                                            {{ ucfirst($category) }}
+                                        </span>
+                                        <span class="inline-block ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            {{ ucfirst($article->industry) }}
+                                        </span>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition">
+                                        {{ $article->title }}
+                                    </h3>
+                                    <p class="text-gray-600 text-sm line-clamp-3 mb-4">
+                                        {{ Str::limit($article->content, 120) }}
+                                    </p>
+                                    <span class="text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform inline-block">
+                                        Baca Selengkapnya →
+                                    </span>
+                                </div>
+                            </a>
+                        @endforeach
+                    @endforeach
+                </div>
+
+                <div class="text-center">
+                    <a href="{{ route('articles.index') }}" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+                        Lihat Semua Artikel →
+                    </a>
+                </div>
+            @else
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                    <p class="text-gray-500 text-lg">Artikel hari ini akan segera tersedia. Cek kembali nanti!</p>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -638,5 +753,8 @@
 
     <!-- Banner Popup -->
     <x-banner-popup type="landing" />
+
+    <!-- 🤖 AI Assistant Widget -->
+    @include('partials.ai-assistant-widget')
 </body>
 </html>

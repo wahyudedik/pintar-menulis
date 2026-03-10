@@ -15,4 +15,9 @@ class AIService
     {
         return $this->geminiService->generateCopywriting($params);
     }
+
+    public function generateImageCaption(array $params)
+    {
+        return $this->geminiService->generateImageCaption($params);
+    }
 }

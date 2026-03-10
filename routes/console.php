@@ -71,3 +71,53 @@ Schedule::call(function () {
     
     \Illuminate\Support\Facades\Log::info('🔄 Daily model usage reset (automatic via TTL)');
 })->dailyAt('00:00')->name('ai-usage-reset');
+
+// ============================================
+// ML SUGGESTIONS SCHEDULE
+// ============================================
+
+// 🤖 Update ML suggestions every day at 6 AM (fresh trending data)
+Schedule::command('ml:update-suggestions')
+    ->dailyAt('06:00')
+    ->name('ml-suggestions-daily')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/ml-suggestions.log'));
+
+// 🔄 Force update ML suggestions every Sunday at 3 AM (weekly refresh)
+Schedule::command('ml:update-suggestions --force')
+    ->weeklyOn(0, '03:00')
+    ->name('ml-suggestions-weekly')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/ml-suggestions-weekly.log'));
+
+// ============================================
+// ML TRAINING SCHEDULE
+// ============================================
+
+// 🤖 Run ML training daily at 3 AM (learn from yesterday's analytics)
+Schedule::command('ml:train-daily')
+    ->dailyAt('03:00')
+    ->name('ml-daily-training')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// ============================================
+// ARTICLE GENERATION SCHEDULE
+// ============================================
+
+// 📰 Generate 1 article daily at midnight (00:00)
+// Rotation pattern: Day 1 = Industry, Day 2 = Tips, Day 3 = Quote (repeats every 3 days)
+Schedule::call(function () {
+    $service = app(\App\Services\ArticleGeneratorService::class);
+    $result = $service->generateDailyArticles();
+    
+    if ($result['success'] > 0) {
+        \Illuminate\Support\Facades\Log::info('✅ Daily article generated successfully', $result);
+    } else {
+        \Illuminate\Support\Facades\Log::error('❌ Failed to generate daily article', $result);
+    }
+})->dailyAt('00:00')->name('articles-generate-daily')->withoutOverlapping()->onOneServer();

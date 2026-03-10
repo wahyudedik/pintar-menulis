@@ -25,7 +25,7 @@
                     <x-nav-link :href="route('packages.index')" :active="request()->routeIs('packages.*')">
                         {{ __('Paket Layanan') }}
                     </x-nav-link>
-                    @if ($user->isOperator())
+                    @if ($user && $user->isOperator())
                         <x-nav-link :href="route('operator.queue')" :active="request()->routeIs('operator.*')">
                             {{ __('Antrean Operator') }}
                         </x-nav-link>
@@ -34,6 +34,7 @@
             </div>
 
             <!-- Settings Dropdown -->
+            @if($user)
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
@@ -79,6 +80,7 @@
                     </x-slot>
                 </x-dropdown>
             </div>
+            @endif
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
@@ -105,6 +107,7 @@
         </div>
 
         <!-- Responsive Settings Options -->
+        @if($user)
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4 flex items-center gap-3">
                 <!-- Avatar -->
@@ -139,5 +142,6 @@
                 </form>
             </div>
         </div>
+        @endif
     </div>
 </nav>

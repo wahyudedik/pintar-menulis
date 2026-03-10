@@ -118,7 +118,7 @@ class GeminiService
 
             Log::info('Gemini API Request', ['url' => $this->apiUrl, 'prompt_length' => strlen($prompt)]);
 
-            $response = Http::timeout(30)
+            $response = Http::timeout(120) // Increased timeout for better reliability
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'x-goog-api-key' => $this->apiKey
@@ -234,7 +234,7 @@ class GeminiService
                     $errorMessage = $errorData['error']['message'];
                     
                     // Handle rate limit errors with fallback
-                    if (strpos($errorMessage, 'rate limit') !== false || strpos($errorMessage, 'quota') !== false || $statusCode === 429) {
+                    if (strpos($errorMessage, 'rate limit') !== false || strpos($errorMessage, 'quota') !== false || strpos($errorMessage, 'high demand') !== false || $statusCode === 429) {
                         Log::warning('Rate limit detected, attempting fallback', [
                             'current_model' => $this->currentModel,
                             'error' => $errorMessage
@@ -258,7 +258,7 @@ class GeminiService
                             return $this->generateCopywriting($params);
                         }
                         
-                        throw new \Exception('Semua model sedang sibuk. Silakan tunggu beberapa saat dan coba lagi.');
+                        throw new \Exception('API sedang mengalami beban tinggi. Silakan tunggu beberapa saat dan coba lagi.');
                     }
                     
                     // Handle specific error cases
@@ -307,6 +307,89 @@ class GeminiService
             throw new \Exception('Terjadi kesalahan tidak terduga. Silakan coba lagi.');
         }
     }
+    /**
+     * Generate simple text response (for AI Assistant)
+     */
+    public function generateText(string $prompt, int $maxTokens = 500, float $temperature = 0.7): string
+    {
+        // Validate API key
+        if (empty($this->apiKey)) {
+            Log::error('Gemini API Key not configured');
+            throw new \Exception('API Key tidak dikonfigurasi. Hubungi administrator.');
+        }
+
+        try {
+            $requestData = [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $prompt]
+                        ]
+                    ]
+                ],
+                'generationConfig' => [
+                    'temperature' => $temperature,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => $maxTokens,
+                ],
+                'safetySettings' => [
+                    [
+                        'category' => 'HARM_CATEGORY_HARASSMENT',
+                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
+                    ],
+                    [
+                        'category' => 'HARM_CATEGORY_HATE_SPEECH',
+                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
+                    ],
+                    [
+                        'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
+                    ],
+                    [
+                        'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
+                    ]
+                ]
+            ];
+
+            $response = Http::timeout(120) // Increased timeout for generateText
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'x-goog-api-key' => $this->apiKey
+                ])
+                ->post($this->apiUrl, $requestData);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if (isset($data['candidates']) && is_array($data['candidates']) && count($data['candidates']) > 0) {
+                    $candidate = $data['candidates'][0];
+
+                    if (isset($candidate['content']['parts']) && is_array($candidate['content']['parts'])) {
+                        foreach ($candidate['content']['parts'] as $part) {
+                            if (isset($part['text']) && !empty($part['text'])) {
+                                return trim($part['text']);
+                            }
+                        }
+                    }
+                }
+
+                throw new \Exception('Tidak ada response dari AI');
+            }
+
+            // Handle error responses
+            $errorBody = $response->body();
+            Log::error('Gemini API Error', ['status' => $response->status(), 'body' => $errorBody]);
+
+            throw new \Exception('Gagal terhubung ke AI service');
+
+        } catch (\Exception $e) {
+            Log::error('Gemini generateText Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
 
     /**
      * Build prompt for Gemini based on parameters
@@ -1286,4 +1369,253 @@ class GeminiService
     {
         $this->fallbackManager->resetUsageStats();
     }
+
+    /**
+     * Generate image caption using Gemini Vision API
+     */
+    public function generateImageCaption(array $params)
+    {
+        $startTime = microtime(true);
+
+        // Validate required params
+        if (empty($params['image_data']) || empty($params['mime_type'])) {
+            throw new \Exception('Image data and mime type are required');
+        }
+
+        // Check cache (using image hash as key)
+        $imageHash = md5($params['image_data']);
+        $cacheKey = "image_caption_{$imageHash}_" . md5(json_encode([
+            'business_type' => $params['business_type'] ?? '',
+            'product_name' => $params['product_name'] ?? '',
+        ]));
+
+        $cached = Cache::get($cacheKey);
+        if ($cached) {
+            Log::info('Cache hit for image caption', ['cache_key' => $cacheKey]);
+            return $cached;
+        }
+
+        $prompt = $this->buildImageCaptionPrompt($params);
+        $maxRetries = 2;
+        $attempt = 0;
+        $bestResult = null;
+        $bestScore = 0;
+
+        while ($attempt < $maxRetries) {
+            $attempt++;
+
+            try {
+                $requestData = [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $prompt],
+                                [
+                                    'inline_data' => [
+                                        'mime_type' => $params['mime_type'],
+                                        'data' => $params['image_data']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'topK' => 40,
+                        'topP' => 0.95,
+                        'maxOutputTokens' => 2048,
+                        'responseMimeType' => 'application/json',
+                    ],
+                    'safetySettings' => [
+                        ['category' => 'HARM_CATEGORY_HARASSMENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_HATE_SPEECH', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                    ]
+                ];
+
+                Log::info('Calling Gemini Vision API', [
+                    'model' => $this->currentModel,
+                    'user_id' => $params['user_id'] ?? null,
+                    'attempt' => $attempt
+                ]);
+
+                $response = Http::timeout(120) // Increased timeout for image processing
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($this->apiUrl . '?key=' . $this->apiKey, $requestData);
+
+                if (!$response->successful()) {
+                    $errorBody = $response->json();
+                    $errorMessage = $errorBody['error']['message'] ?? 'Unknown error';
+                    Log::error('Gemini Vision API Error', [
+                        'status' => $response->status(),
+                        'error' => $errorMessage
+                    ]);
+                    throw new \Exception('API Error: ' . $errorMessage);
+                }
+
+                $result = $response->json();
+                $aiResponse = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+                // Parse JSON response
+                $parsed = $this->parseImageCaptionResponse($aiResponse);
+
+                // Calculate quality score
+                $qualityScore = $this->calculateImageCaptionQuality($parsed);
+
+                // Keep best result
+                if ($qualityScore > $bestScore) {
+                    $bestScore = $qualityScore;
+                    $bestResult = $parsed;
+                }
+
+                // If quality is good enough, stop retrying
+                if ($qualityScore >= 0.7) {
+                    Log::info('Image caption quality acceptable', [
+                        'score' => $qualityScore,
+                        'attempt' => $attempt
+                    ]);
+                    break;
+                }
+
+                // If quality is low and we have retries left, try again
+                if ($attempt < $maxRetries) {
+                    Log::warning('Image caption quality low, retrying', [
+                        'score' => $qualityScore,
+                        'attempt' => $attempt
+                    ]);
+                    sleep(1); // Brief pause before retry
+                }
+
+            } catch (\Exception $e) {
+                Log::error('Image caption generation attempt failed', [
+                    'error' => $e->getMessage(),
+                    'model' => $this->currentModel,
+                    'attempt' => $attempt
+                ]);
+                
+                if ($attempt >= $maxRetries) {
+                    throw $e;
+                }
+            }
+        }
+
+        if (!$bestResult) {
+            throw new \Exception('Failed to generate image caption after retries');
+        }
+
+        $generationTime = microtime(true) - $startTime;
+
+        $finalResult = array_merge($bestResult, [
+            'model_used' => $this->currentModel,
+            'generation_time' => round($generationTime, 2),
+            'quality_score' => $bestScore,
+        ]);
+
+        // Cache result for 24 hours
+        Cache::put($cacheKey, $finalResult, 86400);
+
+        return $finalResult;
+    }
+
+    private function buildImageCaptionPrompt(array $params)
+    {
+        $businessType = $params['business_type'] ?? 'UMKM';
+        $productName = $params['product_name'] ?? '';
+
+        return <<<PROMPT
+Analisis foto produk ini dan berikan output dalam format JSON yang VALID.
+
+Format JSON yang HARUS diikuti:
+{
+  "detected_objects": ["object1", "object2"],
+  "dominant_colors": ["#hex1", "#hex2"],
+  "caption_single": "Caption untuk single post",
+  "caption_carousel": ["Slide 1 text", "Slide 2 text", "Slide 3 text"],
+  "editing_tips": ["Tip 1", "Tip 2", "Tip 3"]
+}
+
+Konteks:
+- Jenis Bisnis: {$businessType}
+- Nama Produk: {$productName}
+
+Instruksi Caption:
+- Bahasa Indonesia
+- Gunakan emoji yang relevan
+- Hashtag untuk UMKM Indonesia
+- Caption engaging dan persuasif
+- Panjang caption 100-150 kata
+
+Instruksi Carousel:
+- Slide 1: Hook menarik perhatian (20-30 kata)
+- Slide 2: Penjelasan produk/benefit (30-40 kata)
+- Slide 3: Call to action kuat (20-30 kata)
+
+Instruksi Tips:
+- 3 tips praktis untuk editing foto
+- Fokus pada lighting, komposisi, dan filter
+
+PENTING: Berikan HANYA JSON yang valid, tanpa teks tambahan apapun.
+PROMPT;
+    }
+
+    private function parseImageCaptionResponse($response)
+    {
+        // Remove markdown code blocks if present
+        $response = preg_replace('/```json\s*|\s*```/', '', $response);
+        $response = trim($response);
+
+        // Try to extract JSON if it's embedded in text
+        if (preg_match('/\{[\s\S]*\}/', $response, $matches)) {
+            $response = $matches[0];
+        }
+
+        try {
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('JSON Parse Error', [
+                    'error' => json_last_error_msg(),
+                    'response' => substr($response, 0, 500)
+                ]);
+                throw new \Exception('Invalid JSON response: ' . json_last_error_msg());
+            }
+
+            return [
+                'detected_objects' => $data['detected_objects'] ?? [],
+                'dominant_colors' => $data['dominant_colors'] ?? [],
+                'caption_single' => $data['caption_single'] ?? '',
+                'caption_carousel' => $data['caption_carousel'] ?? [],
+                'editing_tips' => $data['editing_tips'] ?? [],
+            ];
+        } catch (\Exception $e) {
+            Log::error('Parse Image Caption Response Failed', [
+                'error' => $e->getMessage()
+            ]);
+            
+            // Fallback
+            return [
+                'detected_objects' => ['Produk'],
+                'dominant_colors' => [],
+                'caption_single' => 'Caption tidak dapat di-generate. Silakan coba lagi.',
+                'caption_carousel' => [],
+                'editing_tips' => [],
+            ];
+        }
+    }
+
+    private function calculateImageCaptionQuality($parsed)
+    {
+        $score = 0.5; // Base score
+
+        // Check if all fields are populated
+        if (!empty($parsed['detected_objects'])) $score += 0.1;
+        if (!empty($parsed['dominant_colors'])) $score += 0.1;
+        if (!empty($parsed['caption_single']) && strlen($parsed['caption_single']) > 50) $score += 0.15;
+        if (!empty($parsed['caption_carousel']) && count($parsed['caption_carousel']) >= 3) $score += 0.1;
+        if (!empty($parsed['editing_tips']) && count($parsed['editing_tips']) >= 3) $score += 0.05;
+
+        return min(1.0, $score);
+    }
+
 }
