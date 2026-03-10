@@ -121,3 +121,25 @@ Schedule::call(function () {
         \Illuminate\Support\Facades\Log::error('❌ Failed to generate daily article', $result);
     }
 })->dailyAt('00:00')->name('articles-generate-daily')->withoutOverlapping()->onOneServer();
+
+// ============================================
+// TRENDING HASHTAGS SCHEDULE
+// ============================================
+
+// 🏷️ Update trending hashtags every Sunday at 4 AM (weekly refresh)
+Schedule::command('hashtags:update')
+    ->weeklyOn(0, '04:00')
+    ->name('hashtags-weekly-update')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/hashtags-update.log'));
+
+// 🔄 Force update trending hashtags on 1st of every month at 5 AM (monthly refresh)
+Schedule::command('hashtags:update --force')
+    ->monthlyOn(1, '05:00')
+    ->name('hashtags-monthly-update')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/hashtags-monthly.log'));

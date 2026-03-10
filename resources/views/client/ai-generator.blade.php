@@ -121,61 +121,92 @@
                 <!-- SIMPLE MODE -->
                 <form @submit.prevent="generateCopywriting" x-show="generatorType === 'text' && mode === 'simple'" x-cloak>
                     <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <p class="text-sm text-blue-800 font-medium">✨ Mode Simpel - Isi 6 pertanyaan, langsung jadi!</p>
+                        <p class="text-sm text-blue-800 font-medium">✨ Mode Simpel - Jawab pertanyaan mudah, langsung jadi!</p>
                     </div>
 
-                    <!-- Jenis Usaha -->
+                    <!-- 1. Mau bikin konten apa? (Category) -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            1. Jenis usaha kamu apa?
+                            1. Mau bikin konten apa? <span class="text-red-600">*</span>
                         </label>
-                        <select x-model="simpleForm.business_type"
+                        <select x-model="simpleForm.content_type" required @change="simpleForm.subcategory = ''; updateSimpleSubcategories()"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Pilih jenis usaha (optional)</option>
-                            <option value="fashion_clothing">👗 Fashion & Pakaian</option>
-                            <option value="food_beverage">🍔 Makanan & Minuman</option>
-                            <option value="beauty_skincare">💄 Kecantikan & Skincare</option>
-                            <option value="printing_service">🖨️ Jasa Printing</option>
-                            <option value="photography">📷 Jasa Fotografi</option>
-                            <option value="catering">🍱 Catering</option>
-                            <option value="tiktok_shop">🛍️ TikTok Shop</option>
-                            <option value="shopee_affiliate">🛒 Affiliate Shopee</option>
-                            <option value="home_decor">🏠 Dekorasi Rumah</option>
-                            <option value="handmade_craft">✂️ Kerajinan Tangan</option>
-                            <option value="digital_service">💻 Jasa Digital</option>
-                            <option value="automotive">🚗 Otomotif</option>
-                            <option value="other">🏪 Lainnya</option>
+                            <option value="">Pilih jenis konten</option>
+                            <optgroup label="📱 Social Media & Viral">
+                                <option value="social_media">Caption Social Media (IG, FB, TikTok)</option>
+                                <option value="quick_templates">Template Cepat (Hook, Quotes, CTA)</option>
+                                <option value="viral_clickbait">Konten Viral & Clickbait</option>
+                            </optgroup>
+                            <optgroup label="🏪 Jualan & Bisnis">
+                                <option value="industry_presets">Jualan Produk (Fashion, Makanan, dll)</option>
+                                <option value="marketplace">Jualan di Marketplace (Shopee, Tokopedia)</option>
+                                <option value="ads">Iklan Berbayar (FB Ads, Google Ads)</option>
+                                <option value="event_promo">Promo & Event (Flash Sale, Diskon)</option>
+                            </optgroup>
+                            <optgroup label="💼 Profesional & Kantor">
+                                <option value="hr_recruitment">Lowongan Kerja & Recruitment</option>
+                                <option value="proposal_company">Proposal & Company Profile</option>
+                                <option value="email_whatsapp">Email & WhatsApp Marketing</option>
+                            </optgroup>
+                            <optgroup label="🎓 Pendidikan & Lembaga">
+                                <option value="education_institution">Sekolah, Kampus, Lembaga</option>
+                                <option value="academic_writing">Jurnal & Paper Akademik</option>
+                            </optgroup>
+                            <optgroup label="💌 Undangan & Event">
+                                <option value="invitation_event">Undangan (Nikah, Ulang Tahun, dll)</option>
+                            </optgroup>
+                            <optgroup label="✍️ Konten & Tulisan">
+                                <option value="blog_seo">Blog & Artikel SEO</option>
+                                <option value="website_landing">Website & Landing Page</option>
+                                <option value="ebook_publishing">eBook & Buku Digital</option>
+                            </optgroup>
+                            <optgroup label="🎨 Branding & Kreatif">
+                                <option value="branding_tagline">Tagline & Slogan Brand</option>
+                                <option value="personal_branding">Personal Branding (Bio, About Me)</option>
+                                <option value="ux_writing">UX Writing (App, Website)</option>
+                            </optgroup>
+                            <optgroup label="💰 Monetisasi & Penghasilan">
+                                <option value="video_monetization">Video (YouTube, TikTok)</option>
+                                <option value="freelance">Freelance (Upwork, Fiverr)</option>
+                                <option value="affiliate_marketing">Affiliate Marketing</option>
+                                <option value="digital_products">Produk Digital</option>
+                            </optgroup>
                         </select>
                     </div>
 
-                    <!-- Nama Produk/Jasa -->
-                    <div class="mb-4">
+                    <!-- 2. Jenis Konten Spesifik (Subcategory) -->
+                    <div class="mb-4" x-show="simpleForm.content_type && simpleSubcategories.length > 0" x-cloak>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            2. Apa yang mau dijual? <span class="text-red-600">*</span>
+                            2. Lebih spesifiknya? <span class="text-red-600">*</span>
                         </label>
-                        <input type="text" x-model="simpleForm.product_name" required
-                               placeholder="Contoh: Baju anak umur 2 tahun"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <select x-model="simpleForm.subcategory" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Pilih jenis konten spesifik</option>
+                            <template x-for="sub in simpleSubcategories" :key="sub.value">
+                                <option :value="sub.value" x-text="sub.label"></option>
+                            </template>
+                        </select>
                     </div>
 
-                    <!-- Harga -->
+                    <!-- 3. Ceritakan tentang konten kamu (Brief) -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            3. Berapa harganya?
+                            3. Ceritakan tentang konten kamu <span class="text-red-600">*</span>
                         </label>
-                        <input type="text" x-model="simpleForm.price"
-                               placeholder="Contoh: 50.000 atau Mulai 50rb"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <textarea x-model="simpleForm.product_name" required rows="3"
+                                  placeholder="Contoh: Baju anak umur 2 tahun, bahan katun, warna pink, harga 50rb"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">💡 Semakin detail, semakin bagus hasilnya</p>
                     </div>
 
-                    <!-- Target Market -->
+                    <!-- 4. Target Audience -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            4. Mau dijual ke siapa? <span class="text-red-600">*</span>
+                            4. Mau ditujukan ke siapa? <span class="text-red-600">*</span>
                         </label>
                         <select x-model="simpleForm.target_market" required
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Pilih target pembeli</option>
+                            <option value="">Pilih target audience</option>
                             <option value="ibu_muda">Ibu-ibu Muda (25-35 tahun)</option>
                             <option value="remaja">Remaja & Anak Muda (15-25 tahun)</option>
                             <option value="profesional">Pekerja Kantoran (25-40 tahun)</option>
@@ -184,7 +215,7 @@
                         </select>
                     </div>
 
-                    <!-- Tujuan -->
+                    <!-- 5. Tujuan -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             5. Tujuannya apa? <span class="text-red-600">*</span>
@@ -199,7 +230,7 @@
                         </select>
                     </div>
 
-                    <!-- Platform -->
+                    <!-- 6. Platform -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             6. Mau posting di mana? <span class="text-red-600">*</span>
@@ -209,14 +240,17 @@
                             <option value="instagram">Instagram</option>
                             <option value="facebook">Facebook</option>
                             <option value="tiktok">TikTok</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="linkedin">LinkedIn</option>
                             <option value="shopee">Shopee</option>
+                            <option value="tokopedia">Tokopedia</option>
                         </select>
                     </div>
 
                     <!-- Generate Button -->
                     <button type="submit" :disabled="loading"
                             class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        <span x-show="!loading">🚀 Bikin Caption Sekarang!</span>
+                        <span x-show="!loading">🚀 Bikin Sekarang!</span>
                         <span x-show="loading" class="flex items-center justify-center">
                             <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -261,6 +295,7 @@
                                 <option value="social_media">Social Media Content</option>
                                 <option value="marketplace">Marketplace / Toko Online</option>
                                 <option value="event_promo">Event & Promosi</option>
+                                <option value="invitation_event">💌 Undangan & Event</option>
                                 <option value="hr_recruitment">HR & Recruitment</option>
                                 <option value="branding_tagline">Branding & Tagline</option>
                                 <option value="education_institution">Pendidikan & Lembaga</option>
@@ -861,13 +896,15 @@
                 local_language: ''
             },
             simpleForm: {
-                business_type: '',
+                content_type: '',
+                subcategory: '',
                 product_name: '',
                 price: '',
                 target_market: '',
                 goal: '',
                 platform: 'instagram'
             },
+            simpleSubcategories: [],
             imageForm: {
                 file: null,
                 preview: null,
@@ -1280,12 +1317,35 @@
                     {value: 'empty_state', label: 'Empty State'},
                     {value: 'success_message', label: 'Success Message'},
                     {value: 'button_copy', label: 'Button Copy'}
+                ],
+                invitation_event: [
+                    {value: 'wedding', label: '💒 Undangan Pernikahan'},
+                    {value: 'engagement', label: '💍 Undangan Lamaran / Tunangan'},
+                    {value: 'birthday', label: '🎂 Undangan Ulang Tahun'},
+                    {value: 'aqiqah', label: '👶 Undangan Aqiqah / Syukuran Bayi'},
+                    {value: 'khitanan', label: '🕌 Undangan Khitanan / Sunatan'},
+                    {value: 'graduation', label: '🎓 Undangan Wisuda'},
+                    {value: 'grand_opening', label: '🎉 Undangan Grand Opening'},
+                    {value: 'meeting', label: '📋 Undangan Rapat / Meeting'},
+                    {value: 'seminar', label: '🎤 Undangan Seminar / Workshop'},
+                    {value: 'reunion', label: '👥 Undangan Reuni / Gathering'},
+                    {value: 'other_event', label: '🎊 Undangan Acara Lainnya'},
+                    {value: 'wedding_caption', label: '💒 Caption Pernikahan (Social Media)'},
+                    {value: 'event_announcement', label: '📢 Pengumuman Event'},
+                    {value: 'save_the_date', label: '📅 Save The Date'},
+                    {value: 'thank_you_card', label: '🙏 Kartu Ucapan Terima Kasih'},
+                    {value: 'rsvp_message', label: '✉️ Pesan RSVP / Konfirmasi Kehadiran'}
                 ]
             },
             
             updateSubcategories() {
                 this.subcategories = this.subcategoryOptions[this.form.category] || [];
                 this.form.subcategory = '';
+            },
+            
+            updateSimpleSubcategories() {
+                this.simpleSubcategories = this.subcategoryOptions[this.simpleForm.content_type] || [];
+                this.simpleForm.subcategory = '';
             },
 
             // Image Caption Methods
@@ -1393,42 +1453,30 @@
             async generateCopywriting() {
                 // Handle Simple Mode
                 if (this.mode === 'simple') {
-                    if (!this.simpleForm.product_name || !this.simpleForm.target_market || !this.simpleForm.goal || !this.simpleForm.platform) {
+                    // Validate simple form
+                    if (!this.simpleForm.content_type) {
+                        alert('Pilih jenis konten dulu ya!');
+                        return;
+                    }
+                    
+                    if (!this.simpleForm.subcategory) {
+                        alert('Pilih jenis konten spesifik dulu ya!');
+                        return;
+                    }
+                    
+                    if (!this.simpleForm.product_name || this.simpleForm.product_name.length < 10) {
+                        alert('Ceritakan tentang konten kamu minimal 10 karakter ya!');
+                        return;
+                    }
+                    
+                    if (!this.simpleForm.target_market || !this.simpleForm.goal || !this.simpleForm.platform) {
                         alert('Mohon isi semua pertanyaan yang wajib (*)');
                         return;
                     }
                     
-                    // IMPROVED CONVERSION LOGIC v2.0
-                    // Convert simple form to advanced form with smart mapping
-                    
-                    if (this.simpleForm.business_type) {
-                        // If business type selected, use industry preset
-                        this.form.category = 'industry_presets';
-                        this.form.subcategory = this.simpleForm.business_type;
-                    } else {
-                        // Use quick templates based on PLATFORM (not always Instagram!)
-                        this.form.category = 'quick_templates';
-                        
-                        // Platform-specific subcategory mapping
-                        const platformMap = {
-                            'instagram': 'caption_instagram',
-                            'facebook': 'caption_facebook',
-                            'tiktok': 'caption_tiktok',
-                            'youtube': 'caption_youtube',
-                            'youtube_shorts': 'caption_youtube',
-                            'linkedin': 'caption_linkedin',
-                            'twitter': 'caption_instagram', // fallback
-                            'shopee': 'caption_instagram', // marketplace uses general
-                            'tokopedia': 'caption_instagram',
-                            'bukalapak': 'caption_instagram',
-                            'lazada': 'caption_instagram',
-                            'blibli': 'caption_instagram',
-                            'tiktok_shop': 'caption_tiktok',
-                        };
-                        
-                        this.form.subcategory = platformMap[this.simpleForm.platform] || 'caption_instagram';
-                    }
-                    
+                    // Convert Simple Mode to Advanced Mode format
+                    this.form.category = this.simpleForm.content_type;
+                    this.form.subcategory = this.simpleForm.subcategory;
                     this.form.platform = this.simpleForm.platform;
                     
                     // GOAL-BASED TONE MAPPING (Smart!)
@@ -1444,7 +1492,8 @@
                     this.form.auto_hashtag = true;
                     
                     // Build brief from simple inputs
-                    let brief = `Produk: ${this.simpleForm.product_name}\n`;
+                    let brief = `${this.simpleForm.product_name}\n`;
+                    
                     if (this.simpleForm.price) {
                         brief += `Harga: ${this.simpleForm.price}\n`;
                     }

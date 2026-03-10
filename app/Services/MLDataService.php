@@ -23,6 +23,25 @@ class MLDataService
         $cacheKey = "ml_hashtags_{$industry}_{$platform}";
         
         return Cache::remember($cacheKey, 3600, function () use ($industry, $platform, $limit) {
+            // Try to get from TrendingHashtag table first (real-time data)
+            $trendingHashtags = \App\Models\TrendingHashtag::getTrendingByCategory($industry, $platform, $limit);
+            
+            if (!empty($trendingHashtags)) {
+                // 🔒 SECURITY: Filter through moderation
+                $moderation = app(\App\Services\HashtagModerationService::class);
+                return $moderation->filterHashtags($trendingHashtags);
+            }
+            
+            // Fallback to general trending hashtags for platform
+            $generalHashtags = \App\Models\TrendingHashtag::getTrendingForPlatform($platform, $limit);
+            
+            if (!empty($generalHashtags)) {
+                // 🔒 SECURITY: Filter through moderation
+                $moderation = app(\App\Services\HashtagModerationService::class);
+                return $moderation->filterHashtags($generalHashtags);
+            }
+            
+            // Fallback to ML optimized data
             $data = MLOptimizedData::where('type', 'hashtag')
                 ->where('industry', $industry)
                 ->where('platform', $platform)
@@ -31,11 +50,15 @@ class MLDataService
                 ->limit($limit)
                 ->get();
             
-            if ($data->isEmpty()) {
-                return $this->getDefaultHashtags($industry);
+            if ($data->isNotEmpty()) {
+                $hashtags = $data->pluck('data')->toArray();
+                // 🔒 SECURITY: Filter through moderation
+                $moderation = app(\App\Services\HashtagModerationService::class);
+                return $moderation->filterHashtags($hashtags);
             }
             
-            return $data->pluck('data')->toArray();
+            // Last resort: default hashtags (already safe)
+            return $this->getDefaultHashtags($industry);
         });
     }
     
