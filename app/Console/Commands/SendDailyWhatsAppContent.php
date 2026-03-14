@@ -65,14 +65,14 @@ class SendDailyWhatsAppContent extends Command
                 return 0;
             }
 
-            $this->info("📱 Found {count($phoneNumbers)} phone numbers for broadcast");
+            $this->info("📱 Found " . count($phoneNumbers) . " phone numbers for broadcast");
 
             // Send daily content to each number
             $successCount = 0;
             $failCount = 0;
 
             foreach ($phoneNumbers as $index => $phoneNumber) {
-                $this->info("📤 Sending to {$phoneNumber} ({$index + 1}/" . count($phoneNumbers) . ")");
+                $this->info("📤 Sending to {$phoneNumber} (" . ($index + 1) . "/" . count($phoneNumbers) . ")");
 
                 try {
                     $result = $this->whatsappService->sendDailyContentIdeas($phoneNumber, [

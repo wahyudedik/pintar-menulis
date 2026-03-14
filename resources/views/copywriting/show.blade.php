@@ -57,7 +57,7 @@
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <h3 class="text-lg font-bold text-gray-900 mb-4">Panel Operator: Update Konten</h3>
-                                <form action="{{ route('copywriting.update', $request) }}" method="POST">
+                                <form action="{{ route('operator.update', $request) }}" method="POST">
                                     @csrf
                                     @method('PUT')
 

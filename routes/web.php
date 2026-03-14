@@ -83,6 +83,13 @@ Route::middleware(['auth'])->group(function () {
         // My Stats (Personal ML Insights)
         Route::get('/my-stats', [\App\Http\Controllers\Client\CaptionRatingController::class, 'myStats'])->name('my-stats');
         
+        // Image Caption (AI Vision)
+        Route::get('/image-caption', [\App\Http\Controllers\Client\ImageCaptionController::class, 'index'])->name('image-caption.index');
+        Route::get('/image-caption/create', [\App\Http\Controllers\Client\ImageCaptionController::class, 'create'])->name('image-caption.create');
+        Route::post('/image-caption', [\App\Http\Controllers\Client\ImageCaptionController::class, 'store'])->name('image-caption.store');
+        Route::get('/image-caption/{imageCaption}', [\App\Http\Controllers\Client\ImageCaptionController::class, 'show'])->name('image-caption.show');
+        Route::delete('/image-caption/{imageCaption}', [\App\Http\Controllers\Client\ImageCaptionController::class, 'destroy'])->name('image-caption.destroy');
+
         // Bulk Content Generator
         Route::get('/bulk-content', [\App\Http\Controllers\Client\BulkContentController::class, 'index'])->name('bulk-content.index');
         Route::get('/bulk-content/create', [\App\Http\Controllers\Client\BulkContentController::class, 'create'])->name('bulk-content.create');
@@ -273,6 +280,26 @@ Route::middleware(['auth'])->group(function () {
         // ML Analytics (Machine Learning Insights)
         Route::get('/ml-analytics', [\App\Http\Controllers\Admin\MLAnalyticsController::class, 'index'])->name('ml-analytics.index');
         Route::get('/ml-analytics/export', [\App\Http\Controllers\Admin\MLAnalyticsController::class, 'exportTrainingData'])->name('ml-analytics.export');
+
+        // AI Health Monitor
+        Route::get('/ai-health', [\App\Http\Controllers\Admin\AIHealthController::class, 'index'])->name('ai-health.index');
+        Route::get('/ai-health/status', [\App\Http\Controllers\Admin\AIHealthController::class, 'status'])->name('ai-health.status');
+        Route::get('/ai-health/chart-data', [\App\Http\Controllers\Admin\AIHealthController::class, 'chartData'])->name('ai-health.chart-data');
+        Route::post('/ai-health/force-check', [\App\Http\Controllers\Admin\AIHealthController::class, 'forceCheck'])->name('ai-health.force-check');
+        Route::post('/ai-health/clear-data', [\App\Http\Controllers\Admin\AIHealthController::class, 'clearData'])->name('ai-health.clear-data');
+
+        // AI Model Management
+        Route::get('/ai-models', [\App\Http\Controllers\Admin\AIModelController::class, 'index'])->name('ai-models.index');
+        Route::get('/ai-models/stats', [\App\Http\Controllers\Admin\AIModelController::class, 'stats'])->name('ai-models.stats');
+        Route::post('/ai-models/switch', [\App\Http\Controllers\Admin\AIModelController::class, 'switchModel'])->name('ai-models.switch');
+        Route::post('/ai-models/reset-stats', [\App\Http\Controllers\Admin\AIModelController::class, 'resetStats'])->name('ai-models.reset-stats');
+
+        // ML Data Manager
+        Route::get('/ml-data', [\App\Http\Controllers\Admin\MLDataController::class, 'index'])->name('ml-data.index');
+        Route::get('/ml-data/{mlData}', [\App\Http\Controllers\Admin\MLDataController::class, 'show'])->name('ml-data.show');
+        Route::post('/ml-data/cleanup', [\App\Http\Controllers\Admin\MLDataController::class, 'cleanup'])->name('ml-data.cleanup');
+        Route::get('/ml-data/stats', [\App\Http\Controllers\Admin\MLDataController::class, 'stats'])->name('ml-data.stats');
+        Route::post('/ml-data/refresh', [\App\Http\Controllers\Admin\MLDataController::class, 'refresh'])->name('ml-data.refresh');
         
         // Package Management
         Route::get('/packages', [\App\Http\Controllers\Admin\PackageController::class, 'index'])->name('packages');
@@ -324,7 +351,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // API Routes
-Route::prefix('api')->middleware(['auth'])->group(function () {
+Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
     Route::post('/ai/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generate'])->name('api.ai.generate');
     Route::post('/ai/generate-image-caption', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->name('api.ai.generate-image-caption');
     Route::post('/ai/analyze-image', [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeImage'])->name('api.ai.analyze-image');
@@ -508,6 +535,8 @@ Route::prefix('api')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Load test routes
-require __DIR__.'/test.php';
+// Load test routes only in local/testing environment
+if (app()->environment('local', 'testing')) {
+    require __DIR__.'/test.php';
+}
 

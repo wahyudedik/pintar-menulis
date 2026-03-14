@@ -97,9 +97,48 @@ class CaptionPerformancePredictor
     }
 
     /**
-     * Analyze caption components
+     * Analyze caption components and return quality score
      */
-    protected function analyzeCaption(string $caption, string 
+    protected function analyzeCaption(string $caption, string $platform = 'instagram', array $context = []): array
+    {
+        $scores = [];
+        $totalScore = 0;
+
+        // 1. Hook Strength (20 points)
+        $hookScore = $this->scoreHook($caption);
+        $scores['hook_strength'] = $hookScore;
+        $totalScore += $hookScore;
+
+        // 2. Emotional Appeal (15 points)
+        $emotionalScore = $this->scoreEmotionalAppeal($caption);
+        $scores['emotional_appeal'] = $emotionalScore;
+        $totalScore += $emotionalScore;
+
+        // 3. CTA Strength (15 points)
+        $ctaScore = $this->scoreCTA($caption);
+        $scores['cta_strength'] = $ctaScore;
+        $totalScore += $ctaScore;
+
+        // 4. Readability (15 points)
+        $readabilityScore = $this->scoreReadability($caption);
+        $scores['readability'] = $readabilityScore;
+        $totalScore += $readabilityScore;
+
+        // 5. Hashtag Quality (10 points)
+        $hashtagScore = $this->scoreHashtags($caption, $context);
+        $scores['hashtag_quality'] = $hashtagScore;
+        $totalScore += $hashtagScore;
+
+        // 6. Length Optimization (10 points)
+        $lengthScore = $this->scoreLength($caption, $platform);
+        $scores['length_optimization'] = $lengthScore;
+        $totalScore += $lengthScore;
+
+        // 7. Emoji Usage (10 points)
+        $emojiScore = $this->scoreEmojis($caption);
+        $scores['emoji_usage'] = $emojiScore;
+        $totalScore += $emojiScore;
+
         // 8. Urgency/FOMO (5 points)
         $urgencyScore = $this->scoreUrgency($caption);
         $scores['urgency_fomo'] = $urgencyScore;

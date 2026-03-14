@@ -92,6 +92,21 @@ Mau tau produk apa? Comment \"GLOWING\" ya! 💕
 
 // Demo endpoints (without CSRF protection)
 Route::withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->group(function () {
+
+if (!function_exists('getDemoHypothesis')) {
+    function getDemoHypothesis(string $focusArea, int $variant): string
+    {
+        $hypotheses = [
+            'hook'    => 'Hook yang lebih menarik akan meningkatkan engagement rate',
+            'cta'     => 'CTA yang lebih direct akan meningkatkan conversion rate',
+            'emoji'   => 'Penggunaan emoji yang tepat meningkatkan keterbacaan',
+            'length'  => $variant % 2 === 0 ? 'Konten lebih singkat meningkatkan completion rate' : 'Konten lebih panjang meningkatkan kepercayaan',
+            'hashtag' => 'Hashtag trending meningkatkan jangkauan organik',
+            'overall' => 'Optimasi menyeluruh meningkatkan overall performance',
+        ];
+        return $hypotheses[$focusArea] ?? 'Variant ini akan meningkatkan overall performance';
+    }
+}
     
     // Test endpoint tanpa authentication untuk demo
     Route::post('/demo-predict-performance', function (Illuminate\Http\Request $request) {
