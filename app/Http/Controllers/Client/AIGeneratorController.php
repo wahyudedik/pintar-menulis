@@ -77,7 +77,42 @@ class AIGeneratorController extends Controller
         // Set longer execution time for this specific request
         set_time_limit(300); // 5 minutes
         ini_set('max_execution_time', 300);
-        
+
+        // ── Subscription & daily limit check ─────────────────────────────────
+        $user = auth()->user();
+        $sub  = $user->currentSubscription();
+
+        if (!$sub || !$sub->isValid()) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '⚡ Kamu belum memiliki langganan aktif. <a href="' . route('pricing') . '" class="underline font-semibold">Mulai trial gratis 30 hari</a> untuk menggunakan fitur AI.',
+            ], 403);
+        }
+
+        if ($sub->remaining_quota <= 0) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '🚫 Kuota AI kamu sudah habis bulan ini. <a href="' . route('pricing') . '" class="underline font-semibold">Upgrade paket</a> untuk kuota lebih banyak.',
+            ], 403);
+        }
+
+        // Free plan: max 5 generate per day
+        if ($sub->package && $sub->package->price == 0) {
+            $todayCount = \App\Models\CaptionHistory::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->count();
+            if ($todayCount >= 5) {
+                return response()->json([
+                    'success'     => false,
+                    'quota_error' => true,
+                    'message'     => '⏳ Batas harian paket Gratis adalah 5 generate/hari. Reset besok pukul 00:00. <a href="' . route('pricing') . '" class="underline font-semibold">Upgrade sekarang</a> untuk generate tanpa batas harian.',
+                ], 403);
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         try {
             $validated = $request->validate([
                 'category' => 'required|string',
@@ -157,12 +192,16 @@ class AIGeneratorController extends Controller
                 }
             }
 
+            // Consume one quota unit after successful generation
+            $sub->consumeQuota(1);
+
             return response()->json([
                 'success' => true,
                 'result' => $result,
                 'caption_id' => $lastCaptionId,
                 'keyword_insights' => $keywordInsights,
                 'ml_data' => $mlData, // 🤖 ML: Return ML suggestions
+                'quota_remaining' => $sub->fresh()->remaining_quota,
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {

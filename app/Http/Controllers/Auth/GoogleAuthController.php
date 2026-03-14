@@ -55,19 +55,25 @@ class GoogleAuthController extends Controller
             
             // Create new user
             $user = User::create([
-                'name' => $googleUser->name,
-                'email' => $googleUser->email,
-                'google_id' => $googleUser->id,
-                'avatar' => $googleUser->avatar,
-                'provider' => 'google',
-                'password' => Hash::make(Str::random(24)), // Random password
-                'email_verified_at' => now(), // Auto verify email
-                'role' => 'client', // Default role
+                'name'              => $googleUser->name,
+                'email'             => $googleUser->email,
+                'google_id'         => $googleUser->id,
+                'avatar'            => $googleUser->avatar,
+                'provider'          => 'google',
+                'password'          => Hash::make(Str::random(24)),
+                'email_verified_at' => now(),
+                'role'              => 'client',
             ]);
-            
+
+            // Auto-start free trial on registration
+            $freePackage = \App\Models\Package::where('price', 0)->where('is_active', true)->first();
+            if ($freePackage) {
+                \App\Models\UserSubscription::startTrial($user, $freePackage);
+            }
+
             Auth::login($user);
-            
-            return redirect()->intended(route('dashboard'))->with('success', 'Akun berhasil dibuat dengan Google!');
+
+            return redirect()->intended(route('dashboard'))->with('success', '🎉 Akun berhasil dibuat! Trial 30 hari gratis sudah aktif.');
             
         } catch (Exception $e) {
             return redirect()->route('login')->with('error', 'Gagal login dengan Google. Silakan coba lagi.');

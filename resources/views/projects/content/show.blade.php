@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.client')
 
 @section('title', $content->title . ' - ' . $project->business_name)
 
@@ -292,11 +292,13 @@
                                     <small class="text-muted">{{ $version->created_at->format('M d, H:i') }}</small>
                                 </div>
                                 <div>
-                                    <a href="{{ route('projects.content.versions.restore', [$project, $content, $version]) }}" 
-                                       class="btn btn-sm btn-outline-primary"
-                                       onclick="return confirm('Restore this version? Current content will be saved as a new version.')">
-                                        Restore
-                                    </a>
+                                    <form action="{{ route('projects.content.restore-version', [$project, $content, $version]) }}" method="POST"
+                                          onsubmit="return confirm('Restore this version? Current content will be saved as a new version.')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            Restore
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                             @endforeach

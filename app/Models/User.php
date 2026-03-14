@@ -133,9 +133,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(ImageCaption::class);
     }
 
-    /**
-     * 📚 Template Marketplace Relationships
-     */
     public function templates()
     {
         return $this->hasMany(UserTemplate::class);
@@ -159,6 +156,46 @@ class User extends Authenticatable implements MustVerifyEmail
     public function templateSales()
     {
         return $this->hasMany(TemplatePurchase::class, 'seller_id');
+    }
+
+    // ── Subscription ─────────────────────────────────────────────────────────
+
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->with('package')
+            ->whereIn('status', ['active', 'trial'])
+            ->latest();
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        $sub = $this->activeSubscription()->first();
+        return $sub && $sub->isValid();
+    }
+
+    public function hasUsedTrial(): bool
+    {
+        return $this->subscriptions()->whereIn('status', ['trial', 'active', 'expired', 'cancelled'])
+            ->where('trial_used', true)
+            ->whereNotNull('trial_starts_at') // only real trials have this set
+            ->exists();
+    }
+
+    public function currentSubscription(): ?UserSubscription
+    {
+        return $this->activeSubscription()->first();
+    }
+
+    public function canUseAI(): bool
+    {
+        $sub = $this->currentSubscription();
+        return $sub && $sub->isValid() && $sub->remaining_quota > 0;
     }
 
     /**

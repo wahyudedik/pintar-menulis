@@ -15,6 +15,10 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         if ($user->isClient()) {
+            // Clients must verify email before accessing dashboard
+            if (!$user->hasVerifiedEmail()) {
+                return redirect()->route('verification.notice');
+            }
             return $this->clientDashboard();
         }
 
@@ -191,7 +195,7 @@ class DashboardController extends Controller
             'pending_queue' => Order::where('status', 'pending')
                 ->whereNull('operator_id')
                 ->count(),
-            'average_rating' => $profile->average_rating ?? 0,
+            'average_rating' => $profile?->average_rating ?? 0,
         ];
 
         // Keep legacy variables for backward compatibility
@@ -208,6 +212,7 @@ class DashboardController extends Controller
             'total_operators' => User::where('role', 'operator')->count(),
             'active_orders' => Order::where('status', 'active')->count(),
             'total_revenue' => Order::where('status', 'active')
+                ->whereNotNull('package_id')
                 ->join('packages', 'orders.package_id', '=', 'packages.id')
                 ->sum('packages.price'),
             'pending_requests' => CopywritingRequest::where('status', 'pending')->count(),

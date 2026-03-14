@@ -1,139 +1,156 @@
 @extends('layouts.admin')
 
-@section('title', 'WhatsApp Analytics Dashboard')
+@section('title', 'WhatsApp Analytics')
 
 @section('content')
-<div class="container-fluid" x-data="whatsappAnalytics()">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="p-6">
+    <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="h3 mb-0">📱 WhatsApp Analytics</h1>
-            <p class="text-muted">Comprehensive analytics for WhatsApp bot performance</p>
+            <h1 class="text-xl font-bold text-gray-900">WhatsApp Analytics</h1>
+            <p class="text-sm text-gray-500 mt-1">Monitor performa WhatsApp integration</p>
         </div>
-        <div class="d-flex gap-2">
-            <select x-model="selectedPeriod" @change="loadAnalytics()" class="form-select">
-                <option value="1d">Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="90d">Last 90 Days</option>
+        <div class="flex items-center gap-3">
+            <select id="periodSelect" onchange="changePeriod(this.value)"
+                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500">
+                <option value="1d">Hari Ini</option>
+                <option value="7d" selected>7 Hari</option>
+                <option value="30d">30 Hari</option>
+                <option value="90d">90 Hari</option>
             </select>
-            <button @click="refreshAnalytics()" class="btn btn-outline-primary">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            <button @click="exportData()" class="btn btn-success">
-                <i class="fas fa-download"></i> Export
+            <a href="{{ route('admin.whatsapp-analytics.export') }}"
+               class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
+                Export CSV
+            </a>
+            <button onclick="refreshData()"
+                    class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition">
+                Refresh
             </button>
         </div>
     </div>
 
-    <!-- Loading State -->
-    <div x-show="loading" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+    @php $overview = $analytics['overview'] ?? []; @endphp
+
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-xs text-gray-500 mb-1">Total Pesan</p>
+            <p class="text-2xl font-bold text-gray-900">{{ number_format($overview['total_messages'] ?? 0) }}</p>
+            <p class="text-xs text-green-600 mt-1">↑ {{ $overview['message_growth'] ?? 0 }}%</p>
         </div>
-        <p class="mt-2 text-muted">Loading analytics data...</p>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-xs text-gray-500 mb-1">Pengguna Aktif</p>
+            <p class="text-2xl font-bold text-gray-900">{{ number_format($overview['active_users'] ?? 0) }}</p>
+            <p class="text-xs text-gray-500 mt-1">periode ini</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-xs text-gray-500 mb-1">Response Rate</p>
+            <p class="text-2xl font-bold text-gray-900">{{ number_format($overview['response_rate'] ?? 0, 1) }}%</p>
+            <p class="text-xs text-gray-500 mt-1">rata-rata</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-xs text-gray-500 mb-1">Avg Response Time</p>
+            <p class="text-2xl font-bold text-gray-900">{{ number_format($overview['avg_response_time'] ?? 0, 1) }}s</p>
+            <p class="text-xs text-gray-500 mt-1">detik</p>
+        </div>
     </div>
 
-    <!-- Analytics Content -->
-    <div x-show="!loading" style="display: none;">
-        <!-- Overview Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Total Messages</h6>
-                                <h3 x-text="analytics.overview?.total_messages || 0"></h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-comments fa-2x opacity-75"></i>
-                            </div>
-                        </div>
-                        <small>
-                            <span x-text="analytics.overview?.avg_daily_messages || 0"></span> per day average
-                        </small>
-                    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Message Stats -->
+        @php $messages = $analytics['messages'] ?? []; @endphp
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 class="font-semibold text-gray-900 mb-4">Statistik Pesan</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Pesan Masuk</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($messages['incoming'] ?? 0) }}</span>
                 </div>
-            </div>
-            
-            <div class="col-md-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Active Users</h6>
-                                <h3 x-text="analytics.overview?.total_users || 0"></h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-users fa-2x opacity-75"></i>
-                            </div>
-                        </div>
-                        <small>
-                            <span x-text="analytics.overview?.growth_rate || 0"></span>% growth
-                        </small>
-                    </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Pesan Keluar</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($messages['outgoing'] ?? 0) }}</span>
                 </div>
-            </div>
-            
-            <div class="col-md-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Subscriptions</h6>
-                                <h3 x-text="analytics.overview?.active_subscriptions || 0"></h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-bell fa-2x opacity-75"></i>
-                            </div>
-                        </div>
-                        <small>Active subscribers</small>
-                    </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Pesan Gagal</span>
+                    <span class="font-semibold text-red-600">{{ number_format($messages['failed'] ?? 0) }}</span>
                 </div>
-            </div>
-            
-            <div class="col-md-3">
-                <div class="card bg-warning text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="card-title">Response Rate</h6>
-                                <h3><span x-text="analytics.overview?.response_rate || 0"></span>%</h3>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-reply fa-2x opacity-75"></i>
-                            </div>
-                        </div>
-                        <small>Bot response efficiency</small>
-                    </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Broadcast Terkirim</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($messages['broadcast_sent'] ?? 0) }}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="row mb-4">
-            <!-- Message Trends Chart -->
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">📈 Message Trends</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="messageTrendsChart" height="100"></canvas>
-                    </div>
+        <!-- Subscription Stats -->
+        @php $subs = $analytics['subscriptions'] ?? []; @endphp
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 class="font-semibold text-gray-900 mb-4">Subscriber WhatsApp</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Total Subscriber</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($subs['total'] ?? 0) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Subscriber Aktif</span>
+                    <span class="font-semibold text-green-600">{{ number_format($subs['active'] ?? 0) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Baru Periode Ini</span>
+                    <span class="font-semibold text-blue-600">+{{ number_format($subs['new'] ?? 0) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Churn Rate</span>
+                    <span class="font-semibold text-red-600">{{ number_format($subs['churn_rate'] ?? 0, 1) }}%</span>
                 </div>
             </div>
-            
-            <!-- Message Types Pie Chart -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">📊 Message Types</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="messageTypesChart"></canvas>
-                    </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Engagement Stats -->
+        @php $engagement = $analytics['engagement'] ?? []; @endphp
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 class="font-semibold text-gray-900 mb-4">Engagement</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Avg Conversation Length</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($engagement['avg_conversation_length'] ?? 0, 1) }} pesan</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Retention Rate</span>
+                    <span class="font-semibold text-green-600">{{ number_format($engagement['retention_rate'] ?? 0, 1) }}%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Engagement Trend</span>
+                    <span class="font-semibold {{ ($engagement['trend'] ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                        {{ ($engagement['trend'] ?? 0) >= 0 ? '↑' : '↓' }} {{ abs($engagement['trend'] ?? 0) }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device Status -->
+        @php $device = $analytics['device_status'] ?? []; @endphp
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 class="font-semibold text-gray-900 mb-4">Status Device</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Status</span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ ($device['connected'] ?? false) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        {{ ($device['connected'] ?? false) ? 'Connected' : 'Disconnected' }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">API Health</span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ ($device['api_healthy'] ?? false) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                        {{ ($device['api_healthy'] ?? false) ? 'Healthy' : 'Degraded' }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Queue Size</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($device['queue_size'] ?? 0) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Avg Processing Time</span>
+                    <span class="font-semibold text-gray-900">{{ number_format($device['avg_processing_time'] ?? 0, 1) }}s</span>
                 </div>
             </div>
         </div>
@@ -141,102 +158,28 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-function whatsappAnalytics() {
-    return {
-        loading: true,
-        selectedPeriod: '7d',
-        analytics: {},
-        
-        async init() {
-            await this.loadAnalytics();
-        },
-        
-        async loadAnalytics() {
-            this.loading = true;
-            try {
-                const response = await fetch(`/admin/whatsapp-analytics/data?period=${this.selectedPeriod}`);
-                this.analytics = await response.json();
-                this.$nextTick(() => {
-                    this.renderCharts();
-                });
-            } catch (error) {
-                console.error('Failed to load analytics:', error);
-            } finally {
-                this.loading = false;
-            }
-        },
-        
-        async refreshAnalytics() {
-            await fetch('/admin/whatsapp-analytics/refresh', { method: 'POST' });
-            await this.loadAnalytics();
-        },
-        
-        exportData() {
-            window.open(`/admin/whatsapp-analytics/export?period=${this.selectedPeriod}&format=csv`);
-        },
-        
-        renderCharts() {
-            this.renderMessageTrendsChart();
-            this.renderMessageTypesChart();
-        },
-        
-        renderMessageTrendsChart() {
-            const ctx = document.getElementById('messageTrendsChart');
-            if (!ctx || !this.analytics.messages?.daily_stats) return;
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: this.analytics.messages.daily_stats.map(d => d.date),
-                    datasets: [{
-                        label: 'Incoming',
-                        data: this.analytics.messages.daily_stats.map(d => d.incoming),
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }, {
-                        label: 'Outgoing',
-                        data: this.analytics.messages.daily_stats.map(d => d.outgoing),
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        },
-        
-        renderMessageTypesChart() {
-            const ctx = document.getElementById('messageTypesChart');
-            if (!ctx || !this.analytics.messages?.message_types) return;
-            
-            const types = this.analytics.messages.message_types;
-            
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(types),
-                    datasets: [{
-                        data: Object.values(types),
-                        backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56',
-                            '#4BC0C0',
-                            '#9966FF'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true
-                }
-            });
+function changePeriod(period) {
+    fetch(`{{ route('admin.whatsapp-analytics.data') }}?period=${period}`, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        // Reload page with period param for simplicity
+        window.location.href = `{{ route('admin.whatsapp-analytics.index') }}?period=${period}`;
+    });
+}
+
+function refreshData() {
+    fetch('{{ route('admin.whatsapp-analytics.refresh') }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
         }
-    }
+    })
+    .then(r => r.json())
+    .then(() => window.location.reload());
 }
 </script>
 @endpush

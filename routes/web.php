@@ -22,12 +22,13 @@ Route::get('/contact', [LegalController::class, 'contact'])->name('contact');
 
 // Dashboard with role-based routing
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('dashboard');
 
 // Public routes
 Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
 Route::get('/packages/{package}', [PackageController::class, 'show'])->name('packages.show');
+Route::get('/pricing', [\App\Http\Controllers\Client\SubscriptionController::class, 'pricing'])->name('pricing');
 
 // Article routes
 Route::get('/articles', [\App\Http\Controllers\ArticleController::class, 'index'])->name('articles.index');
@@ -52,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // Client routes
-    Route::middleware(['role:client'])->group(function () {
+    Route::middleware(['role:client', 'verified'])->group(function () {
         // AI Generator
         Route::get('/ai-generator', [\App\Http\Controllers\Client\AIGeneratorController::class, 'index'])->name('ai.generator');
         
@@ -116,6 +117,15 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/export-all', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'exportAll'])->name('export-all');
             Route::post('/import', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'import'])->name('import');
             Route::post('/import-url', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'importFromUrl'])->name('import-url');
+        });
+
+        // Subscription
+        Route::prefix('subscription')->name('subscription.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Client\SubscriptionController::class, 'index'])->name('index');
+            Route::post('/trial/{package}', [\App\Http\Controllers\Client\SubscriptionController::class, 'startTrial'])->name('trial');
+            Route::get('/checkout/{package}', [\App\Http\Controllers\Client\SubscriptionController::class, 'checkout'])->name('checkout');
+            Route::post('/checkout/{package}', [\App\Http\Controllers\Client\SubscriptionController::class, 'processPayment'])->name('pay');
+            Route::post('/cancel', [\App\Http\Controllers\Client\SubscriptionController::class, 'cancel'])->name('cancel');
         });
         
         // Competitor Analysis
@@ -268,6 +278,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/packages', [\App\Http\Controllers\Admin\PackageController::class, 'index'])->name('packages');
         Route::get('/packages/{package}/edit', [\App\Http\Controllers\Admin\PackageController::class, 'edit'])->name('packages.edit');
         Route::put('/packages/{package}', [\App\Http\Controllers\Admin\PackageController::class, 'update'])->name('packages.update');
+
+        // Subscription Management
+        Route::get('/subscriptions', [\App\Http\Controllers\Admin\PackageController::class, 'subscriptions'])->name('subscriptions');
+        Route::post('/subscriptions/{subscription}/verify', [\App\Http\Controllers\Client\SubscriptionController::class, 'adminVerify'])->name('subscriptions.verify');
+        Route::post('/subscriptions/{subscription}/reject', [\App\Http\Controllers\Client\SubscriptionController::class, 'adminReject'])->name('subscriptions.reject');
         
         // Financial Reports
         Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
@@ -278,6 +293,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/payment-settings/{paymentSetting}', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'update'])->name('payment-settings.update');
         Route::delete('/payment-settings/{paymentSetting}', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'destroy'])->name('payment-settings.destroy');
         Route::post('/payment-settings/midtrans', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'updateMidtrans'])->name('payment-settings.midtrans-update');
+        Route::post('/payment-settings/xendit', [\App\Http\Controllers\Admin\PaymentSettingController::class, 'updateXendit'])->name('payment-settings.xendit-update');
         
         // Payment Verification
         Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments');
@@ -391,9 +407,11 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
     });
 });
 
-// WhatsApp API Routes
+// Webhook Routes (no CSRF, no auth)
 Route::prefix('webhook')->group(function () {
     Route::post('/whatsapp', [\App\Http\Controllers\WhatsAppController::class, 'handleWebhook'])->name('webhook.whatsapp');
+    Route::post('/midtrans', [\App\Http\Controllers\Client\SubscriptionController::class, 'webhookMidtrans'])->name('webhook.midtrans');
+    Route::post('/xendit', [\App\Http\Controllers\Client\SubscriptionController::class, 'webhookXendit'])->name('webhook.xendit');
 });
 
 Route::prefix('api/whatsapp')->middleware(['auth'])->group(function () {

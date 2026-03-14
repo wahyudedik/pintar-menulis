@@ -14,6 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+        // Exclude payment webhooks from CSRF verification
+        $middleware->validateCsrfTokens(except: [
+            'webhook/midtrans',
+            'webhook/xendit',
+            'webhook/whatsapp',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Return JSON for API requests
