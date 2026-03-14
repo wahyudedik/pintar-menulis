@@ -23,6 +23,50 @@ class ProjectController extends Controller
         return view('projects.create');
     }
 
+    public function show(Project $project)
+    {
+        if (!$project->canUserAccess(auth()->user())) {
+            abort(403, 'Anda tidak memiliki akses ke project ini.');
+        }
+
+        $userRole = $project->getMemberRole(auth()->user());
+        $canEdit = $project->canUserEdit(auth()->user());
+        $canApprove = $project->canUserApprove(auth()->user());
+
+        // Get project statistics
+        $stats = [
+            'total_content' => $project->content()->count(),
+            'drafts' => $project->drafts()->count(),
+            'pending_review' => $project->pendingReview()->count(),
+            'approved' => $project->approvedContent()->count(),
+            'team_members' => $project->getTotalMembers()
+        ];
+
+        // Get recent content
+        $recentContent = $project->content()
+            ->with(['creator', 'reviewer'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Get team members
+        $teamMembers = $project->acceptedMembers()
+            ->with('user')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('projects.show', compact(
+            'project', 
+            'userRole', 
+            'canEdit', 
+            'canApprove', 
+            'stats', 
+            'recentContent', 
+            'teamMembers'
+        ));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

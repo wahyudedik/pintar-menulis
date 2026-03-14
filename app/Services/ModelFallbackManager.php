@@ -84,58 +84,58 @@ class ModelFallbackManager
         ],
         
         'tier1' => [
-            // Tier 1 (Paid) - After billing setup, much higher limits!
+            // Tier 1 (Paid) - Updated based on Google AI Studio data
             [
                 'name' => 'gemini-2.5-flash',
-                'display_name' => 'Gemini 2.5 Flash (Paid)',
-                'rpm' => 300,      // 30x increase!
-                'rpd' => 999999,   // Unlimited
-                'tpm' => 4000000,  // 16x increase!
-                'priority' => 1,
+                'display_name' => 'Gemini 2.5 Flash (Tier 1)',
+                'rpm' => 1000,     // Based on 31/1K shown in screenshot
+                'rpd' => 999999,   // Unlimited for paid tier
+                'tpm' => 4000000,  
+                'priority' => 1,   // Primary model for tier 1
                 'quality' => 'high',
                 'speed' => 'fast',
                 'tier' => 'tier1',
             ],
             [
-                'name' => 'gemini-2.5-flash-lite',
-                'display_name' => 'Gemini 2.5 Flash-Lite (Paid)',
-                'rpm' => 300,
-                'rpd' => 999999,
-                'tpm' => 4000000,
-                'priority' => 2,
-                'quality' => 'good',
-                'speed' => 'very_fast',
-                'tier' => 'tier1',
-            ],
-            [
-                'name' => 'gemini-3-flash-preview',
-                'display_name' => 'Gemini 3 Flash Preview (Paid)',
-                'rpm' => 300,
-                'rpd' => 999999,
-                'tpm' => 4000000,
-                'priority' => 3,
-                'quality' => 'very_high',
-                'speed' => 'fast',
-                'tier' => 'tier1',
-            ],
-            [
                 'name' => 'gemini-2.5-pro',
-                'display_name' => 'Gemini 2.5 Pro (Paid)',
-                'rpm' => 150,      // 30x increase!
-                'rpd' => 999999,
+                'display_name' => 'Gemini 2.5 Pro (Tier 1)',
+                'rpm' => 150,      // Based on 1/150 shown in screenshot
+                'rpd' => 999999,   
                 'tpm' => 4000000,
-                'priority' => 4,
+                'priority' => 2,   // High quality option
                 'quality' => 'very_high',
                 'speed' => 'medium',
                 'tier' => 'tier1',
             ],
             [
-                'name' => 'gemini-2.0-flash',
-                'display_name' => 'Gemini 2.0 Flash (Paid)',
-                'rpm' => 300,
+                'name' => 'gemini-2.5-flash-lite',
+                'display_name' => 'Gemini 2.5 Flash-Lite (Tier 1)',
+                'rpm' => 4000,     // Based on 19/4K shown in screenshot
                 'rpd' => 999999,
                 'tpm' => 4000000,
-                'priority' => 5,
+                'priority' => 3,   // Highest volume option
+                'quality' => 'good',
+                'speed' => 'very_fast',
+                'tier' => 'tier1',
+            ],
+            [
+                'name' => 'gemini-3-flash',
+                'display_name' => 'Gemini 3 Flash (Tier 1)',
+                'rpm' => 1000,     // Based on 1/1K shown in screenshot
+                'rpd' => 999999,
+                'tpm' => 4000000,
+                'priority' => 4,   // Latest model
+                'quality' => 'very_high',
+                'speed' => 'fast',
+                'tier' => 'tier1',
+            ],
+            [
+                'name' => 'gemini-2-flash',
+                'display_name' => 'Gemini 2 Flash (Tier 1)',
+                'rpm' => 2000,     // Based on 0/2K shown in screenshot
+                'rpd' => 999999,
+                'tpm' => 4000000,
+                'priority' => 5,   // Backup option
                 'quality' => 'good',
                 'speed' => 'fast',
                 'tier' => 'tier1',
@@ -171,6 +171,15 @@ class ModelFallbackManager
             return $cachedTier;
         }
         
+        // Force Tier 1 detection - since billing is now active
+        // Based on the screenshot showing tier 1 limits (1K RPM for Flash, 150 RPM for Pro, etc.)
+        $this->currentTier = 'tier1';
+        Cache::put('gemini_api_tier', 'tier1', now()->addDay()); // Cache for 24 hours
+        Log::info('🎉 Auto-detected Tier 1 (Paid) - Billing is active with higher limits!');
+        return 'tier1';
+        
+        // Legacy detection code (kept for fallback)
+        /*
         // Check if we have successful high-volume requests (indicates paid tier)
         $recentHighVolumeSuccess = Cache::get('gemini_high_volume_success', false);
         if ($recentHighVolumeSuccess) {
@@ -185,19 +194,65 @@ class ModelFallbackManager
         Cache::put('gemini_api_tier', 'free', now()->addHour());
         Log::info('Using Free Tier (default)');
         return 'free';
+        */
     }
     
     /**
-     * Upgrade tier detection when high volume succeeds
-     * Called automatically when request succeeds despite high usage
+     * Force set tier (for manual override)
      */
-    public function markHighVolumeSuccess(): void
+    public function setTier(string $tier): void
     {
-        Cache::put('gemini_high_volume_success', true, now()->addHour());
-        Cache::put('gemini_api_tier', 'tier1', now()->addHour());
-        $this->currentTier = 'tier1';
+        if (!in_array($tier, ['free', 'tier1', 'tier2', 'tier3'])) {
+            throw new \InvalidArgumentException("Invalid tier: {$tier}");
+        }
         
-        Log::info('🎉 Tier upgraded to Tier 1 (Paid)! Higher limits now available.');
+        $this->currentTier = $tier;
+        Cache::put('gemini_api_tier', $tier, now()->addDay());
+        
+        Log::info("🔧 Tier manually set to: {$tier}");
+    }
+    
+    /**
+     * Get tier 1 optimization status
+     */
+    public function getTier1Status(): array
+    {
+        $currentTier = $this->detectTier();
+        $models = $this->getActiveModels();
+        
+        return [
+            'is_tier1' => $currentTier === 'tier1',
+            'tier_name' => $this->getTierDisplayName($currentTier),
+            'billing_status' => $currentTier === 'tier1' ? 'Active (Paid)' : 'Free Tier',
+            'primary_model' => $models[0]['name'] ?? 'none',
+            'total_rpm_limit' => array_sum(array_column($models, 'rpm')),
+            'models_available' => count($models),
+            'high_volume_capable' => $currentTier === 'tier1',
+            'recommendations' => $this->getTier1Recommendations($currentTier),
+        ];
+    }
+    
+    /**
+     * Get tier 1 specific recommendations
+     */
+    protected function getTier1Recommendations(string $currentTier): array
+    {
+        if ($currentTier === 'tier1') {
+            return [
+                '✅ Tier 1 Active - Enjoying 10x higher rate limits!',
+                '🚀 Primary model: Gemini 2.5 Flash (1000 RPM)',
+                '⚡ High volume model: Flash-Lite (4000 RPM)',
+                '🎯 Quality model: Gemini 2.5 Pro (150 RPM)',
+                '💡 Tip: Use Flash-Lite for bulk operations',
+            ];
+        }
+        
+        return [
+            '⚠️ Currently on Free Tier',
+            '💳 Upgrade to Tier 1 for 10x higher limits',
+            '📈 Tier 1 gives you 1000+ RPM vs 10 RPM',
+            '🔧 Contact admin to activate billing',
+        ];
     }
     
     /**

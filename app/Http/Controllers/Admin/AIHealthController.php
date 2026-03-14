@@ -96,7 +96,6 @@ class AIHealthController extends Controller
     {
         // Dispatch jobs immediately
         \App\Jobs\MonitorAIHealthJob::dispatch();
-        \App\Jobs\TestAIConnectivityJob::dispatch();
         
         return response()->json([
             'success' => true,

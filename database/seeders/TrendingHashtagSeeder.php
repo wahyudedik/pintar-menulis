@@ -46,7 +46,7 @@ class TrendingHashtagSeeder extends Seeder
             $this->getTikTokHashtags(),
             $this->getFacebookHashtags(),
             $this->getYouTubeHashtags(),
-            $this->getTwitterHashtags(),
+            $this->getXHashtags(),
             $this->getLinkedInHashtags()
         );
     }
@@ -191,21 +191,21 @@ class TrendingHashtagSeeder extends Seeder
     }
     
     /**
-     * Twitter/X Trending Hashtags
+     * X (Twitter) Trending Hashtags
      */
-    private function getTwitterHashtags(): array
+    private function getXHashtags(): array
     {
         return [
             // General
-            ['hashtag' => '#Indonesia', 'platform' => 'twitter', 'trend_score' => 95, 'usage_count' => 520000, 'engagement_rate' => 4.8, 'category' => 'general'],
-            ['hashtag' => '#TwitterIndonesia', 'platform' => 'twitter', 'trend_score' => 91, 'usage_count' => 440000, 'engagement_rate' => 4.4, 'category' => 'general'],
-            ['hashtag' => '#TrendingNow', 'platform' => 'twitter', 'trend_score' => 89, 'usage_count' => 400000, 'engagement_rate' => 4.2, 'category' => 'general'],
+            ['hashtag' => '#Indonesia', 'platform' => 'x', 'trend_score' => 95, 'usage_count' => 520000, 'engagement_rate' => 4.8, 'category' => 'general'],
+            ['hashtag' => '#XIndonesia', 'platform' => 'x', 'trend_score' => 91, 'usage_count' => 440000, 'engagement_rate' => 4.4, 'category' => 'general'],
+            ['hashtag' => '#TrendingNow', 'platform' => 'x', 'trend_score' => 89, 'usage_count' => 400000, 'engagement_rate' => 4.2, 'category' => 'general'],
             
             // Business & News
-            ['hashtag' => '#UMKM', 'platform' => 'twitter', 'trend_score' => 88, 'usage_count' => 380000, 'engagement_rate' => 4.1, 'category' => 'business'],
-            ['hashtag' => '#BisnisOnline', 'platform' => 'twitter', 'trend_score' => 86, 'usage_count' => 350000, 'engagement_rate' => 3.9, 'category' => 'business'],
-            ['hashtag' => '#Startup', 'platform' => 'twitter', 'trend_score' => 85, 'usage_count' => 330000, 'engagement_rate' => 3.8, 'category' => 'business'],
-            ['hashtag' => '#TechNews', 'platform' => 'twitter', 'trend_score' => 87, 'usage_count' => 360000, 'engagement_rate' => 4.0, 'category' => 'technology'],
+            ['hashtag' => '#UMKM', 'platform' => 'x', 'trend_score' => 88, 'usage_count' => 380000, 'engagement_rate' => 4.1, 'category' => 'business'],
+            ['hashtag' => '#BisnisOnline', 'platform' => 'x', 'trend_score' => 86, 'usage_count' => 350000, 'engagement_rate' => 3.9, 'category' => 'business'],
+            ['hashtag' => '#Startup', 'platform' => 'x', 'trend_score' => 85, 'usage_count' => 330000, 'engagement_rate' => 3.8, 'category' => 'business'],
+            ['hashtag' => '#TechNews', 'platform' => 'x', 'trend_score' => 87, 'usage_count' => 360000, 'engagement_rate' => 4.0, 'category' => 'technology'],
         ];
     }
     

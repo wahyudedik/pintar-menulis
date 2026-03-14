@@ -5,9 +5,11 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use App\Traits\DynamicDateAware;
 
 class GeminiService
 {
+    use DynamicDateAware;
     protected $apiKey;
     protected $apiUrl;
     protected $validator;
@@ -22,15 +24,30 @@ class GeminiService
         $this->qualityScorer = new QualityScorer();
         $this->fallbackManager = new ModelFallbackManager();
         
-        // Get best available model dynamically
+        // Get best available model dynamically (now optimized for Tier 1)
         $selectedModel = $this->fallbackManager->getBestAvailableModel();
         $this->currentModel = $selectedModel['name'];
         $this->apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$this->currentModel}:generateContent";
         
-        Log::info('GeminiService initialized', [
+        // Log tier 1 status
+        $tier1Status = $this->fallbackManager->getTier1Status();
+        
+        Log::info('GeminiService initialized with Tier 1 optimization', [
             'model' => $this->currentModel,
+            'tier' => $tier1Status['tier_name'],
+            'billing_status' => $tier1Status['billing_status'],
+            'rpm_limit' => $selectedModel['rpm'] ?? 'unknown',
             'url' => $this->apiUrl
         ]);
+        
+        // Log tier 1 benefits if active
+        if ($tier1Status['is_tier1']) {
+            Log::info('🎉 Tier 1 Benefits Active!', [
+                'primary_model_rpm' => $selectedModel['rpm'],
+                'total_rpm_capacity' => $tier1Status['total_rpm_limit'],
+                'models_available' => $tier1Status['models_available']
+            ]);
+        }
     }
 
     /**
@@ -56,7 +73,7 @@ class GeminiService
             }
         }
 
-        $prompt = $this->buildPrompt($params);
+                $prompt = DynamicDateService::replaceDatePlaceholders($this->buildPrompt($params));
         
         // Adjust max tokens based on variations request
         // 5 variasi (default): 4096 tokens
@@ -318,12 +335,15 @@ class GeminiService
             throw new \Exception('API Key tidak dikonfigurasi. Hubungi administrator.');
         }
 
+        // Process prompt with dynamic dates
+        $processedPrompt = DynamicDateService::replaceDatePlaceholders($prompt);
+
         try {
             $requestData = [
                 'contents' => [
                     [
                         'parts' => [
-                            ['text' => $prompt]
+                            ['text' => $processedPrompt]
                         ]
                     ]
                 ],
@@ -353,7 +373,7 @@ class GeminiService
                 ]
             ];
 
-            $response = Http::timeout(120) // Increased timeout for generateText
+            $response = Http::timeout(60) // Reduced from 120 to 60 seconds
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'x-goog-api-key' => $this->apiKey
@@ -466,6 +486,11 @@ class GeminiService
             return $this->buildIndustryPresetPrompt($subcategory, $brief, $tone, $platform, $keywords, $variationCount, $autoHashtag, $localLanguage, $recentCaptions, $successfulCaptions);
         }
 
+        // Short Drama & Story - Creative writing mode
+        if ($category === 'short_drama') {
+            return $this->buildShortDramaPrompt($subcategory, $brief, $tone, $keywords, $variationCount);
+        }
+
         // AI Context Awareness: Analyze brief to understand target audience
         $audienceContext = $this->analyzeAudience($brief);
         
@@ -549,7 +574,7 @@ class GeminiService
         }
         
         // Add UMKM-friendly language instruction
-        $prompt .= "BAHASA UMKM: Gunakan bahasa yang relate dengan UMKM Indonesia seperti 'Kak', 'Bun', 'Gaes' secara natural sesuai konteks dan target audience.\n\n";
+        $prompt .= "SAPAAN: Pilih SATU sapaan yang paling sesuai target audience (jangan gabungkan): 'Kak' (umum/netral), 'Bun' (ibu-ibu/parenting), 'Gaes' (anak muda/gen-z), 'Sob' (casual pria), atau tidak pakai sapaan jika formal. Gunakan konsisten di seluruh caption.\n\n";
 
         $prompt .= "Panduan Umum:\n";
         $prompt .= "1. Gunakan bahasa Indonesia yang menarik dan mudah dipahami\n";
@@ -759,7 +784,7 @@ class GeminiService
         }
         
         // UMKM language
-        $basePrompt .= "BAHASA UMKM: Gunakan bahasa yang relate seperti 'Kak', 'Bun', 'Gaes' secara natural sesuai target audience.\n\n";
+        $basePrompt .= "SAPAAN: Pilih SATU sapaan yang paling sesuai target audience (jangan gabungkan): 'Kak' (umum/netral), 'Bun' (ibu-ibu/parenting), 'Gaes' (anak muda/gen-z), 'Sob' (casual pria), atau tidak pakai sapaan jika formal. Gunakan konsisten di seluruh caption.\n\n";
         
         $basePrompt .= "Platform: {$platform} | Tone: {$adjustedTone}\n\n";
         $basePrompt .= "Buatkan caption jualan yang FOKUS CLOSING, bukan cuma estetik!";
@@ -956,7 +981,7 @@ class GeminiService
             
             'automotive' => "WAJIB SERTAKAN DETAIL SPESIFIK:\n" .
                 "✅ PART NUMBER: 'Part number: 12345-ABC-000'\n" .
-                "✅ COMPATIBILITY: 'Untuk Honda Jazz 2015-2020', 'Universal fit'\n" .
+                "✅ COMPATIBILITY: 'Untuk Honda Jazz " . \App\Services\DynamicDateService::getAutomotiveYearRange() . "', 'Universal fit'\n" .
                 "✅ BRAND: 'Original', 'OEM', 'Aftermarket (merk xxx)'\n" .
                 "✅ WARRANTY: 'Garansi 1 tahun', 'Garansi toko 6 bulan'\n" .
                 "✅ CONDITION: 'Baru', 'Bekas (kondisi 90%)'\n" .
@@ -1021,7 +1046,7 @@ class GeminiService
         $basePrompt .= "PENTING: Sesuaikan konten dengan karakteristik target audience di atas!\n\n";
         
         // Add UMKM language
-        $basePrompt .= "BAHASA UMKM: Gunakan bahasa yang relate seperti 'Kak', 'Bun', 'Gaes' secara natural sesuai target audience.\n\n";
+        $basePrompt .= "SAPAAN: Pilih SATU sapaan yang paling sesuai target audience (jangan gabungkan): 'Kak' (umum/netral), 'Bun' (ibu-ibu/parenting), 'Gaes' (anak muda/gen-z), 'Sob' (casual pria), atau tidak pakai sapaan jika formal. Gunakan konsisten di seluruh caption.\n\n";
 
         switch ($subcategory) {
             case 'caption_instagram':
@@ -1272,6 +1297,21 @@ class GeminiService
                        "'Uni, lah murah bana produk rancak ko! Kualitas lamak, harga ndak mahal! Order ciek dulu! 🔥'\n\n" .
                        "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Minang!",
             
+            'bali' => "Gunakan bahasa Bali yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Bali!\n" .
+                     "Contoh kata yang HARUS dipakai:\n" .
+                     "- 'Om Swastiastu' (salam Bali)\n" .
+                     "- 'Kenken' (bagaimana)\n" .
+                     "- 'Sing' (tidak/jangan)\n" .
+                     "- 'Niki' (ini)\n" .
+                     "- 'Napi' (apa)\n" .
+                     "- 'Becik' (bagus)\n" .
+                     "- 'Murah pisan' (murah sekali)\n" .
+                     "- 'Ajeg' (tetap/konsisten)\n" .
+                     "- 'Suksma' (terima kasih)\n\n" .
+                     "CONTOH CAPTION YANG BENAR:\n" .
+                     "'Om Swastiastu! Niki produk becik, murah pisan! Kenken sing order? Ajeg berkualitas! 🔥'\n\n" .
+                     "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Bali!",
+            
             'batak' => "Gunakan bahasa Batak yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Batak!\n" .
                       "Contoh kata yang HARUS dipakai:\n" .
                       "- 'Horas' (salam/sehat) - contoh: 'Horas Lae!'\n" .
@@ -1286,6 +1326,74 @@ class GeminiService
                       "CONTOH CAPTION YANG BENAR:\n" .
                       "'Horas Lae! Produk hatop, harga murah sai! Kualitas tung mansai! Eda telat order! 🔥'\n\n" .
                       "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Batak seperti 'Horas', 'Lae', 'tung mansai', 'hatop', 'sai', 'eda'!",
+            
+            'madura' => "Gunakan bahasa Madura yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Madura!\n" .
+                       "Contoh kata yang HARUS dipakai:\n" .
+                       "- 'Salamat' (selamat/salam)\n" .
+                       "- 'Kanca' (teman/bro)\n" .
+                       "- 'Apah' (apa)\n" .
+                       "- 'Bagus pisan' (bagus sekali)\n" .
+                       "- 'Murah banget' (murah sekali)\n" .
+                       "- 'Tadak' (tidak)\n" .
+                       "- 'Enggi' (iya)\n" .
+                       "- 'Paran' (bagaimana)\n" .
+                       "- 'Sampean' (kamu/anda)\n" .
+                       "- 'Kaulah' (kamu)\n\n" .
+                       "CONTOH CAPTION YANG BENAR:\n" .
+                       "'Salamat Kanca! Produk bagus pisan, murah banget! Paran sampean tadak order? Enggi mantap! 🔥'\n\n" .
+                       "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Madura!",
+            
+            'bugis' => "Gunakan bahasa Bugis yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Bugis!\n" .
+                      "Contoh kata yang HARUS dipakai:\n" .
+                      "- 'Assalamu Alaikum' (salam)\n" .
+                      "- 'Daeng/Puang' (panggilan hormat)\n" .
+                      "- 'Aga' (bagaimana)\n" .
+                      "- 'Dekka' (bagus)\n" .
+                      "- 'Murah pole' (murah sekali)\n" .
+                      "- 'Tena' (tidak ada)\n" .
+                      "- 'Engka' (ada)\n" .
+                      "- 'Siaga' (bagaimana)\n" .
+                      "- 'Makanja' (makanya)\n" .
+                      "- 'Pole' (sekali/banget)\n\n" .
+                      "CONTOH CAPTION YANG BENAR:\n" .
+                      "'Daeng, produk dekka pole! Murah pole, kualitas tena tandingannya! Siaga tena order? 🔥'\n\n" .
+                      "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Bugis!",
+            
+            'banjar' => "Gunakan bahasa Banjar yang NATURAL dan MUDAH DIPAHAMI. WAJIB pakai minimal 2-3 kata/frasa Banjar!\n" .
+                       "Contoh kata yang HARUS dipakai:\n" .
+                       "- 'Assalamu Alaikum' (salam)\n" .
+                       "- 'Pian' (kamu/anda)\n" .
+                       "- 'Apa kabar' (apa kabar)\n" .
+                       "- 'Bagus banar' (bagus sekali)\n" .
+                       "- 'Murah banar' (murah sekali)\n" .
+                       "- 'Kada' (tidak)\n" .
+                       "- 'Handak' (mau/ingin)\n" .
+                       "- 'Banar' (benar/sekali)\n" .
+                       "- 'Lawan' (dengan)\n" .
+                       "- 'Kaya apa' (bagaimana)\n\n" .
+                       "CONTOH CAPTION YANG BENAR:\n" .
+                       "'Assalamu Alaikum! Pian handak produk bagus banar? Murah banar, kaya apa kada order? 🔥'\n\n" .
+                       "JANGAN cuma pakai bahasa Indonesia biasa! WAJIB ada kata Banjar!",
+            
+            'mixed' => "Gunakan MIX BAHASA DAERAH yang NATURAL! Campurkan 2-3 bahasa daerah berbeda dalam 1 caption!\n" .
+                      "WAJIB pakai kata dari minimal 2 bahasa daerah yang berbeda:\n\n" .
+                      "PILIHAN KATA CAMPURAN:\n" .
+                      "- Jawa: 'Monggo', 'Apik', 'Murah pol', 'Enak tenan', 'Ojo nganti'\n" .
+                      "- Sunda: 'Mangga', 'Saé', 'Murah pisan', 'Atuh', 'Euy'\n" .
+                      "- Betawi: 'Nih ye', 'Kece badai', 'Kagak', 'Mantep jiwa'\n" .
+                      "- Minang: 'Lah', 'Bana', 'Rancak', 'Lamak', 'Uni/Uda'\n" .
+                      "- Batak: 'Horas', 'Lae', 'Hatop', 'Sai', 'Tung mansai'\n" .
+                      "- Bali: 'Kenken', 'Becik', 'Niki', 'Ajeg'\n" .
+                      "- Madura: 'Kanca', 'Bagus pisan', 'Paran', 'Enggi'\n" .
+                      "- Bugis: 'Daeng', 'Dekka', 'Pole', 'Siaga'\n" .
+                      "- Banjar: 'Pian', 'Banar', 'Handak', 'Kada'\n\n" .
+                      "CONTOH CAPTION MIX YANG BENAR:\n" .
+                      "'Horas Lae! Monggo langsung order produk saé ini! Murah pol, kualitas tung mansai! Ojo nganti kehabisan atuh! 🔥'\n" .
+                      "(Mix: Batak + Jawa + Sunda)\n\n" .
+                      "ATAU:\n" .
+                      "'Mangga Kanca! Niki produk kece badai, murah banar! Paran kagak order? Lamak pisan! 🔥'\n" .
+                      "(Mix: Sunda + Madura + Bali + Betawi + Banjar + Minang)\n\n" .
+                      "WAJIB: Campurkan minimal 2 bahasa daerah berbeda! Jangan cuma 1 bahasa!",
         ];
         
         return $guides[$language] ?? "Tambahkan 1-2 kata/frasa bahasa {$language} yang natural untuk relate dengan audience lokal.";
@@ -1395,7 +1503,7 @@ class GeminiService
             return $cached;
         }
 
-        $prompt = $this->buildImageCaptionPrompt($params);
+                $prompt = DynamicDateService::replaceDatePlaceholders($this->buildImageCaptionPrompt($params));
         $maxRetries = 2;
         $attempt = 0;
         $bestResult = null;
@@ -1518,6 +1626,651 @@ class GeminiService
         return $finalResult;
     }
 
+    /**
+     * 🔍 Analyze image with Gemini Vision - Advanced Analysis
+     */
+    public function analyzeImageWithVision(array $params)
+    {
+        $startTime = microtime(true);
+
+        // Validate required params
+        if (empty($params['image_data']) || empty($params['mime_type'])) {
+            throw new \Exception('Image data and mime type are required');
+        }
+
+        if (empty($params['analysis_options'])) {
+            throw new \Exception('Analysis options are required');
+        }
+
+        // Check cache (using image hash + options as key)
+        $imageHash = md5($params['image_data']);
+        $optionsHash = md5(json_encode($params['analysis_options']));
+        $cacheKey = "image_analysis_{$imageHash}_{$optionsHash}";
+
+        $cached = Cache::get($cacheKey);
+        if ($cached) {
+            Log::info('Cache hit for image analysis', ['cache_key' => $cacheKey]);
+            return $cached;
+        }
+
+        $prompt = DynamicDateService::replaceDatePlaceholders($this->buildImageAnalysisPrompt($params));
+        $maxRetries = 2;
+        $attempt = 0;
+        $bestResult = null;
+        $bestScore = 0;
+
+        while ($attempt < $maxRetries) {
+            $attempt++;
+
+            try {
+                $requestData = [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $prompt],
+                                [
+                                    'inline_data' => [
+                                        'mime_type' => $params['mime_type'],
+                                        'data' => $params['image_data']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.8,
+                        'topK' => 40,
+                        'topP' => 0.95,
+                        'maxOutputTokens' => 4096, // Increased for detailed analysis
+                        'responseMimeType' => 'text/plain',
+                    ],
+                    'safetySettings' => [
+                        ['category' => 'HARM_CATEGORY_HARASSMENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_HATE_SPEECH', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                    ]
+                ];
+
+                Log::info('Calling Gemini Vision API for Analysis', [
+                    'model' => $this->currentModel,
+                    'user_id' => $params['user_id'] ?? null,
+                    'options' => $params['analysis_options'],
+                    'attempt' => $attempt
+                ]);
+
+                $response = Http::timeout(180) // Extended timeout for detailed analysis
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($this->apiUrl . '?key=' . $this->apiKey, $requestData);
+
+                if (!$response->successful()) {
+                    $errorBody = $response->json();
+                    $errorMessage = $errorBody['error']['message'] ?? 'Unknown error';
+                    Log::error('Gemini Vision Analysis API Error', [
+                        'status' => $response->status(),
+                        'error' => $errorMessage
+                    ]);
+                    throw new \Exception('API Error: ' . $errorMessage);
+                }
+
+                $result = $response->json();
+                $aiResponse = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+                // Format and enhance the analysis
+                $formattedAnalysis = $this->formatImageAnalysis($aiResponse, $params['analysis_options']);
+
+                // Calculate quality score for analysis
+                $qualityScore = $this->calculateAnalysisQuality($formattedAnalysis, $params['analysis_options']);
+
+                // Keep best result
+                if ($qualityScore > $bestScore) {
+                    $bestScore = $qualityScore;
+                    $bestResult = [
+                        'analysis' => $formattedAnalysis,
+                        'quality_score' => $qualityScore
+                    ];
+                }
+
+                // If quality is good enough, stop retrying
+                if ($qualityScore >= 0.7) {
+                    Log::info('Image analysis quality acceptable', [
+                        'score' => $qualityScore,
+                        'attempt' => $attempt
+                    ]);
+                    break;
+                }
+
+                // If quality is low and we have retries left, try again
+                if ($attempt < $maxRetries) {
+                    Log::warning('Image analysis quality low, retrying', [
+                        'score' => $qualityScore,
+                        'attempt' => $attempt
+                    ]);
+                    sleep(1);
+                }
+
+            } catch (\Exception $e) {
+                Log::error('Image analysis attempt failed', [
+                    'error' => $e->getMessage(),
+                    'model' => $this->currentModel,
+                    'attempt' => $attempt
+                ]);
+                
+                if ($attempt >= $maxRetries) {
+                    throw $e;
+                }
+            }
+        }
+
+        if (!$bestResult) {
+            throw new \Exception('Failed to analyze image after retries');
+        }
+
+        $generationTime = microtime(true) - $startTime;
+
+        $finalResult = array_merge($bestResult, [
+            'model_used' => $this->currentModel,
+            'generation_time' => round($generationTime, 2),
+            'analysis_options' => $params['analysis_options'],
+        ]);
+
+        // Cache result for 12 hours (shorter than caption due to more dynamic nature)
+        Cache::put($cacheKey, $finalResult, 43200);
+
+        return $finalResult;
+    }
+
+    private function buildImageAnalysisPrompt(array $params)
+    {
+        $options = $params['analysis_options'];
+        $context = $params['context'] ?? '';
+        
+        $analysisInstructions = [];
+        
+        if (in_array('objects', $options)) {
+            $analysisInstructions[] = "🎯 DETEKSI OBJEK: Identifikasi semua objek, produk, dan elemen visual dalam gambar dengan detail";
+        }
+        
+        if (in_array('colors', $options)) {
+            $analysisInstructions[] = "🎨 ANALISIS WARNA: Analisis palet warna dominan, harmoni warna, dan dampak psikologis warna";
+        }
+        
+        if (in_array('composition', $options)) {
+            $analysisInstructions[] = "📐 KOMPOSISI: Evaluasi rule of thirds, leading lines, framing, balance, dan teknik fotografi";
+        }
+        
+        if (in_array('mood', $options)) {
+            $analysisInstructions[] = "😊 MOOD & EMOSI: Analisis mood, emosi yang terpancar, dan dampak psikologis pada viewer";
+        }
+        
+        if (in_array('text', $options)) {
+            $analysisInstructions[] = "📝 BACA TEKS: Identifikasi dan baca semua teks yang terlihat dalam gambar (OCR)";
+        }
+        
+        if (in_array('marketing', $options)) {
+            $analysisInstructions[] = "📈 TIPS MARKETING: Berikan rekomendasi marketing, platform yang cocok, dan strategi konten";
+        }
+        
+        if (in_array('quality', $options)) {
+            $analysisInstructions[] = "⭐ KUALITAS FOTO: Evaluasi kualitas teknis: lighting, focus, resolution, noise, exposure";
+        }
+        
+        if (in_array('suggestions', $options)) {
+            $analysisInstructions[] = "💡 SARAN PERBAIKAN: Berikan saran konkret untuk memperbaiki foto dan meningkatkan daya tarik";
+        }
+
+        $instructionText = implode("\n", $analysisInstructions);
+        
+        return <<<PROMPT
+Analisis gambar ini secara mendalam menggunakan Gemini Vision. Berikan analisis yang komprehensif dan actionable.
+
+KONTEKS BISNIS:
+{$context}
+
+ANALISIS YANG DIMINTA:
+{$instructionText}
+
+FORMAT OUTPUT:
+Berikan analisis dalam format yang terstruktur dan mudah dibaca dengan:
+- Header untuk setiap section (gunakan emoji)
+- Bullet points untuk detail
+- Skor/rating jika relevan (1-10)
+- Rekomendasi konkret dan actionable
+
+GAYA PENULISAN:
+- Bahasa Indonesia yang profesional tapi friendly
+- Gunakan emoji untuk visual appeal
+- Berikan insight yang mendalam dan praktis
+- Fokus pada actionable recommendations
+- Sebutkan angka/data spesifik jika memungkinkan
+
+PENTING: 
+- Berikan analisis yang honest dan konstruktif
+- Fokus pada improvement dan optimization
+- Sesuaikan dengan konteks UMKM Indonesia
+- Berikan tips yang bisa langsung diimplementasikan
+PROMPT;
+    }
+
+    private function formatImageAnalysis($rawAnalysis, $options)
+    {
+        // Add header and footer for better presentation
+        $header = "🔍 **HASIL ANALISIS GAMBAR DENGAN GEMINI VISION**\n";
+        $header .= "📅 Tanggal: " . now()->format('d M Y, H:i') . "\n";
+        $header .= "🎯 Analisis: " . implode(', ', array_map('ucfirst', $options)) . "\n\n";
+        
+        $footer = "\n\n---\n";
+        $footer .= "💡 **Tips Tambahan:**\n";
+        $footer .= "• Gunakan hasil analisis ini untuk optimasi konten\n";
+        $footer .= "• Test A/B dengan implementasi saran yang diberikan\n";
+        $footer .= "• Monitor engagement setelah menerapkan perbaikan\n\n";
+        $footer .= "🤖 Dianalisis dengan Gemini Vision AI | Smart Copy SMK";
+        
+        return $header . $rawAnalysis . $footer;
+    }
+
+    private function calculateAnalysisQuality($analysis, $options)
+    {
+        $score = 0.5; // Base score
+        
+        // Check if analysis covers requested options
+        foreach ($options as $option) {
+            switch ($option) {
+                case 'objects':
+                    if (stripos($analysis, 'objek') !== false || stripos($analysis, 'elemen') !== false) {
+                        $score += 0.1;
+                    }
+                    break;
+                case 'colors':
+                    if (stripos($analysis, 'warna') !== false || stripos($analysis, 'color') !== false) {
+                        $score += 0.1;
+                    }
+                    break;
+                case 'composition':
+                    if (stripos($analysis, 'komposisi') !== false || stripos($analysis, 'rule of thirds') !== false) {
+                        $score += 0.1;
+                    }
+                    break;
+                case 'mood':
+                    if (stripos($analysis, 'mood') !== false || stripos($analysis, 'emosi') !== false) {
+                        $score += 0.1;
+                    }
+                    break;
+                case 'marketing':
+                    if (stripos($analysis, 'marketing') !== false || stripos($analysis, 'strategi') !== false) {
+                        $score += 0.1;
+                    }
+                    break;
+            }
+        }
+        
+        // Check for actionable recommendations
+        if (stripos($analysis, 'saran') !== false || stripos($analysis, 'rekomendasi') !== false) {
+            $score += 0.1;
+        }
+        
+        // Check for specific details
+        if (preg_match('/\d+/', $analysis)) { // Contains numbers/ratings
+            $score += 0.05;
+        }
+        
+        // Check length (detailed analysis should be longer)
+        if (strlen($analysis) > 500) {
+            $score += 0.1;
+        }
+        
+        return min($score, 1.0); // Cap at 1.0
+    }
+
+    /**
+     * 🎬 Generate video content using Gemini AI
+     */
+    public function generateVideoContent(array $params)
+    {
+        $startTime = microtime(true);
+
+        // Validate required params
+        if (empty($params['content_type']) || empty($params['platform']) || empty($params['product'])) {
+            throw new \Exception('Content type, platform, and product are required');
+        }
+
+        // Check cache
+        $cacheKey = "video_content_" . md5(json_encode([
+            'content_type' => $params['content_type'],
+            'platform' => $params['platform'],
+            'duration' => $params['duration'],
+            'product' => $params['product'],
+            'goal' => $params['goal'],
+            'styles' => $params['styles'] ?? [],
+        ]));
+
+        $cached = Cache::get($cacheKey);
+        if ($cached) {
+            Log::info('Cache hit for video content', ['cache_key' => $cacheKey]);
+            return $cached;
+        }
+
+        $prompt = DynamicDateService::replaceDatePlaceholders($this->buildVideoContentPrompt($params));
+        $maxRetries = 2;
+        $attempt = 0;
+        $bestResult = null;
+        $bestScore = 0;
+
+        while ($attempt < $maxRetries) {
+            $attempt++;
+
+            try {
+                $requestData = [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $prompt]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.9, // Higher creativity for video content
+                        'topK' => 40,
+                        'topP' => 0.95,
+                        'maxOutputTokens' => 4096,
+                        'responseMimeType' => 'text/plain',
+                    ],
+                    'safetySettings' => [
+                        ['category' => 'HARM_CATEGORY_HARASSMENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_HATE_SPEECH', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                        ['category' => 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                    ]
+                ];
+
+                Log::info('Calling Gemini API for Video Content', [
+                    'model' => $this->currentModel,
+                    'user_id' => $params['user_id'] ?? null,
+                    'content_type' => $params['content_type'],
+                    'platform' => $params['platform'],
+                    'attempt' => $attempt
+                ]);
+
+                $response = Http::timeout(180)
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($this->apiUrl . '?key=' . $this->apiKey, $requestData);
+
+                if (!$response->successful()) {
+                    $errorBody = $response->json();
+                    $errorMessage = $errorBody['error']['message'] ?? 'Unknown error';
+                    Log::error('Gemini Video Content API Error', [
+                        'status' => $response->status(),
+                        'error' => $errorMessage
+                    ]);
+                    throw new \Exception('API Error: ' . $errorMessage);
+                }
+
+                $result = $response->json();
+                $aiResponse = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+                // Format and enhance the video content
+                $formattedContent = $this->formatVideoContent($aiResponse, $params);
+
+                // Calculate quality score for video content
+                $qualityScore = $this->calculateVideoContentQuality($formattedContent, $params);
+
+                // Keep best result
+                if ($qualityScore > $bestScore) {
+                    $bestScore = $qualityScore;
+                    $bestResult = [
+                        'content' => $formattedContent,
+                        'quality_score' => $qualityScore
+                    ];
+                }
+
+                // If quality is good enough, stop retrying
+                if ($qualityScore >= 0.7) {
+                    Log::info('Video content quality acceptable', [
+                        'score' => $qualityScore,
+                        'attempt' => $attempt
+                    ]);
+                    break;
+                }
+
+                // If quality is low and we have retries left, try again
+                if ($attempt < $maxRetries) {
+                    Log::warning('Video content quality low, retrying', [
+                        'score' => $qualityScore,
+                        'attempt' => $attempt
+                    ]);
+                    sleep(1);
+                }
+
+            } catch (\Exception $e) {
+                Log::error('Video content generation attempt failed', [
+                    'error' => $e->getMessage(),
+                    'model' => $this->currentModel,
+                    'attempt' => $attempt
+                ]);
+                
+                if ($attempt >= $maxRetries) {
+                    throw $e;
+                }
+            }
+        }
+
+        if (!$bestResult) {
+            throw new \Exception('Failed to generate video content after retries');
+        }
+
+        $generationTime = microtime(true) - $startTime;
+
+        $finalResult = array_merge($bestResult, [
+            'model_used' => $this->currentModel,
+            'generation_time' => round($generationTime, 2),
+            'content_type' => $params['content_type'],
+            'platform' => $params['platform'],
+        ]);
+
+        // Cache result for 6 hours (video trends change quickly)
+        Cache::put($cacheKey, $finalResult, 21600);
+
+        return $finalResult;
+    }
+
+    private function buildVideoContentPrompt(array $params)
+    {
+        $contentType = $params['content_type'];
+        $platform = $params['platform'];
+        $duration = $params['duration'];
+        $product = $params['product'];
+        $targetAudience = $params['target_audience'] ?? 'Gen Z dan Millennial Indonesia';
+        $goal = $params['goal'];
+        $styles = implode(', ', $params['styles'] ?? []);
+        $context = $params['context'] ?? '';
+        $imageAnalysis = $params['image_analysis'] ?? null;
+
+        $platformSpecs = $this->getVideoSpecs($platform, $duration);
+        $contentTypeInstructions = $this->getContentTypeInstructions($contentType);
+
+        // Build image analysis section if available
+        $imageSection = '';
+        if ($imageAnalysis) {
+            $imageSection = "\n\nANALISIS VISUAL PRODUK:\n";
+            $imageSection .= "Visual Elements: " . implode(', ', $imageAnalysis['visual_elements'] ?? []) . "\n";
+            $imageSection .= "Colors: " . implode(', ', $imageAnalysis['colors'] ?? []) . "\n";
+            $imageSection .= "Scene Recommendations: " . implode(', ', $imageAnalysis['scene_recommendations'] ?? []) . "\n";
+            $imageSection .= "Camera Angles: " . implode(', ', $imageAnalysis['camera_angles'] ?? []) . "\n";
+            $imageSection .= "Props & Settings: " . implode(', ', $imageAnalysis['props_and_settings'] ?? []) . "\n";
+            $imageSection .= "Lighting Tips: " . implode(', ', $imageAnalysis['lighting_tips'] ?? []) . "\n";
+            $imageSection .= "\nGUNAKAN ANALISIS VISUAL INI untuk membuat scene-by-scene yang detail dan spesifik!";
+        }
+
+        return <<<PROMPT
+Generate konten video {$contentType} untuk platform {$platform} dengan durasi {$duration} detik.
+
+INFORMASI PRODUK/TOPIK:
+{$product}
+
+TARGET AUDIENCE:
+{$targetAudience}
+
+TUJUAN VIDEO:
+{$goal}
+
+STYLE VIDEO:
+{$styles}
+
+KONTEKS TAMBAHAN:
+{$context}{$imageSection}
+
+SPESIFIKASI PLATFORM:
+{$platformSpecs}
+
+INSTRUKSI KONTEN:
+{$contentTypeInstructions}
+
+FORMAT OUTPUT:
+Berikan output yang terstruktur dan siap pakai dengan:
+- Header yang menarik dengan emoji
+- Breakdown per detik/scene jika script (WAJIB jika ada analisis visual)
+- Hook pembuka yang viral (3 detik pertama)
+- Scene-by-scene description yang DETAIL (jika ada foto produk)
+- Visual direction per scene (camera angle, lighting, props)
+- Call to action yang kuat
+- Hashtag trending yang relevan
+- Tips shooting dan editing
+- Music/sound recommendations
+
+GAYA PENULISAN:
+- Bahasa Indonesia yang engaging dan viral
+- Gunakan slang Gen Z yang tepat
+- Emoji yang relevan dan menarik
+- Fokus pada engagement dan shareability
+- Sesuaikan dengan kultur UMKM Indonesia
+
+PENTING:
+- Hook 3 detik pertama HARUS viral dan attention-grabbing
+- Jika ada analisis visual, WAJIB buat scene-by-scene yang detail
+- Setiap detik harus valuable dan engaging
+- Gunakan visual elements dari analisis untuk scene description
+- Call to action harus natural tapi persuasif
+- Hashtag harus trending dan relevan {CURRENT_YEAR}
+- Berikan tips praktis yang bisa langsung diimplementasikan
+PROMPT;
+    }
+
+    private function getVideoSpecs($platform, $duration)
+    {
+        $specs = [
+            'tiktok' => "TikTok - Format vertikal 9:16, maksimal 60 detik, fokus pada hook 3 detik pertama, trending sounds penting",
+            'instagram-reels' => "Instagram Reels - Format vertikal 9:16, maksimal 90 detik, cover menarik, musik trending",
+            'youtube-shorts' => "YouTube Shorts - Format vertikal 9:16, maksimal 60 detik, thumbnail eye-catching, SEO title",
+            'instagram-story' => "Instagram Story - Format vertikal 9:16, 15 detik, interactive elements, swipe up",
+            'facebook-reels' => "Facebook Reels - Format vertikal 9:16, maksimal 90 detik, engaging caption",
+            'all-platforms' => "Multi-platform - Format vertikal 9:16, optimized untuk semua platform"
+        ];
+
+        return $specs[$platform] ?? $specs['all-platforms'];
+    }
+
+    private function getContentTypeInstructions($contentType)
+    {
+        $instructions = [
+            'script' => "
+SCRIPT VIDEO - Berikan script lengkap dengan:
+- Timing per detik (0-3s: Hook, 4-10s: Problem, 11-20s: Solution, dst)
+- Dialog/narasi yang natural
+- Visual cues dan action
+- Transition antar scene
+- Background music suggestions",
+
+            'storyboard' => "
+STORYBOARD - Berikan storyboard visual dengan:
+- Scene breakdown per 5-10 detik
+- Visual description detail
+- Camera angles dan movements
+- Props dan setting yang dibutuhkan
+- Color palette dan mood",
+
+            'hook' => "
+HOOK VIRAL - Berikan 5-10 variasi hook pembuka dengan:
+- Hook 3 detik pertama yang attention-grabbing
+- Pattern interrupt yang kuat
+- Curiosity gap yang bikin penasaran
+- Emotional trigger yang tepat
+- A/B testing variations",
+
+            'ideas' => "
+IDE KONTEN - Berikan 10-15 ide konten dengan:
+- Konsep unik dan fresh
+- Angle yang berbeda-beda
+- Trending topics integration
+- Seasonal relevance
+- Viral potential analysis"
+        ];
+
+        return $instructions[$contentType] ?? $instructions['script'];
+    }
+
+    private function formatVideoContent($rawContent, $params)
+    {
+        $contentType = ucfirst($params['content_type']);
+        $platform = strtoupper($params['platform']);
+        $duration = $params['duration'];
+
+        $header = "🎬 **{$contentType} VIDEO UNTUK {$platform}**\n";
+        $header .= "⏱️ Durasi: {$duration} detik\n";
+        $header .= "📅 Generated: " . now()->format('d M Y, H:i') . "\n";
+        $header .= "🎯 Produk: " . $params['product'] . "\n\n";
+
+        $footer = "\n\n---\n";
+        $footer .= "💡 **Tips Tambahan:**\n";
+        $footer .= "• Test hook dengan audience kecil dulu\n";
+        $footer .= "• Monitor engagement rate di 3 detik pertama\n";
+        $footer .= "• Gunakan trending sounds untuk boost reach\n";
+        $footer .= "• Post di golden hours untuk maksimal views\n\n";
+        $footer .= "🎬 Generated by AI Video Generator | Smart Copy SMK";
+
+        return $header . $rawContent . $footer;
+    }
+
+    private function calculateVideoContentQuality($content, $params)
+    {
+        $score = 0.5; // Base score
+
+        // Check for essential video elements
+        if (stripos($content, 'hook') !== false || stripos($content, '3 detik') !== false) {
+            $score += 0.15; // Hook presence
+        }
+
+        if (stripos($content, 'hashtag') !== false || stripos($content, '#') !== false) {
+            $score += 0.1; // Hashtag presence
+        }
+
+        if (stripos($content, 'call to action') !== false || stripos($content, 'cta') !== false) {
+            $score += 0.1; // CTA presence
+        }
+
+        // Check for timing/structure
+        if (preg_match('/\d+\s*detik|\d+s|\d+-\d+/', $content)) {
+            $score += 0.1; // Timing structure
+        }
+
+        // Check for platform-specific elements
+        $platform = $params['platform'];
+        if (stripos($content, $platform) !== false) {
+            $score += 0.05; // Platform awareness
+        }
+
+        // Check for engagement elements
+        if (stripos($content, 'viral') !== false || stripos($content, 'trending') !== false) {
+            $score += 0.05; // Viral elements
+        }
+
+        // Check length (good video content should be detailed)
+        if (strlen($content) > 800) {
+            $score += 0.05;
+        }
+
+        return min($score, 1.0); // Cap at 1.0
+    }
+
     private function buildImageCaptionPrompt(array $params)
     {
         $businessType = $params['business_type'] ?? 'UMKM';
@@ -1618,4 +2371,332 @@ PROMPT;
         return min(1.0, $score);
     }
 
+    /**
+     * 🎯 Get Tier 1 Performance Stats
+     */
+    public function getTier1PerformanceStats(): array
+    {
+        $tier1Status = $this->fallbackManager->getTier1Status();
+        $usageStats = $this->fallbackManager->getUsageStats();
+        
+        return [
+            'tier_info' => $tier1Status,
+            'usage_stats' => $usageStats,
+            'performance_metrics' => [
+                'requests_today' => $this->getRequestsToday(),
+                'average_response_time' => $this->getAverageResponseTime(),
+                'success_rate' => $this->getSuccessRate(),
+                'tier1_benefits_utilized' => $tier1Status['is_tier1'],
+            ],
+            'recommendations' => $this->getPerformanceRecommendations($tier1Status, $usageStats),
+        ];
+    }
+    
+    /**
+     * Get requests made today
+     */
+    protected function getRequestsToday(): int
+    {
+        $models = $this->fallbackManager->getAllModels();
+        $totalRequests = 0;
+        
+        foreach ($models as $model) {
+            $totalRequests += Cache::get("model_rpd:{$model['name']}", 0);
+        }
+        
+        return $totalRequests;
+    }
+    
+    /**
+     * Get average response time (cached)
+     */
+    protected function getAverageResponseTime(): float
+    {
+        return Cache::get('gemini_avg_response_time', 2.5); // Default 2.5s
+    }
+    
+    /**
+     * Get success rate (cached)
+     */
+    protected function getSuccessRate(): float
+    {
+        $successful = Cache::get('gemini_successful_requests', 0);
+        $total = Cache::get('gemini_total_requests', 1);
+        
+        return round(($successful / $total) * 100, 2);
+    }
+    
+    /**
+     * Get performance recommendations
+     */
+    protected function getPerformanceRecommendations(array $tier1Status, array $usageStats): array
+    {
+        $recommendations = [];
+        
+        if (!$tier1Status['is_tier1']) {
+            $recommendations[] = '💳 Upgrade to Tier 1 for 10x performance boost';
+            $recommendations[] = '📈 Current: 10 RPM → Tier 1: 1000+ RPM';
+            return $recommendations;
+        }
+        
+        // Tier 1 specific recommendations
+        $primaryModel = $usageStats[$tier1Status['primary_model']] ?? null;
+        
+        if ($primaryModel && $primaryModel['rpm']['percentage'] > 80) {
+            $recommendations[] = '⚡ Consider using Flash-Lite (4000 RPM) for high volume';
+        }
+        
+        if ($primaryModel && $primaryModel['rpm']['percentage'] < 20) {
+            $recommendations[] = '✅ Excellent utilization - you have plenty of capacity';
+        }
+        
+        $recommendations[] = '🎯 Tier 1 Active - Enjoying premium performance!';
+        $recommendations[] = '💡 Use Pro model for highest quality content';
+        
+        return $recommendations;
+    }
+    
+    /**
+     * Track performance metrics
+     */
+    public function trackPerformanceMetrics(float $responseTime, bool $success): void
+    {
+        // Update average response time
+        $currentAvg = Cache::get('gemini_avg_response_time', 2.5);
+        $newAvg = ($currentAvg + $responseTime) / 2;
+        Cache::put('gemini_avg_response_time', $newAvg, now()->addDay());
+        
+        // Update success rate
+        $successful = Cache::get('gemini_successful_requests', 0);
+        $total = Cache::get('gemini_total_requests', 0);
+        
+        if ($success) {
+            Cache::put('gemini_successful_requests', $successful + 1, now()->addDay());
+        }
+        Cache::put('gemini_total_requests', $total + 1, now()->addDay());
+    }
+
+    /**
+     * 🎬 Analyze product image specifically for video content generation
+     */
+    public function analyzeProductImageForVideo(array $params)
+    {
+        $startTime = microtime(true);
+
+        // Validate required params
+        if (empty($params['image_data']) || empty($params['mime_type'])) {
+            throw new \Exception('Image data and mime type are required');
+        }
+
+        $prompt = $this->buildVideoImageAnalysisPrompt($params);
+
+        try {
+            $requestData = [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $prompt],
+                            [
+                                'inline_data' => [
+                                    'mime_type' => $params['mime_type'],
+                                    'data' => $params['image_data']
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.8,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => 2048,
+                    'responseMimeType' => 'application/json',
+                ],
+                'safetySettings' => [
+                    ['category' => 'HARM_CATEGORY_HARASSMENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                    ['category' => 'HARM_CATEGORY_HATE_SPEECH', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                    ['category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                    ['category' => 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'],
+                ]
+            ];
+
+            Log::info('Calling Gemini Vision API for Video Image Analysis', [
+                'model' => $this->currentModel,
+                'product' => $params['product_name'] ?? 'unknown',
+                'platform' => $params['video_platform'] ?? 'unknown'
+            ]);
+
+            $response = Http::timeout(120)
+                ->withHeaders(['Content-Type' => 'application/json'])
+                ->post($this->apiUrl . '?key=' . $this->apiKey, $requestData);
+
+            if (!$response->successful()) {
+                $errorBody = $response->json();
+                $errorMessage = $errorBody['error']['message'] ?? 'Unknown error';
+                Log::error('Gemini Video Image Analysis API Error', [
+                    'status' => $response->status(),
+                    'error' => $errorMessage
+                ]);
+                throw new \Exception('API Error: ' . $errorMessage);
+            }
+
+            $result = $response->json();
+            $aiResponse = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+            // Parse JSON response
+            $parsed = json_decode($aiResponse, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Fallback to text parsing if JSON fails
+                $parsed = $this->parseVideoImageAnalysisText($aiResponse);
+            }
+
+            $generationTime = microtime(true) - $startTime;
+
+            $finalResult = [
+                'visual_elements' => $parsed['visual_elements'] ?? [],
+                'colors' => $parsed['colors'] ?? [],
+                'composition_suggestions' => $parsed['composition_suggestions'] ?? [],
+                'scene_recommendations' => $parsed['scene_recommendations'] ?? [],
+                'camera_angles' => $parsed['camera_angles'] ?? [],
+                'props_and_settings' => $parsed['props_and_settings'] ?? [],
+                'lighting_tips' => $parsed['lighting_tips'] ?? [],
+                'model_used' => $this->currentModel,
+                'generation_time' => round($generationTime, 2),
+            ];
+
+            return $finalResult;
+
+        } catch (\Exception $e) {
+            Log::error('Video image analysis failed', [
+                'error' => $e->getMessage(),
+                'product' => $params['product_name'] ?? 'unknown'
+            ]);
+            
+            // Return empty analysis on failure
+            return null;
+        }
+    }
+
+    private function buildVideoImageAnalysisPrompt(array $params)
+    {
+        $productName = $params['product_name'] ?? 'produk';
+        $platform = $params['video_platform'] ?? 'social media';
+        $goal = $params['video_goal'] ?? 'marketing';
+
+        return <<<PROMPT
+Analisis gambar produk ini untuk keperluan pembuatan konten video {$platform} dengan tujuan {$goal}.
+
+PRODUK: {$productName}
+PLATFORM: {$platform}
+TUJUAN: {$goal}
+
+Berikan analisis dalam format JSON yang VALID:
+
+{
+  "visual_elements": [
+    "Deskripsi elemen visual utama",
+    "Bentuk dan karakteristik produk",
+    "Tekstur dan material"
+  ],
+  "colors": [
+    "#hex1: Warna dominan",
+    "#hex2: Warna aksen",
+    "Mood warna yang terpancar"
+  ],
+  "composition_suggestions": [
+    "Rule of thirds placement",
+    "Framing recommendations",
+    "Background suggestions"
+  ],
+  "scene_recommendations": [
+    "Scene 1: Opening shot description",
+    "Scene 2: Product showcase",
+    "Scene 3: Detail/benefit focus",
+    "Scene 4: Call to action visual"
+  ],
+  "camera_angles": [
+    "Angle terbaik untuk produk ini",
+    "Movement suggestions",
+    "Zoom recommendations"
+  ],
+  "props_and_settings": [
+    "Props yang cocok",
+    "Setting/background ideal",
+    "Lifestyle elements"
+  ],
+  "lighting_tips": [
+    "Natural vs artificial lighting",
+    "Shadow management",
+    "Highlight recommendations"
+  ]
+}
+
+FOKUS ANALISIS:
+- Bagaimana memaksimalkan daya tarik visual produk
+- Scene-by-scene breakdown yang detail
+- Camera work yang optimal untuk platform {$platform}
+- Props dan setting yang enhance produk
+- Lighting yang membuat produk terlihat premium
+
+PENTING: Berikan HANYA JSON yang valid, tanpa teks tambahan apapun.
+PROMPT;
+    }
+
+    private function parseVideoImageAnalysisText($text)
+    {
+        // Fallback text parsing if JSON fails
+        return [
+            'visual_elements' => ['Produk terlihat menarik dengan karakteristik visual yang baik'],
+            'colors' => ['Warna yang harmonis dan eye-catching'],
+            'composition_suggestions' => ['Gunakan rule of thirds untuk komposisi optimal'],
+            'scene_recommendations' => [
+                'Scene 1: Wide shot untuk establish produk',
+                'Scene 2: Close-up untuk detail',
+                'Scene 3: Action shot penggunaan',
+                'Scene 4: Final shot dengan CTA'
+            ],
+            'camera_angles' => ['45 degree angle untuk dimensi terbaik'],
+            'props_and_settings' => ['Background minimalis untuk fokus pada produk'],
+            'lighting_tips' => ['Soft lighting untuk hasil yang natural']
+        ];
+    }
+
+    /**
+     * Build prompt for Short Drama & Story content
+     */
+    protected function buildShortDramaPrompt(string $subcategory, string $brief, string $tone, string $keywords, int $variationCount = 1): string
+    {
+        $prompt  = "Kamu adalah penulis skenario profesional yang ahli dalam membuat short drama, mini series, dan cerita pendek untuk konten TikTok dan Instagram Reels.\n\n";
+        $prompt .= "Gaya penulisan: Ala drakor (drama Korea) dan dracin (drama China) — emosional, dramatis, dialog natural, dan bikin penonton baper.\n\n";
+
+        if ($brief) {
+            $prompt .= "Brief dari kreator:\n{$brief}\n\n";
+        }
+
+        if ($keywords) {
+            $prompt .= "Elemen yang harus ada: {$keywords}\n\n";
+        }
+
+        $prompt .= "PANDUAN PENULISAN:\n";
+        $prompt .= "- Dialog harus natural, tidak kaku, dan terasa nyata\n";
+        $prompt .= "- Gunakan bahasa Indonesia yang natural (boleh campur sedikit bahasa gaul)\n";
+        $prompt .= "- Sertakan arahan akting dalam *tanda bintang* (contoh: *menatap dengan mata berkaca-kaca*)\n";
+        $prompt .= "- Setiap scene harus ada setting yang jelas (lokasi, waktu, suasana)\n";
+        $prompt .= "- Buat dialog yang memorable dan quotable\n";
+        $prompt .= "- Cocok untuk format video pendek 1-7 menit\n\n";
+
+        $audienceCtx = [
+            'audience'       => 'penonton drama Indonesia',
+            'pain_points'    => 'butuh konten drama yang relatable',
+            'desired_action' => 'menonton sampai habis dan share',
+        ];
+
+        $prompt .= \App\Services\TemplatePrompts::getPrompt($subcategory, '', $tone, $audienceCtx);
+
+        if ($variationCount > 1) {
+            $prompt .= "\nBuatkan {$variationCount} variasi dengan ending yang berbeda-beda.\n";
+        }
+
+        return $prompt;
+    }
 }

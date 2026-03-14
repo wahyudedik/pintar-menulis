@@ -124,7 +124,7 @@
                     <option value="instagram">Instagram</option>
                     <option value="tiktok">TikTok</option>
                     <option value="facebook">Facebook</option>
-                    <option value="twitter">Twitter/X</option>
+                    <option value="x">X</option>
                     <option value="shopee">Shopee</option>
                     <option value="tokopedia">Tokopedia</option>
                     <option value="whatsapp">WhatsApp Status</option>

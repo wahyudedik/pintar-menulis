@@ -20,4 +20,9 @@ class AIService
     {
         return $this->geminiService->generateImageCaption($params);
     }
+
+    public function generateText(string $prompt)
+    {
+        return $this->geminiService->generateText($prompt);
+    }
 }

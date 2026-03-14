@@ -78,6 +78,16 @@
                     class="px-4 py-2 rounded-md text-sm font-medium transition">
                 🖼️ Image Caption
             </button>
+            <button @click="generatorType = 'image-analysis'" 
+                    :class="generatorType === 'image-analysis' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🔍 AI Image Analysis
+            </button>
+            <button @click="generatorType = 'video'" 
+                    :class="generatorType === 'video' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🎬 AI Video Generator
+            </button>
             <button @click="generatorType = 'bulk'" 
                     :class="generatorType === 'bulk' ? 'bg-white shadow-sm' : 'text-gray-600'"
                     class="px-4 py-2 rounded-md text-sm font-medium transition">
@@ -92,6 +102,31 @@
                     :class="generatorType === 'stats' ? 'bg-white shadow-sm' : 'text-gray-600'"
                     class="px-4 py-2 rounded-md text-sm font-medium transition">
                 📊 My Stats
+            </button>
+            <button @click="generatorType = 'predictor'" 
+                    :class="generatorType === 'predictor' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📈 Performance Predictor
+            </button>
+            <button @click="generatorType = 'templates'" 
+                    :class="generatorType === 'templates' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📚 Template Library
+            </button>
+            <button @click="generatorType = 'multiplatform'" 
+                    :class="generatorType === 'multiplatform' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🎯 Multi-Platform Optimizer
+            </button>
+            <button @click="generatorType = 'repurpose'" 
+                    :class="generatorType === 'repurpose' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                ♻️ Content Repurposing
+            </button>
+            <button @click="generatorType = 'trends'" 
+                    :class="generatorType === 'trends' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🔔 Trend Alert
             </button>
         </div>
     </div>
@@ -116,7 +151,7 @@
     <div class="w-full">
         <!-- Form Input -->
         <div class="w-full">
-            <div class="bg-white rounded-lg border border-gray-200 p-6" x-show="generatorType === 'text' || generatorType === 'image'" x-cloak>
+            <div class="bg-white rounded-lg border border-gray-200 p-6" x-show="generatorType === 'text' || generatorType === 'image' || generatorType === 'image-analysis' || generatorType === 'video'" x-cloak>
                 
                 <!-- SIMPLE MODE -->
                 <form @submit.prevent="generateCopywriting" x-show="generatorType === 'text' && mode === 'simple'" x-cloak>
@@ -142,6 +177,11 @@
                                 <option value="marketplace">Jualan di Marketplace (Shopee, Tokopedia)</option>
                                 <option value="ads">Iklan Berbayar (FB Ads, Google Ads)</option>
                                 <option value="event_promo">Promo & Event (Flash Sale, Diskon)</option>
+                            </optgroup>
+                            <optgroup label="🎯 Marketing & Sales">
+                                <option value="marketing_funnel">Marketing Funnel (TOFU, MOFU, BOFU)</option>
+                                <option value="sales_page">Sales Page (Landing Page Jualan)</option>
+                                <option value="lead_magnet">Lead Magnet (Free eBook, Webinar)</option>
                             </optgroup>
                             <optgroup label="💼 Profesional & Kantor">
                                 <option value="hr_recruitment">Lowongan Kerja & Recruitment</option>
@@ -170,6 +210,9 @@
                                 <option value="freelance">Freelance (Upwork, Fiverr)</option>
                                 <option value="affiliate_marketing">Affiliate Marketing</option>
                                 <option value="digital_products">Produk Digital</option>
+                            </optgroup>
+                            <optgroup label="🎭 Drama & Cerita">
+                                <option value="short_drama">Short Drama & Story (Drakor/Dracin Style)</option>
                             </optgroup>
                         </select>
                     </div>
@@ -295,7 +338,7 @@
                                 <option value="social_media">Social Media Content</option>
                                 <option value="marketplace">Marketplace / Toko Online</option>
                                 <option value="event_promo">Event & Promosi</option>
-                                <option value="invitation_event">💌 Undangan & Event</option>
+                                <option value="invitation_event">Undangan & Event</option>
                                 <option value="hr_recruitment">HR & Recruitment</option>
                                 <option value="branding_tagline">Branding & Tagline</option>
                                 <option value="education_institution">Pendidikan & Lembaga</option>
@@ -303,6 +346,11 @@
                                 <option value="proposal_company">Proposal & Company Profile</option>
                                 <option value="personal_branding">Personal Branding</option>
                                 <option value="ux_writing">UX Writing</option>
+                            </optgroup>
+                            <optgroup label="🎯 Marketing & Sales">
+                                <option value="marketing_funnel">Marketing Funnel Copy</option>
+                                <option value="sales_page">Sales Page Generator</option>
+                                <option value="lead_magnet">Lead Magnet Copy</option>
                             </optgroup>
                             <optgroup label="💰 Monetisasi & Penghasilan">
                                 <option value="video_monetization">Video Monetization (TikTok, YouTube, dll)</option>
@@ -315,6 +363,9 @@
                                 <option value="writing_monetization">Monetisasi Tulisan (Medium, Substack)</option>
                                 <option value="affiliate_marketing">Affiliate Marketing</option>
                                 <option value="blog_seo">Blog & SEO Content</option>
+                            </optgroup>
+                            <optgroup label="🎭 Drama & Cerita">
+                                <option value="short_drama">Short Drama & Story (Drakor/Dracin Style)</option>
                             </optgroup>
                         </select>
                     </div>
@@ -344,7 +395,7 @@
                                 <option value="facebook">Facebook</option>
                                 <option value="tiktok">TikTok</option>
                                 <option value="linkedin">LinkedIn</option>
-                                <option value="twitter">Twitter/X</option>
+                                <option value="x">X</option>
                                 <option value="youtube">YouTube</option>
                                 <option value="youtube_shorts">YouTube Shorts</option>
                             </optgroup>
@@ -503,7 +554,12 @@
                             <option value="sunda">🗣️ Bahasa Sunda</option>
                             <option value="betawi">🗣️ Bahasa Betawi</option>
                             <option value="minang">🗣️ Bahasa Minang</option>
+                            <option value="bali">🗣️ Bahasa Bali</option>
                             <option value="batak">🗣️ Bahasa Batak</option>
+                            <option value="madura">🗣️ Bahasa Madura</option>
+                            <option value="bugis">🗣️ Bahasa Bugis</option>
+                            <option value="banjar">🗣️ Bahasa Banjar</option>
+                            <option value="mixed">🌍 Mix Bahasa (Indo + Daerah)</option>
                         </select>
                         <p class="text-xs text-gray-500 mt-1">Cocok untuk target market lokal spesifik</p>
                     </div>
@@ -618,6 +674,441 @@
                         </span>
                     </button>
                 </form>
+
+                <!-- AI IMAGE ANALYSIS MODE -->
+                <form @submit.prevent="analyzeImageWithAI" x-show="generatorType === 'image-analysis'" x-cloak enctype="multipart/form-data">
+                    <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-2xl">🔍</span>
+                            <h3 class="text-lg font-semibold text-gray-900">AI Image Analysis dengan Gemini Vision</h3>
+                        </div>
+                        <p class="text-sm text-purple-800">Upload gambar dan dapatkan analisis mendalam: objek detection, warna dominan, komposisi, mood, dan rekomendasi marketing!</p>
+                    </div>
+
+                    <!-- Image Upload for Analysis -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar untuk Analisis *</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition cursor-pointer" 
+                             @click="$refs.analysisImageInput.click()"
+                             @dragover.prevent="$el.classList.add('border-purple-400', 'bg-purple-50')"
+                             @dragleave.prevent="$el.classList.remove('border-purple-400', 'bg-purple-50')"
+                             @drop.prevent="handleAnalysisImageDrop($event)">
+                            
+                            <input type="file" 
+                                   x-ref="analysisImageInput" 
+                                   @change="handleAnalysisImageSelect($event)" 
+                                   accept="image/*" 
+                                   class="hidden">
+                            
+                            <div x-show="!analysisForm.preview">
+                                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-gray-600 mb-2 font-medium">Klik atau drag & drop gambar di sini</p>
+                                <p class="text-sm text-gray-500">JPG, PNG, WebP (Max 10MB)</p>
+                                <p class="text-xs text-gray-400 mt-2">Gemini Vision akan menganalisis gambar secara detail</p>
+                            </div>
+
+                            <div x-show="analysisForm.preview" class="relative">
+                                <img :src="analysisForm.preview" alt="Preview" class="max-h-80 mx-auto rounded-lg shadow-lg">
+                                <button type="button" 
+                                        @click.stop="removeAnalysisImage()" 
+                                        class="mt-4 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition">
+                                    🗑️ Ganti Gambar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Options -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Pilih Jenis Analisis</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="objects" class="text-purple-600">
+                                <span class="text-sm">🎯 Deteksi Objek</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="colors" class="text-purple-600">
+                                <span class="text-sm">🎨 Analisis Warna</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="composition" class="text-purple-600">
+                                <span class="text-sm">📐 Komposisi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="mood" class="text-purple-600">
+                                <span class="text-sm">😊 Mood & Emosi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="text" class="text-purple-600">
+                                <span class="text-sm">📝 Baca Teks</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="marketing" class="text-purple-600">
+                                <span class="text-sm">📈 Tips Marketing</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="quality" class="text-purple-600">
+                                <span class="text-sm">⭐ Kualitas Foto</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="suggestions" class="text-purple-600">
+                                <span class="text-sm">💡 Saran Perbaikan</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Context Input -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Konteks Bisnis (Opsional)</label>
+                        <textarea x-model="analysisForm.context" 
+                                  rows="3" 
+                                  placeholder="Contoh: Ini foto produk makanan untuk Instagram. Saya ingin tahu apakah foto ini menarik untuk customer dan bagaimana cara memperbaikinya..."
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"></textarea>
+                    </div>
+
+                    <!-- Quick Analysis Presets -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Preset Analisis Cepat</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button type="button" 
+                                    @click="setAnalysisPreset('product')"
+                                    class="p-4 border border-gray-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition text-left">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">🛍️</span>
+                                    <span class="font-medium text-gray-900">Analisis Produk</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Fokus pada kualitas produk, daya tarik visual, dan tips marketing</p>
+                            </button>
+                            
+                            <button type="button" 
+                                    @click="setAnalysisPreset('social')"
+                                    class="p-4 border border-gray-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition text-left">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">📱</span>
+                                    <span class="font-medium text-gray-900">Analisis Social Media</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Komposisi, mood, engagement potential untuk Instagram/TikTok</p>
+                            </button>
+                            
+                            <button type="button" 
+                                    @click="setAnalysisPreset('complete')"
+                                    class="p-4 border border-gray-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition text-left">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">🔍</span>
+                                    <span class="font-medium text-gray-900">Analisis Lengkap</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Semua aspek: objek, warna, komposisi, mood, teks, marketing</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            :disabled="loading || !analysisForm.file || analysisForm.options.length === 0"
+                            class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg">
+                        <span x-show="!loading" class="flex items-center justify-center gap-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-semibold">🔍 Analisis dengan Gemini Vision</span>
+                        </span>
+                        <span x-show="loading" class="flex items-center justify-center gap-3">
+                            <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="font-semibold">Menganalisis gambar...</span>
+                        </span>
+                    </button>
+
+                    <!-- Analysis Info -->
+                    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex gap-3">
+                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="text-sm text-blue-800">
+                                <p class="font-medium mb-2">Gemini Vision akan menganalisis:</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-blue-700">
+                                    <div>• Objek dan elemen dalam gambar</div>
+                                    <div>• Palet warna dan harmoni</div>
+                                    <div>• Komposisi dan rule of thirds</div>
+                                    <div>• Mood dan emosi yang terpancar</div>
+                                    <div>• Teks yang terbaca (OCR)</div>
+                                    <div>• Potensi viral dan engagement</div>
+                                    <div>• Kualitas teknis foto</div>
+                                    <div>• Saran perbaikan konkret</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- AI VIDEO GENERATOR MODE -->
+                <form @submit.prevent="generateVideoContent" x-show="generatorType === 'video'" x-cloak>
+                    <div class="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 rounded-lg border border-red-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-2xl">🎬</span>
+                            <h3 class="text-lg font-semibold text-gray-900">AI Video Content Generator</h3>
+                        </div>
+                        <p class="text-sm text-red-800">Generate script video, storyboard, hook viral, dan ide konten video untuk TikTok, Instagram Reels, dan YouTube Shorts!</p>
+                    </div>
+
+                    <!-- Video Content Type -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Jenis Konten Video *</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" x-model="videoForm.content_type" value="script" class="text-red-600">
+                                <span class="text-sm">📝 Script Video</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" x-model="videoForm.content_type" value="storyboard" class="text-red-600">
+                                <span class="text-sm">🎨 Storyboard</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" x-model="videoForm.content_type" value="hook" class="text-red-600">
+                                <span class="text-sm">🎯 Hook Viral</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" x-model="videoForm.content_type" value="ideas" class="text-red-600">
+                                <span class="text-sm">💡 Ide Konten</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Platform Selection -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Platform Target *</label>
+                        <select x-model="videoForm.platform" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">Pilih Platform</option>
+                            <option value="tiktok">TikTok (15-60 detik)</option>
+                            <option value="instagram-reels">Instagram Reels (15-90 detik)</option>
+                            <option value="youtube-shorts">YouTube Shorts (15-60 detik)</option>
+                            <option value="instagram-story">Instagram Story (15 detik)</option>
+                            <option value="facebook-reels">Facebook Reels (15-90 detik)</option>
+                            <option value="all-platforms">Semua Platform</option>
+                        </select>
+                    </div>
+
+                    <!-- Video Duration -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Durasi Video</label>
+                        <select x-model="videoForm.duration" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="15">15 detik (Ultra Short)</option>
+                            <option value="30">30 detik (Short)</option>
+                            <option value="60">60 detik (Medium)</option>
+                            <option value="90">90 detik (Long)</option>
+                        </select>
+                    </div>
+
+                    <!-- Product/Topic Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Produk/Topik *</label>
+                            <input type="text" 
+                                   x-model="videoForm.product" 
+                                   placeholder="Contoh: Skincare anti aging, Makanan sehat, Tips bisnis" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                            <input type="text" 
+                                   x-model="videoForm.target_audience" 
+                                   placeholder="Contoh: Wanita 25-35 tahun, Gen Z, Ibu rumah tangga" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Product Image Upload -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Produk (Opsional)</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-400 transition cursor-pointer" 
+                             @click="$refs.videoImageInput.click()"
+                             @dragover.prevent="$el.classList.add('border-red-400', 'bg-red-50')"
+                             @dragleave.prevent="$el.classList.remove('border-red-400', 'bg-red-50')"
+                             @drop.prevent="handleVideoImageDrop($event)">
+                            
+                            <input type="file" 
+                                   x-ref="videoImageInput" 
+                                   @change="handleVideoImageSelect($event)" 
+                                   accept="image/*" 
+                                   class="hidden">
+                            
+                            <div x-show="!videoForm.image_preview">
+                                <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p class="text-gray-600 mb-2">Upload foto produk untuk video yang lebih spesifik</p>
+                                <p class="text-xs text-gray-500">JPG, PNG (Max 5MB) - Opsional tapi sangat direkomendasikan</p>
+                            </div>
+
+                            <div x-show="videoForm.image_preview" class="relative">
+                                <img :src="videoForm.image_preview" alt="Product Preview" class="max-h-48 mx-auto rounded-lg">
+                                <button type="button" 
+                                        @click.stop="removeVideoImage()" 
+                                        class="mt-3 text-sm text-red-600 hover:text-red-700">
+                                    🗑️ Hapus Foto
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Image Benefits Info -->
+                        <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex gap-2">
+                                <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-xs text-blue-800">
+                                    <p class="font-medium mb-1">💡 Dengan foto produk, AI akan generate:</p>
+                                    <div class="grid grid-cols-2 gap-1 text-xs text-blue-700">
+                                        <div>• Scene-by-scene visual yang detail</div>
+                                        <div>• Camera angle yang optimal</div>
+                                        <div>• Props dan setting yang cocok</div>
+                                        <div>• Lighting recommendations</div>
+                                        <div>• Color scheme yang harmonis</div>
+                                        <div>• Product showcase yang menarik</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Goal -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tujuan Video *</label>
+                        <select x-model="videoForm.goal" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">Pilih Tujuan</option>
+                            <option value="viral">Viral & Awareness</option>
+                            <option value="sales">Jualan & Conversion</option>
+                            <option value="education">Edukasi & Tips</option>
+                            <option value="entertainment">Hiburan & Engagement</option>
+                            <option value="testimonial">Testimoni & Review</option>
+                            <option value="behind-scenes">Behind The Scenes</option>
+                            <option value="tutorial">Tutorial & How-to</option>
+                        </select>
+                    </div>
+
+                    <!-- Video Style -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Style Video</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="videoForm.styles" value="trending" class="text-red-600">
+                                <span class="text-sm">🔥 Trending</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="videoForm.styles" value="funny" class="text-red-600">
+                                <span class="text-sm">😂 Funny</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="videoForm.styles" value="emotional" class="text-red-600">
+                                <span class="text-sm">😢 Emotional</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="videoForm.styles" value="professional" class="text-red-600">
+                                <span class="text-sm">👔 Professional</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="videoForm.styles" value="casual" class="text-red-600">
+                                <span class="text-sm">😎 Casual</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="videoForm.styles" value="dramatic" class="text-red-600">
+                                <span class="text-sm">🎭 Dramatic</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Additional Context -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Konteks Tambahan (Opsional)</label>
+                        <textarea x-model="videoForm.context" 
+                                  rows="3" 
+                                  placeholder="Contoh: Video ini untuk promosi flash sale, target engagement tinggi, harus ada call to action yang kuat..."
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"></textarea>
+                    </div>
+
+                    <!-- Quick Video Presets -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Preset Video Cepat</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button type="button" 
+                                    @click="setVideoPreset('viral-tiktok')"
+                                    class="p-4 border border-gray-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">🔥</span>
+                                    <span class="font-medium text-gray-900">Viral TikTok</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Hook kuat, trending sound, call to action viral</p>
+                            </button>
+                            
+                            <button type="button" 
+                                    @click="setVideoPreset('product-demo')"
+                                    class="p-4 border border-gray-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">🛍️</span>
+                                    <span class="font-medium text-gray-900">Product Demo</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Showcase produk, benefit, testimoni, closing</p>
+                            </button>
+                            
+                            <button type="button" 
+                                    @click="setVideoPreset('educational')"
+                                    class="p-4 border border-gray-200 rounded-lg hover:border-red-400 hover:bg-red-50 transition text-left">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">🎓</span>
+                                    <span class="font-medium text-gray-900">Educational</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Tips, tutorial, step-by-step, value content</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            :disabled="loading || !videoForm.content_type || !videoForm.platform || !videoForm.product || !videoForm.goal"
+                            class="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white py-4 rounded-lg hover:from-red-700 hover:to-pink-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg">
+                        <span x-show="!loading" class="flex items-center justify-center gap-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="font-semibold">🎬 Generate Konten Video</span>
+                        </span>
+                        <span x-show="loading" class="flex items-center justify-center gap-3">
+                            <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="font-semibold">Generating video content...</span>
+                        </span>
+                    </button>
+
+                    <!-- Video Info -->
+                    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex gap-3">
+                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="text-sm text-blue-800">
+                                <p class="font-medium mb-2">AI akan generate:</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-blue-700">
+                                    <div>• Script lengkap dengan timing</div>
+                                    <div>• Hook pembuka yang viral</div>
+                                    <div>• Storyboard visual per scene</div>
+                                    <div>• Call to action yang kuat</div>
+                                    <div>• Hashtag trending yang relevan</div>
+                                    <div>• Tips shooting dan editing</div>
+                                    <div>• Music/sound recommendations</div>
+                                    <div>• Engagement optimization tips</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
 
             <!-- BULK CONTENT MODE -->
@@ -665,12 +1156,652 @@
                     Lihat My Stats
                 </a>
             </div>
+
+            <!-- 📈 CAPTION PERFORMANCE PREDICTOR -->
+            <div x-show="generatorType === 'predictor'" x-cloak class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">📈 Caption Performance Predictor</h3>
+                    <p class="text-gray-600">Prediksi performa caption sebelum posting! Dapatkan score, saran improvement, dan A/B testing variants.</p>
+                </div>
+
+                <!-- Input Form -->
+                <form @submit.prevent="predictCaptionPerformance()" class="mb-6">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Caption yang mau dianalisis <span class="text-red-600">*</span>
+                        </label>
+                        <textarea x-model="predictorForm.caption" required rows="4"
+                                  placeholder="Paste caption kamu di sini untuk dianalisis..."
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+                            <select x-model="predictorForm.platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="linkedin">LinkedIn</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Industry</label>
+                            <select x-model="predictorForm.industry" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="fashion">Fashion</option>
+                                <option value="food">Food & Beverage</option>
+                                <option value="beauty">Beauty & Skincare</option>
+                                <option value="tech">Technology</option>
+                                <option value="fitness">Fitness & Health</option>
+                                <option value="education">Education</option>
+                                <option value="general">General/Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                            <select x-model="predictorForm.target_audience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="remaja">Remaja (15-25)</option>
+                                <option value="dewasa_muda">Dewasa Muda (25-35)</option>
+                                <option value="profesional">Profesional (30-45)</option>
+                                <option value="keluarga">Keluarga (35-50)</option>
+                                <option value="general">Semua Umur</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" :disabled="predictorLoading || !predictorForm.caption"
+                            class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span x-show="!predictorLoading">🔮 Prediksi Performance</span>
+                        <span x-show="predictorLoading" class="flex items-center justify-center">
+                            <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Menganalisis...
+                        </span>
+                    </button>
+                </form>
+
+                <!-- Results -->
+                <div x-show="predictionResults" x-cloak class="space-y-6">
+                    <!-- Quality Score -->
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900">💯 Quality Score</h4>
+                            <div class="text-right">
+                                <div class="text-3xl font-bold" :class="getScoreColor(predictionResults?.quality_score?.total_score)" x-text="predictionResults?.quality_score?.total_score || 0"></div>
+                                <div class="text-sm text-gray-600">Grade: <span class="font-semibold" x-text="predictionResults?.quality_score?.grade || 'N/A'"></span></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center">
+                                <div class="text-lg font-semibold text-blue-600" x-text="predictionResults?.quality_score?.breakdown?.structure || 0"></div>
+                                <div class="text-xs text-gray-600">Structure</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-semibold text-green-600" x-text="predictionResults?.quality_score?.breakdown?.engagement || 0"></div>
+                                <div class="text-xs text-gray-600">Engagement</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-semibold text-purple-600" x-text="predictionResults?.quality_score?.breakdown?.quality || 0"></div>
+                                <div class="text-xs text-gray-600">Quality</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-semibold text-orange-600" x-text="predictionResults?.quality_score?.breakdown?.performance || 0"></div>
+                                <div class="text-xs text-gray-600">Performance</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Prediction -->
+                    <div class="bg-green-50 rounded-lg p-6 border border-green-200">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">📊 Prediksi Engagement</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600" x-text="(predictionResults?.prediction?.engagement_rate || 0) + '%'"></div>
+                                <div class="text-sm text-gray-600">Total Engagement</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-red-500" x-text="(predictionResults?.prediction?.likes_rate || 0) + '%'"></div>
+                                <div class="text-sm text-gray-600">Likes Rate</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-500" x-text="(predictionResults?.prediction?.comments_rate || 0) + '%'"></div>
+                                <div class="text-sm text-gray-600">Comments Rate</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-500" x-text="(predictionResults?.prediction?.shares_rate || 0) + '%'"></div>
+                                <div class="text-sm text-gray-600">Shares Rate</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                                  :class="getConfidenceColor(predictionResults?.prediction?.confidence)">
+                                <span class="w-2 h-2 rounded-full mr-2" :class="getConfidenceDot(predictionResults?.prediction?.confidence)"></span>
+                                Confidence: <span x-text="predictionResults?.prediction?.confidence || 'medium'"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Improvement Suggestions -->
+                    <div x-show="predictionResults?.improvements?.length > 0" class="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">💡 Saran Improvement</h4>
+                        <div class="space-y-4">
+                            <template x-for="improvement in predictionResults?.improvements || []" :key="improvement.type">
+                                <div class="flex items-start space-x-3 p-4 bg-white rounded-lg border border-yellow-100">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                                              :class="getPriorityColor(improvement.priority)">
+                                            <span x-text="improvement.priority"></span>
+                                        </span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-semibold text-gray-900" x-text="improvement.title"></h5>
+                                        <p class="text-sm text-gray-600 mt-1" x-text="improvement.description"></p>
+                                        <div x-show="improvement.examples" class="mt-2">
+                                            <p class="text-xs text-gray-500 mb-1">Contoh:</p>
+                                            <div class="flex flex-wrap gap-1">
+                                                <template x-for="example in improvement.examples || []" :key="example">
+                                                    <span class="inline-block px-2 py-1 bg-gray-100 text-xs rounded" x-text="example"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div x-show="improvement.impact" class="mt-2">
+                                            <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                                📈 <span x-text="improvement.impact"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- A/B Testing Variant -->
+                    <div x-show="predictionResults?.ab_variant" class="bg-purple-50 rounded-lg p-6 border border-purple-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900">🧪 A/B Testing Variant</h4>
+                            <button @click="generateMoreVariants()" 
+                                    :disabled="variantsLoading"
+                                    class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span x-show="!variantsLoading">Generate More Variants</span>
+                                <span x-show="variantsLoading" class="flex items-center">
+                                    <svg class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Generating...
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Original -->
+                            <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                <h5 class="font-semibold text-gray-900 mb-2">📝 Original (A)</h5>
+                                <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded border" x-text="predictorForm.caption"></div>
+                            </div>
+                            
+                            <!-- Variant -->
+                            <div class="bg-white rounded-lg p-4 border border-purple-200">
+                                <h5 class="font-semibold text-gray-900 mb-2">🔄 Variant (B)</h5>
+                                <div class="text-sm text-gray-700 bg-purple-50 p-3 rounded border" x-text="predictionResults?.ab_variant?.variant_caption"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="bg-white p-3 rounded border">
+                                <div class="font-medium text-gray-900">Test Focus</div>
+                                <div class="text-gray-600" x-text="predictionResults?.ab_variant?.test_focus"></div>
+                            </div>
+                            <div class="bg-white p-3 rounded border">
+                                <div class="font-medium text-gray-900">Duration</div>
+                                <div class="text-gray-600" x-text="predictionResults?.ab_variant?.recommended_duration"></div>
+                            </div>
+                            <div class="bg-white p-3 rounded border">
+                                <div class="font-medium text-gray-900">Sample Size</div>
+                                <div class="text-gray-600" x-text="predictionResults?.ab_variant?.sample_size_needed"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Best Posting Time -->
+                    <div class="bg-orange-50 rounded-lg p-6 border border-orange-200">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">⏰ Best Posting Time</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">🎯 Recommended Times Today</h5>
+                                <div class="space-y-2">
+                                    <template x-for="time in predictionResults?.best_posting_time?.best_times_today || []" :key="time">
+                                        <div class="flex items-center justify-between p-2 bg-white rounded border">
+                                            <span x-text="time"></span>
+                                            <span class="text-xs text-green-600 font-medium">Optimal</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">📅 Best Days</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="day in predictionResults?.best_posting_time?.best_days || []" :key="day">
+                                        <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full" x-text="day"></span>
+                                    </template>
+                                </div>
+                                <div class="mt-4">
+                                    <h5 class="font-medium text-gray-900 mb-2">🚫 Avoid Times</h5>
+                                    <div class="text-sm text-gray-600">
+                                        <template x-for="time in predictionResults?.best_posting_time?.avoid_times || []" :key="time">
+                                            <span class="inline-block mr-2" x-text="time"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📚 TEMPLATE LIBRARY -->
+        <div x-show="generatorType === 'templates'" x-cloak class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">📚 Template Library</h3>
+                <p class="text-gray-600">500+ template siap pakai untuk berbagai kebutuhan konten</p>
+            </div>
+
+            <!-- Template Filters -->
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                    <select x-model="templateFilters.category" @change="filterTemplates()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Semua Kategori</option>
+                        <option value="viral_clickbait">🔥 Viral & Clickbait</option>
+                        <option value="trend_fresh_ideas">✨ Trend & Fresh Ideas</option>
+                        <option value="event_promo">🎉 Event & Promo</option>
+                        <option value="hr_recruitment">💼 HR & Recruitment</option>
+                        <option value="branding_tagline">🎯 Branding & Tagline</option>
+                        <option value="education">🎓 Education & Institution</option>
+                        <option value="monetization">💰 Monetization</option>
+                        <option value="video_monetization">📹 Video Content</option>
+                        <option value="freelance">💻 Freelance</option>
+                        <option value="digital_products">📱 Digital Products</option>
+                        <option value="ebook_publishing">📚 eBook & Publishing</option>
+                        <option value="academic_writing">🎓 Academic Writing</option>
+                        <option value="affiliate_marketing">🤝 Affiliate Marketing</option>
+                        <option value="blog_seo">📝 Blog & SEO</option>
+                    </select>
+                </div>
+
+                <!-- Platform Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+                    <select x-model="templateFilters.platform" @change="filterTemplates()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Semua Platform</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="twitter">Twitter/X</option>
+                        <option value="shopee">Shopee</option>
+                        <option value="tokopedia">Tokopedia</option>
+                    </select>
+                </div>
+
+                <!-- Tone Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                    <select x-model="templateFilters.tone" @change="filterTemplates()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Semua Tone</option>
+                        <option value="casual">Casual</option>
+                        <option value="formal">Formal</option>
+                        <option value="persuasive">Persuasive</option>
+                        <option value="funny">Funny</option>
+                        <option value="emotional">Emotional</option>
+                        <option value="educational">Educational</option>
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari Template</label>
+                    <input type="text" x-model="templateFilters.search" @input="filterTemplates()" 
+                           placeholder="Cari template..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Template Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <template x-for="template in filteredTemplates" :key="template.id">
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                         @click="selectTemplate(template)">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 mb-1" x-text="template.title"></h4>
+                                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                    <span x-text="template.category_label"></span>
+                                    <span>•</span>
+                                    <span x-text="template.platform || 'Universal'"></span>
+                                </div>
+                            </div>
+                            <button @click.stop="toggleFavorite(template)" 
+                                    :class="template.is_favorite ? 'text-red-500' : 'text-gray-400'"
+                                    class="hover:text-red-500 transition">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3 line-clamp-2" x-text="template.description"></p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded" x-text="template.tone || 'Universal'"></span>
+                                <span class="text-xs text-gray-500" x-text="template.usage_count + ' kali digunakan'"></span>
+                            </div>
+                            <button @click.stop="useTemplate(template)" 
+                                    class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition">
+                                Gunakan
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Empty State -->
+            <div x-show="filteredTemplates.length === 0" x-cloak class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada template ditemukan</h3>
+                <p class="text-gray-500">Coba ubah filter atau kata kunci pencarian</p>
+            </div>
+
+            <!-- Template Preview Modal -->
+            <div x-show="selectedTemplate" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900" x-text="selectedTemplate?.title"></h3>
+                        <button @click="selectedTemplate = null" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+                            <span x-text="selectedTemplate?.category_label"></span>
+                            <span>•</span>
+                            <span x-text="selectedTemplate?.platform || 'Universal'"></span>
+                            <span>•</span>
+                            <span x-text="selectedTemplate?.tone || 'Universal'"></span>
+                        </div>
+                        <p class="text-gray-700 mb-4" x-text="selectedTemplate?.description"></p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-900 mb-2">Template Format:</h4>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <pre class="text-sm text-gray-800 whitespace-pre-wrap" x-text="selectedTemplate?.format"></pre>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <button @click="toggleFavorite(selectedTemplate)" 
+                                :class="selectedTemplate?.is_favorite ? 'text-red-500' : 'text-gray-500'"
+                                class="flex items-center space-x-2 hover:text-red-500 transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
+                            </svg>
+                            <span x-text="selectedTemplate?.is_favorite ? 'Hapus dari Favorit' : 'Tambah ke Favorit'"></span>
+                        </button>
+                        <div class="space-x-3">
+                            <button @click="selectedTemplate = null" 
+                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                                Tutup
+                            </button>
+                            <button @click="useTemplate(selectedTemplate)" 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                Gunakan Template
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🎯 MULTI-PLATFORM OPTIMIZER -->
+        <div x-show="generatorType === 'multiplatform'" x-cloak class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">🎯 Multi-Platform Optimizer</h3>
+                <p class="text-gray-600">Generate 1 caption → Auto-optimize untuk 6+ platform sekaligus dengan format yang tepat!</p>
+                <div class="mt-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-800"><strong>💡 Keunggulan:</strong> ChatGPT gak bisa auto-optimize per platform seperti ini!</p>
+                </div>
+            </div>
+
+            <!-- Input Form -->
+            <form @submit.prevent="generateMultiPlatform()" class="mb-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Konten yang mau dioptimasi <span class="text-red-600">*</span>
+                    </label>
+                    <textarea x-model="multiPlatformForm.content" required rows="4"
+                              placeholder="Tulis konten dasar kamu di sini. AI akan otomatis optimize untuk setiap platform..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    <p class="text-xs text-gray-500 mt-1">💡 Tulis konten dasar, AI akan sesuaikan panjang, tone, dan format untuk setiap platform</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Bisnis</label>
+                        <select x-model="multiPlatformForm.business_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="fashion">Fashion & Pakaian</option>
+                            <option value="food">Makanan & Minuman</option>
+                            <option value="beauty">Beauty & Skincare</option>
+                            <option value="tech">Technology</option>
+                            <option value="education">Education</option>
+                            <option value="service">Jasa & Layanan</option>
+                            <option value="general">General/Lainnya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                        <select x-model="multiPlatformForm.target_audience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="remaja">Remaja (15-25)</option>
+                            <option value="dewasa_muda">Dewasa Muda (25-35)</option>
+                            <option value="profesional">Profesional (30-45)</option>
+                            <option value="keluarga">Keluarga (35-50)</option>
+                            <option value="general">Semua Umur</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tujuan</label>
+                        <select x-model="multiPlatformForm.goal" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="awareness">Brand Awareness</option>
+                            <option value="engagement">Engagement & Interaksi</option>
+                            <option value="conversion">Sales & Conversion</option>
+                            <option value="traffic">Drive Traffic</option>
+                            <option value="viral">Viral & Share</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Platform Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Platform yang mau dioptimasi</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                               :class="multiPlatformForm.platforms.includes('instagram') ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input type="checkbox" x-model="multiPlatformForm.platforms" value="instagram" class="mr-2">
+                            <div class="text-center flex-1">
+                                <div class="text-lg">📸</div>
+                                <div class="text-xs font-medium">Instagram</div>
+                                <div class="text-xs text-gray-500">2200 char</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                               :class="multiPlatformForm.platforms.includes('tiktok') ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input type="checkbox" x-model="multiPlatformForm.platforms" value="tiktok" class="mr-2">
+                            <div class="text-center flex-1">
+                                <div class="text-lg">🎵</div>
+                                <div class="text-xs font-medium">TikTok</div>
+                                <div class="text-xs text-gray-500">150 char</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                               :class="multiPlatformForm.platforms.includes('facebook') ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input type="checkbox" x-model="multiPlatformForm.platforms" value="facebook" class="mr-2">
+                            <div class="text-center flex-1">
+                                <div class="text-lg">👥</div>
+                                <div class="text-xs font-medium">Facebook</div>
+                                <div class="text-xs text-gray-500">Storytelling</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                               :class="multiPlatformForm.platforms.includes('twitter') ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input type="checkbox" x-model="multiPlatformForm.platforms" value="twitter" class="mr-2">
+                            <div class="text-center flex-1">
+                                <div class="text-lg">🐦</div>
+                                <div class="text-xs font-medium">Twitter/X</div>
+                                <div class="text-xs text-gray-500">280 char</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                               :class="multiPlatformForm.platforms.includes('whatsapp') ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input type="checkbox" x-model="multiPlatformForm.platforms" value="whatsapp" class="mr-2">
+                            <div class="text-center flex-1">
+                                <div class="text-lg">💬</div>
+                                <div class="text-xs font-medium">WhatsApp</div>
+                                <div class="text-xs text-gray-500">Short & Punchy</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                               :class="multiPlatformForm.platforms.includes('marketplace') ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                            <input type="checkbox" x-model="multiPlatformForm.platforms" value="marketplace" class="mr-2">
+                            <div class="text-center flex-1">
+                                <div class="text-lg">🛒</div>
+                                <div class="text-xs font-medium">Marketplace</div>
+                                <div class="text-xs text-gray-500">SEO Optimized</div>
+                            </div>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">💡 Pilih minimal 2 platform untuk optimasi</p>
+                </div>
+
+                <!-- Generate Button -->
+                <button type="submit" :disabled="multiPlatformLoading || multiPlatformForm.platforms.length < 2"
+                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span x-show="!multiPlatformLoading">🎯 Generate Multi-Platform Content</span>
+                    <span x-show="multiPlatformLoading" class="flex items-center justify-center">
+                        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Optimizing for <span x-text="multiPlatformForm.platforms.length"></span> platforms...
+                    </span>
+                </button>
+            </form>
+
+            <!-- Results -->
+            <div x-show="multiPlatformResults" x-cloak class="space-y-6">
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border border-green-200">
+                    <h4 class="font-semibold text-gray-900 mb-2">✅ Optimasi Selesai!</h4>
+                    <p class="text-sm text-gray-700">Konten berhasil dioptimasi untuk <span class="font-semibold" x-text="Object.keys(multiPlatformResults || {}).length"></span> platform dengan format yang tepat.</p>
+                </div>
+
+                <!-- Platform Results -->
+                <template x-for="(result, platform) in multiPlatformResults" :key="platform">
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <!-- Platform Header -->
+                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-lg" x-text="getPlatformEmoji(platform)"></span>
+                                    <div>
+                                        <h5 class="font-semibold text-gray-900" x-text="getPlatformName(platform)"></h5>
+                                        <p class="text-xs text-gray-600" x-text="getPlatformSpecs(platform)"></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full" x-text="result.char_count + ' chars'"></span>
+                                    <button @click="copyPlatformContent(platform, result.content)" 
+                                            class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition">
+                                        📋 Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Platform Content -->
+                        <div class="p-4">
+                            <div class="bg-gray-50 rounded-lg p-4 mb-3">
+                                <pre class="whitespace-pre-wrap text-sm text-gray-800" x-text="result.content"></pre>
+                            </div>
+                            
+                            <!-- Platform-specific features -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                <div x-show="result.hashtags">
+                                    <h6 class="font-medium text-gray-700 mb-1">🏷️ Hashtags:</h6>
+                                    <div class="flex flex-wrap gap-1">
+                                        <template x-for="hashtag in result.hashtags" :key="hashtag">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded" x-text="hashtag"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <div x-show="result.optimization_notes">
+                                    <h6 class="font-medium text-gray-700 mb-1">💡 Optimasi:</h6>
+                                    <ul class="text-gray-600 space-y-1">
+                                        <template x-for="note in result.optimization_notes" :key="note">
+                                            <li class="flex items-start">
+                                                <span class="text-green-500 mr-1">•</span>
+                                                <span x-text="note"></span>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Bulk Actions -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h5 class="font-medium text-gray-900 mb-3">🚀 Bulk Actions</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <button @click="copyAllPlatforms()" 
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
+                            📋 Copy All Platforms
+                        </button>
+                        <button @click="exportMultiPlatform('txt')" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                            📄 Export as TXT
+                        </button>
+                        <button @click="exportMultiPlatform('csv')" 
+                                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm">
+                            📊 Export as CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         </div>
 
         <!-- Result Section -->
-        <div x-show="generatorType === 'text' || generatorType === 'image'" x-cloak class="mt-6">
+        <div x-show="generatorType === 'text' || generatorType === 'image' || generatorType === 'image-analysis' || generatorType === 'video'" x-cloak class="mt-6">
             <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Hasil Generate</h3>
                 
@@ -811,6 +1942,9 @@
                         </button>
                     </div>
                     
+                    <!-- 🔍 Caption Optimizer Tools -->
+                    @include('client.partials.caption-optimizer')
+                    
                     <button @click="reset"
                             class="w-full mt-3 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
                         🔄 Generate Lagi
@@ -867,6 +2001,485 @@
             </div>
         </div>
         
+        <!-- ♻️ CONTENT REPURPOSING -->
+        <div x-show="generatorType === 'repurpose'" x-cloak class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">♻️ Content Repurposing</h3>
+                <p class="text-gray-600">Ubah 1 konten jadi 10+ variasi untuk berbagai platform dan format!</p>
+                <div class="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                    <p class="text-sm text-green-800">
+                        <strong>💡 Value:</strong> Hemat waktu 90%! ChatGPT gak bisa auto-suggest repurposing ideas seperti ini.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Input Original Content -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Konten Asli</label>
+                <textarea x-model="repurposeForm.originalContent" 
+                          placeholder="Paste konten yang ingin di-repurpose di sini..."
+                          rows="4"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
+                <p class="text-xs text-gray-500 mt-1">Bisa berupa caption, artikel, email, atau konten apapun</p>
+            </div>
+
+            <!-- Content Type Detection -->
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Konten Asli</label>
+                    <select x-model="repurposeForm.originalType" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        <option value="">Auto-detect</option>
+                        <option value="caption">Caption Social Media</option>
+                        <option value="article">Artikel/Blog</option>
+                        <option value="email">Email Marketing</option>
+                        <option value="ad_copy">Iklan</option>
+                        <option value="product_desc">Deskripsi Produk</option>
+                        <option value="video_script">Script Video</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Industri/Niche</label>
+                    <select x-model="repurposeForm.industry" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        <option value="general">General</option>
+                        <option value="fashion">Fashion & Beauty</option>
+                        <option value="food">Food & Beverage</option>
+                        <option value="tech">Technology</option>
+                        <option value="health">Health & Fitness</option>
+                        <option value="education">Education</option>
+                        <option value="business">Business & Finance</option>
+                        <option value="travel">Travel & Lifestyle</option>
+                        <option value="ecommerce">E-commerce</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Repurposing Options -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Pilih Format Repurposing</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <template x-for="option in repurposeOptions" :key="option.value">
+                        <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" 
+                                   :value="option.value"
+                                   x-model="repurposeForm.selectedFormats"
+                                   class="mr-3 text-green-600 focus:ring-green-500">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <span x-text="option.icon" class="mr-2"></span>
+                                    <span class="font-medium text-sm" x-text="option.label"></span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1" x-text="option.description"></p>
+                            </div>
+                        </label>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Advanced Options -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 class="font-medium text-gray-900 mb-3">Opsi Lanjutan</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="repurposeForm.includeHashtags" 
+                                   class="mr-2 text-green-600 focus:ring-green-500">
+                            <span class="text-sm">Include hashtags yang relevan</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="repurposeForm.includeCTA" 
+                                   class="mr-2 text-green-600 focus:ring-green-500">
+                            <span class="text-sm">Tambahkan Call-to-Action</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="repurposeForm.optimizeLength" 
+                                   class="mr-2 text-green-600 focus:ring-green-500">
+                            <span class="text-sm">Optimize panjang per platform</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="repurposeForm.generateVariations" 
+                                   class="mr-2 text-green-600 focus:ring-green-500">
+                            <span class="text-sm">Generate 3 variasi per format</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button @click="generateRepurposedContent()" 
+                    :disabled="!repurposeForm?.originalContent || (repurposeForm?.selectedFormats?.length || 0) === 0 || repurposeLoading"
+                    class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 px-6 rounded-lg hover:from-green-700 hover:to-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                <span x-show="!repurposeLoading" x-cloak class="flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    ♻️ Repurpose Content (<span x-text="repurposeForm?.selectedFormats?.length || 0"></span> format)
+                </span>
+                <span x-show="repurposeLoading" x-cloak class="flex items-center justify-center">
+                    <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                    Generating repurposed content...
+                </span>
+            </button>
+
+            <!-- Results -->
+            <div x-show="repurposeResults && repurposeResults.length > 0" x-cloak class="mt-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">📋 Hasil Repurposing</h4>
+                
+                <!-- Results Grid -->
+                <div class="space-y-6">
+                    <template x-for="result in repurposeResults" :key="result.format">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center">
+                                    <span x-text="result.icon" class="mr-2 text-lg"></span>
+                                    <h5 class="font-medium text-gray-900" x-text="result.title"></h5>
+                                    <span class="ml-2 text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full" 
+                                          x-text="result.platform"></span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs text-gray-500" x-text="result.content.length + ' chars'"></span>
+                                    <button @click="copyRepurposedContent(result.content)" 
+                                            class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">
+                                        Copy
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                                <pre class="whitespace-pre-wrap text-sm text-gray-800" x-text="result.content"></pre>
+                            </div>
+                            
+                            <!-- Variations if enabled -->
+                            <template x-if="result.variations && result.variations.length > 0">
+                                <div class="mt-3">
+                                    <p class="text-xs font-medium text-gray-700 mb-2">Variasi:</p>
+                                    <div class="space-y-2">
+                                        <template x-for="(variation, index) in result.variations" :key="index">
+                                            <div class="bg-white border border-gray-100 rounded p-2">
+                                                <div class="flex justify-between items-start">
+                                                    <pre class="whitespace-pre-wrap text-xs text-gray-700 flex-1" x-text="variation"></pre>
+                                                    <button @click="copyRepurposedContent(variation)" 
+                                                            class="ml-2 text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600">
+                                                        Copy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <button @click="copyAllRepurposed()" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm">
+                        📋 Copy All Content
+                    </button>
+                    <button @click="exportRepurposed('txt')" 
+                            class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-sm">
+                        📄 Export as TXT
+                    </button>
+                    <button @click="exportRepurposed('csv')" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm">
+                        📊 Export as CSV
+                    </button>
+                    <button @click="resetRepurpose()" 
+                            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
+                        🔄 Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 🔔 TREND ALERT -->
+        <div x-show="generatorType === 'trends'" x-cloak class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">🔔 Trend Alert Indonesia</h3>
+                <p class="text-gray-600">Stay updated dengan trending topics terbaru dan generate konten viral!</p>
+                <div class="mt-3 p-3 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border border-red-200">
+                    <p class="text-sm text-red-800">💡 <strong>Pro Tip:</strong> Manfaatkan trending topics untuk boost engagement dan reach konten Anda!</p>
+                </div>
+            </div>
+
+            <!-- Trend Categories -->
+            <div class="mb-6">
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button @click="trendCategory = 'daily'" 
+                            :class="trendCategory === 'daily' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition">
+                        🔥 Daily Trends
+                    </button>
+                    <button @click="trendCategory = 'viral'" 
+                            :class="trendCategory === 'viral' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition">
+                        📈 Viral Content
+                    </button>
+                    <button @click="trendCategory = 'seasonal'" 
+                            :class="trendCategory === 'seasonal' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition">
+                        🗓️ Seasonal Events
+                    </button>
+                    <button @click="trendCategory = 'national'" 
+                            :class="trendCategory === 'national' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium transition">
+                        🇮🇩 National Days
+                    </button>
+                </div>
+            </div>
+
+            <!-- Daily Trends -->
+            <div x-show="trendCategory === 'daily'" x-cloak>
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-900">🔥 Trending Topics Hari Ini</h4>
+                    <button @click="refreshTrends()" 
+                            :disabled="trendsLoading"
+                            class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition disabled:opacity-50">
+                        <span x-show="!trendsLoading">🔄 Refresh</span>
+                        <span x-show="trendsLoading">Loading...</span>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <template x-for="trend in dailyTrends" :key="trend.id">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                             @click="selectTrend(trend)">
+                            <div class="flex items-start justify-between mb-2">
+                                <h5 class="font-medium text-gray-900" x-text="trend.title"></h5>
+                                <span class="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full" x-text="trend.category"></span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2" x-text="trend.description"></p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span x-text="'🔥 ' + trend.popularity + ' mentions'"></span>
+                                <span x-text="trend.timeAgo"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Viral Content Ideas -->
+            <div x-show="trendCategory === 'viral'" x-cloak>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">📈 Viral Content Ideas</h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <template x-for="idea in viralIdeas" :key="idea.id">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                             @click="selectTrend(idea)">
+                            <div class="flex items-start justify-between mb-2">
+                                <h5 class="font-medium text-gray-900" x-text="idea.title"></h5>
+                                <span class="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full" x-text="idea.type"></span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2" x-text="idea.description"></p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span x-text="'📊 ' + idea.engagement + ' avg engagement'"></span>
+                                <span x-text="idea.platform"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Seasonal Events -->
+            <div x-show="trendCategory === 'seasonal'" x-cloak>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">🗓️ Upcoming Seasonal Events</h4>
+                
+                <div class="space-y-4 mb-6">
+                    <template x-for="event in seasonalEvents" :key="event.id">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                             @click="selectTrend(event)">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-center">
+                                    <span x-text="event.icon" class="text-2xl mr-3"></span>
+                                    <div>
+                                        <h5 class="font-medium text-gray-900" x-text="event.title"></h5>
+                                        <p class="text-sm text-gray-600" x-text="event.date"></p>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full" x-text="event.daysLeft + ' days'"></span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2" x-text="event.description"></p>
+                            <div class="flex flex-wrap gap-1">
+                                <template x-for="tag in event.contentIdeas" :key="tag">
+                                    <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded" x-text="tag"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- National Days -->
+            <div x-show="trendCategory === 'national'" x-cloak>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">🇮🇩 National Days & Commemorations</h4>
+                
+                <div class="space-y-4 mb-6">
+                    <template x-for="day in nationalDays" :key="day.id">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                             @click="selectTrend(day)">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-center">
+                                    <span x-text="day.icon" class="text-2xl mr-3"></span>
+                                    <div>
+                                        <h5 class="font-medium text-gray-900" x-text="day.title"></h5>
+                                        <p class="text-sm text-gray-600" x-text="day.date"></p>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full" x-text="day.category"></span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2" x-text="day.description"></p>
+                            <div class="flex flex-wrap gap-1">
+                                <template x-for="hashtag in day.hashtags" :key="hashtag">
+                                    <span class="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded" x-text="hashtag"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Selected Trend & Content Generation -->
+            <div x-show="selectedTrend" x-cloak class="mt-6 border-t pt-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">✨ Generate Content dari Trend</h4>
+                
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div class="flex items-center mb-2">
+                        <span x-text="selectedTrend?.icon || '🔥'" class="text-xl mr-2"></span>
+                        <h5 class="font-medium text-gray-900" x-text="selectedTrend?.title"></h5>
+                    </div>
+                    <p class="text-sm text-gray-600" x-text="selectedTrend?.description"></p>
+                </div>
+
+                <!-- Content Type Selection -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Konten yang Mau Dibuat:</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="caption" class="mr-2">
+                            <span class="text-sm">📱 Caption IG/FB</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="story" class="mr-2">
+                            <span class="text-sm">📸 IG Story</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="tiktok" class="mr-2">
+                            <span class="text-sm">🎵 TikTok Script</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="thread" class="mr-2">
+                            <span class="text-sm">🧵 Twitter Thread</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="blog" class="mr-2">
+                            <span class="text-sm">📝 Blog Post</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="email" class="mr-2">
+                            <span class="text-sm">📧 Email Marketing</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="ads" class="mr-2">
+                            <span class="text-sm">💰 FB/IG Ads</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="trendContentTypes" value="whatsapp" class="mr-2">
+                            <span class="text-sm">💬 WhatsApp Blast</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Business Context -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bisnis/Produk Anda:</label>
+                    <input type="text" x-model="trendBusinessContext" 
+                           placeholder="Contoh: Toko baju online, Warung makan, Jasa desain, dll"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                </div>
+
+                <!-- Generate Button -->
+                <button @click="generateTrendContent()" 
+                        :disabled="!selectedTrend || trendContentTypes.length === 0 || !trendBusinessContext || trendLoading"
+                        class="w-full bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 px-6 rounded-lg hover:from-red-700 hover:to-orange-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    <span x-show="!trendLoading" x-cloak class="flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        🔔 Generate Trend Content (<span x-text="trendContentTypes.length"></span> format)
+                    </span>
+                    <span x-show="trendLoading" x-cloak class="flex items-center justify-center">
+                        <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                        Generating trend content...
+                    </span>
+                </button>
+
+                <!-- Results -->
+                <div x-show="trendResults && trendResults.length > 0" x-cloak class="mt-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">🎯 Konten Berdasarkan Trend</h4>
+                    
+                    <div class="space-y-6">
+                        <template x-for="result in trendResults" :key="result.type">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center">
+                                        <span x-text="result.icon" class="mr-2 text-lg"></span>
+                                        <h5 class="font-medium text-gray-900" x-text="result.title"></h5>
+                                        <span class="ml-2 text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full">
+                                            Trending
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500" x-text="result.content.length + ' chars'"></span>
+                                        <button @click="copyTrendContent(result.content)" 
+                                                class="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                                    <pre class="whitespace-pre-wrap text-sm text-gray-800" x-text="result.content"></pre>
+                                </div>
+                                
+                                <!-- Hashtags -->
+                                <div x-show="result.hashtags && result.hashtags.length > 0" class="flex flex-wrap gap-1">
+                                    <template x-for="hashtag in result.hashtags" :key="hashtag">
+                                        <span class="text-xs px-2 py-1 bg-red-100 text-red-600 rounded cursor-pointer"
+                                              @click="copyTrendContent(hashtag)" x-text="hashtag"></span>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Bulk Actions -->
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <button @click="copyAllTrendContent()" 
+                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm">
+                            📋 Copy All Content
+                        </button>
+                        <button @click="exportTrendContent('txt')" 
+                                class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-sm">
+                            📄 Export as TXT
+                        </button>
+                        <button @click="resetTrends()" 
+                                class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
+                            🔄 Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- 🤖 ML Upgrade Modal & Features -->
         @include('client.partials.ml-upgrade-modal')
     </div>
@@ -911,6 +2524,24 @@
                 business_type: '',
                 product_name: ''
             },
+            analysisForm: {
+                file: null,
+                preview: null,
+                options: ['objects', 'colors', 'composition', 'mood'], // default selected
+                context: ''
+            },
+            videoForm: {
+                content_type: '',
+                platform: '',
+                duration: '30',
+                product: '',
+                target_audience: '',
+                goal: '',
+                styles: [],
+                context: '',
+                image_file: null,
+                image_preview: null
+            },
             subcategories: [],
             loading: false,
             result: '',
@@ -932,9 +2563,271 @@
             analysisResult: null,
             analysisTab: 'quality',
 
+            // 📈 Performance Predictor state
+            predictorForm: {
+                caption: '',
+                platform: 'instagram',
+                industry: 'general',
+                target_audience: 'general'
+            },
+            predictorLoading: false,
+            predictionResults: null,
+            predictorError: null,
+            variantsLoading: false,
+
+            // 📚 Template Library state
+            templateFilters: {
+                category: '',
+                platform: '',
+                tone: '',
+                search: ''
+            },
+            allTemplates: [],
+            filteredTemplates: [],
+            selectedTemplate: null,
+            favoriteTemplates: [],
+
+            // 🎯 Multi-Platform Optimizer state
+            multiPlatformForm: {
+                content: '',
+                business_type: 'general',
+                target_audience: 'general',
+                goal: 'engagement',
+                platforms: ['instagram', 'tiktok'] // default selection
+            },
+            multiPlatformLoading: false,
+            multiPlatformResults: null,
+
+            // ♻️ Content Repurposing state
+            repurposeForm: {
+                originalContent: '',
+                originalType: '',
+                industry: 'general',
+                selectedFormats: [],
+                includeHashtags: true,
+                includeCTA: true,
+                optimizeLength: true,
+                generateVariations: false
+            },
+            repurposeLoading: false,
+            repurposeResults: [],
+            repurposeOptions: [
+                {value: 'instagram_story', label: '📱 Instagram Story', description: 'Short, visual, engaging'},
+                {value: 'tiktok_script', label: '🎵 TikTok Video Script', description: 'Hook + content + CTA'},
+                {value: 'blog_outline', label: '📝 Blog Post Outline', description: 'Structured long-form'},
+                {value: 'email_copy', label: '📧 Email Marketing', description: 'Subject + body + CTA'},
+                {value: 'product_description', label: '🛍️ Product Description', description: 'Features + benefits'},
+                {value: 'linkedin_post', label: '💼 LinkedIn Post', description: 'Professional tone'},
+                {value: 'facebook_post', label: '👥 Facebook Post', description: 'Community focused'},
+                {value: 'youtube_description', label: '📺 YouTube Description', description: 'SEO optimized'},
+                {value: 'twitter_thread', label: '🐦 Twitter Thread', description: 'Multi-tweet story'},
+                {value: 'whatsapp_broadcast', label: '💬 WhatsApp Broadcast', description: 'Direct & personal'},
+                {value: 'carousel_slides', label: '📊 Carousel Slides', description: 'Multi-slide content'},
+                {value: 'podcast_script', label: '🎙️ Podcast Script', description: 'Audio-friendly format'}
+            ],
+
+            // 🔔 Trend Alert state
+            trendCategory: 'daily',
+            selectedTrend: null,
+            trendContentTypes: [],
+            trendBusinessContext: '',
+            trendsLoading: false,
+            trendLoading: false,
+            trendResults: [],
+            dailyTrends: [
+                {
+                    id: 1,
+                    title: 'Viral Dance Challenge #GerakanSehat',
+                    description: 'Challenge dance untuk promosi gaya hidup sehat yang viral di TikTok dan Instagram',
+                    category: 'Health',
+                    popularity: '2.5M',
+                    timeAgo: '2 jam lalu',
+                    icon: '💃',
+                    hashtags: ['#GerakanSehat', '#ViralDance', '#HealthyLifestyle', '#Indonesia']
+                },
+                {
+                    id: 2,
+                    title: 'Trending Makanan Viral "Es Kepal Milo"',
+                    description: 'Minuman es kepal dengan topping milo yang sedang viral di media sosial',
+                    category: 'Food',
+                    popularity: '1.8M',
+                    timeAgo: '4 jam lalu',
+                    icon: '🧊',
+                    hashtags: ['#EsKepalMilo', '#MinumanViral', '#Kuliner', '#UMKM']
+                },
+                {
+                    id: 3,
+                    title: 'Gaya Fashion "Old Money Aesthetic"',
+                    description: 'Trend fashion dengan gaya klasik dan elegan yang sedang populer',
+                    category: 'Fashion',
+                    popularity: '3.2M',
+                    timeAgo: '6 jam lalu',
+                    icon: '👗',
+                    hashtags: ['#OldMoney', '#Fashion', '#Aesthetic', '#Style']
+                },
+                {
+                    id: 4,
+                    title: 'Teknologi AI untuk UMKM',
+                    description: 'Pembahasan penggunaan AI untuk membantu bisnis UMKM berkembang',
+                    category: 'Technology',
+                    popularity: '950K',
+                    timeAgo: '8 jam lalu',
+                    icon: '🤖',
+                    hashtags: ['#AI', '#UMKM', '#Technology', '#DigitalTransformation']
+                }
+            ],
+            viralIdeas: [
+                {
+                    id: 1,
+                    title: 'Before & After Transformation',
+                    description: 'Konten transformasi produk/jasa yang menunjukkan hasil dramatis',
+                    type: 'Visual',
+                    engagement: '85%',
+                    platform: 'Instagram/TikTok',
+                    icon: '✨'
+                },
+                {
+                    id: 2,
+                    title: 'Behind The Scenes Process',
+                    description: 'Tunjukkan proses pembuatan produk atau layanan dari belakang layar',
+                    type: 'Educational',
+                    engagement: '78%',
+                    platform: 'All Platforms',
+                    icon: '🎬'
+                },
+                {
+                    id: 3,
+                    title: 'Customer Testimonial Stories',
+                    description: 'Cerita nyata pelanggan dengan hasil yang memuaskan',
+                    type: 'Social Proof',
+                    engagement: '92%',
+                    platform: 'Instagram/Facebook',
+                    icon: '💬'
+                },
+                {
+                    id: 4,
+                    title: 'Quick Tips & Hacks',
+                    description: 'Tips cepat dan mudah yang bisa langsung dipraktikkan',
+                    type: 'Educational',
+                    engagement: '88%',
+                    platform: 'TikTok/Instagram',
+                    icon: '💡'
+                }
+            ],
+            seasonalEvents: [
+                {
+                    id: 1,
+                    title: `Ramadan ${new Date().getFullYear()}`,
+                    date: `11 Maret - 9 April ${new Date().getFullYear()}`,
+                    daysLeft: 45,
+                    description: 'Bulan suci Ramadan dengan berbagai peluang konten dan promo',
+                    icon: '🌙',
+                    contentIdeas: ['Sahur Ideas', 'Iftar Menu', 'Spiritual Content', 'Charity Campaign']
+                },
+                {
+                    id: 2,
+                    title: 'Lebaran/Eid Mubarak',
+                    date: `10-11 April ${new Date().getFullYear()}`,
+                    daysLeft: 75,
+                    description: 'Hari Raya Idul Fitri dengan tradisi mudik dan berkumpul keluarga',
+                    icon: '🎉',
+                    contentIdeas: ['Lebaran Outfit', 'Mudik Tips', 'Family Gathering', 'THR Campaign']
+                },
+                {
+                    id: 3,
+                    title: 'Back to School',
+                    date: `Juli ${new Date().getFullYear()}`,
+                    daysLeft: 120,
+                    description: 'Musim kembali ke sekolah dengan kebutuhan perlengkapan baru',
+                    icon: '🎒',
+                    contentIdeas: ['School Supplies', 'Study Tips', 'Uniform Fashion', 'Parent Guide']
+                },
+                {
+                    id: 4,
+                    title: 'Indonesian Independence Day',
+                    date: `17 Agustus ${new Date().getFullYear()}`,
+                    daysLeft: 150,
+                    description: 'Hari Kemerdekaan Indonesia dengan semangat nasionalisme',
+                    icon: '🇮🇩',
+                    contentIdeas: ['Patriotic Content', 'Local Pride', 'Indonesian Products', 'Unity Campaign']
+                }
+            ],
+            nationalDays: [
+                {
+                    id: 1,
+                    title: 'Hari Kartini',
+                    date: `21 April ${new Date().getFullYear()}`,
+                    description: 'Memperingati perjuangan R.A. Kartini untuk emansipasi wanita',
+                    icon: '👩',
+                    category: 'Women',
+                    hashtags: ['#HariKartini', '#WomenEmpowerment', '#Emansipasi', '#PerempuanIndonesia']
+                },
+                {
+                    id: 2,
+                    title: 'Hari Pendidikan Nasional',
+                    date: `2 Mei ${new Date().getFullYear()}`,
+                    description: 'Memperingati hari lahir Ki Hajar Dewantara, Bapak Pendidikan Indonesia',
+                    icon: '📚',
+                    category: 'Education',
+                    hashtags: ['#HardikNas', '#Pendidikan', '#KiHajarDewantara', '#BelajarSepanjangHayat']
+                },
+                {
+                    id: 3,
+                    title: 'Hari Kebangkitan Nasional',
+                    date: `20 Mei ${new Date().getFullYear()}`,
+                    description: 'Memperingati kebangkitan semangat kebangsaan Indonesia',
+                    icon: '🌅',
+                    category: 'National',
+                    hashtags: ['#HariKebangkitanNasional', '#SemangitKebangsaan', '#Indonesia', '#Patriotisme']
+                },
+                {
+                    id: 4,
+                    title: 'Hari Lingkungan Hidup Sedunia',
+                    date: `5 Juni ${new Date().getFullYear()}`,
+                    description: 'Kampanye global untuk kesadaran dan aksi lingkungan hidup',
+                    icon: '🌍',
+                    category: 'Environment',
+                    hashtags: ['#WorldEnvironmentDay', '#LingkunganHidup', '#GoGreen', '#SustainableLiving']
+                }
+            ],
+
             // Initialize - check if user is first time
             async init() {
                 await this.checkFirstTimeStatus();
+                // Load templates for Template Library
+                await this.loadTemplates();
+                // Load favorite templates from localStorage
+                this.loadFavoriteTemplates();
+                // Load dynamic dates
+                await this.loadDynamicDates();
+            },
+
+            // 📅 Load dynamic dates from API
+            async loadDynamicDates() {
+                try {
+                    // Load seasonal events
+                    const seasonalResponse = await fetch('/api/dynamic-dates/seasonal-events');
+                    if (seasonalResponse.ok) {
+                        const seasonalData = await seasonalResponse.json();
+                        if (seasonalData.success) {
+                            this.seasonalEvents = seasonalData.data;
+                        }
+                    }
+
+                    // Load national days
+                    const nationalResponse = await fetch('/api/dynamic-dates/national-days');
+                    if (nationalResponse.ok) {
+                        const nationalData = await nationalResponse.json();
+                        if (nationalData.success) {
+                            this.nationalDays = nationalData.data;
+                        }
+                    }
+
+                    console.log('✅ Dynamic dates loaded successfully');
+                } catch (error) {
+                    console.warn('⚠️ Failed to load dynamic dates, using fallback data:', error);
+                    // Keep the existing hardcoded data as fallback
+                }
             },
             
             async checkFirstTimeStatus() {
@@ -1007,7 +2900,7 @@
                     {value: 'tiktok_trend', label: '🎵 TikTok Trend Ideas'},
                     {value: 'instagram_trend', label: '📱 Instagram Trend Ideas'},
                     {value: 'youtube_trend', label: '📺 YouTube Trend Ideas'},
-                    {value: 'twitter_trend', label: '🐦 Twitter/X Trend Ideas'},
+                    {value: 'x_trend', label: 'X Trend Ideas'},
                     {value: 'content_series', label: '📺 Content Series Ideas'},
                     {value: 'collaboration_ideas', label: '🤝 Collaboration Ideas'},
                     {value: 'giveaway_ideas', label: '🎁 Giveaway Campaign Ideas'},
@@ -1042,6 +2935,70 @@
                     {value: 'faq', label: 'FAQ'},
                     {value: 'pricing_page', label: 'Halaman Pricing'},
                     {value: 'product_description', label: 'Deskripsi Produk Digital'}
+                ],
+                marketing_funnel: [
+                    {value: 'tofu_awareness', label: '🎯 TOFU - Awareness Stage (Top of Funnel)'},
+                    {value: 'tofu_blog_post', label: '📝 TOFU - Blog Post Edukatif'},
+                    {value: 'tofu_social_media', label: '📱 TOFU - Social Media Content'},
+                    {value: 'tofu_video_content', label: '🎬 TOFU - Video Content Script'},
+                    {value: 'mofu_consideration', label: '🤔 MOFU - Consideration Stage (Middle of Funnel)'},
+                    {value: 'mofu_case_study', label: '📊 MOFU - Case Study / Success Story'},
+                    {value: 'mofu_comparison', label: '⚖️ MOFU - Product Comparison'},
+                    {value: 'mofu_webinar', label: '🎓 MOFU - Webinar / Workshop Copy'},
+                    {value: 'mofu_email_nurture', label: '📧 MOFU - Email Nurture Sequence'},
+                    {value: 'bofu_decision', label: '💰 BOFU - Decision Stage (Bottom of Funnel)'},
+                    {value: 'bofu_sales_page', label: '🎯 BOFU - Sales Page Copy'},
+                    {value: 'bofu_demo_trial', label: '🔓 BOFU - Demo / Free Trial Copy'},
+                    {value: 'bofu_testimonial', label: '⭐ BOFU - Testimonial / Social Proof'},
+                    {value: 'bofu_urgency', label: '⏰ BOFU - Urgency & Scarcity Copy'},
+                    {value: 'retention_onboarding', label: '👋 Retention - Onboarding Sequence'},
+                    {value: 'retention_upsell', label: '📈 Retention - Upsell / Cross-sell'},
+                    {value: 'retention_reactivation', label: '🔄 Retention - Reactivation Campaign'},
+                    {value: 'complete_funnel', label: '🎯 Complete Funnel Sequence (All Stages)'}
+                ],
+                sales_page: [
+                    {value: 'complete_sales_page', label: '🎯 Complete Sales Page (Full Structure)'},
+                    {value: 'hero_section', label: '🦸 Hero Section (Headline + Subheadline + CTA)'},
+                    {value: 'problem_agitate', label: '😰 Problem & Agitate Section'},
+                    {value: 'solution_presentation', label: '✨ Solution Presentation'},
+                    {value: 'features_benefits', label: '⚡ Features & Benefits Section'},
+                    {value: 'social_proof', label: '⭐ Social Proof (Testimonials + Reviews)'},
+                    {value: 'pricing_section', label: '💰 Pricing Section (Value Stack)'},
+                    {value: 'faq_objections', label: '❓ FAQ & Objection Handling'},
+                    {value: 'guarantee_risk', label: '🛡️ Guarantee / Risk Reversal'},
+                    {value: 'urgency_scarcity', label: '⏰ Urgency & Scarcity Elements'},
+                    {value: 'final_cta', label: '🎯 Final CTA (Call to Action)'},
+                    {value: 'bonus_stack', label: '🎁 Bonus Stack Section'},
+                    {value: 'about_creator', label: '👤 About Creator / Company'},
+                    {value: 'vsl_script', label: '🎬 VSL (Video Sales Letter) Script'},
+                    {value: 'webinar_sales', label: '🎓 Webinar Sales Pitch'},
+                    {value: 'product_launch_sales', label: '🚀 Product Launch Sales Page'},
+                    {value: 'saas_sales_page', label: '💻 SaaS Sales Page'},
+                    {value: 'course_sales_page', label: '📚 Course Sales Page'},
+                    {value: 'coaching_sales_page', label: '🎯 Coaching/Consulting Sales Page'},
+                    {value: 'ecommerce_product_page', label: '🛍️ E-commerce Product Page'}
+                ],
+                lead_magnet: [
+                    {value: 'ebook_landing', label: '📚 Free eBook Landing Page'},
+                    {value: 'checklist_template', label: '✅ Checklist / Template Opt-in'},
+                    {value: 'webinar_registration', label: '🎓 Webinar Registration Page'},
+                    {value: 'free_trial', label: '🔓 Free Trial Sign-up Copy'},
+                    {value: 'resource_library', label: '📁 Resource Library Access'},
+                    {value: 'quiz_assessment', label: '📊 Quiz / Assessment Lead Magnet'},
+                    {value: 'video_series', label: '🎬 Video Series Opt-in'},
+                    {value: 'mini_course', label: '🎓 Mini Course / Email Course'},
+                    {value: 'toolkit_bundle', label: '🧰 Toolkit / Bundle Offer'},
+                    {value: 'cheat_sheet', label: '📋 Cheat Sheet / Quick Guide'},
+                    {value: 'case_study_download', label: '📊 Case Study Download'},
+                    {value: 'whitepaper_report', label: '📄 Whitepaper / Industry Report'},
+                    {value: 'swipe_file', label: '📝 Swipe File / Templates'},
+                    {value: 'calculator_tool', label: '🔢 Calculator / Tool Access'},
+                    {value: 'challenge_signup', label: '🏆 Challenge Sign-up Page'},
+                    {value: 'consultation_booking', label: '📞 Free Consultation Booking'},
+                    {value: 'demo_request', label: '🎯 Demo Request Page'},
+                    {value: 'newsletter_signup', label: '📧 Newsletter Sign-up Copy'},
+                    {value: 'discount_coupon', label: '🎟️ Discount Coupon Opt-in'},
+                    {value: 'lead_magnet_delivery', label: '📬 Lead Magnet Delivery Email'}
                 ],
                 ads: [
                     {value: 'headline', label: 'Headline Iklan'},
@@ -1335,6 +3292,23 @@
                     {value: 'save_the_date', label: '📅 Save The Date'},
                     {value: 'thank_you_card', label: '🙏 Kartu Ucapan Terima Kasih'},
                     {value: 'rsvp_message', label: '✉️ Pesan RSVP / Konfirmasi Kehadiran'}
+                ],
+                short_drama: [
+                    {value: 'drama_script', label: '🎬 Script Short Drama (Full Scene)'},
+                    {value: 'romantic_dialogue', label: '💕 Percakapan Romantis (Baper)'},
+                    {value: 'conflict_scene', label: '😤 Adegan Konflik / Pertengkaran'},
+                    {value: 'plot_twist_drama', label: '🌀 Plot Twist Drama'},
+                    {value: 'character_monologue', label: '🎭 Monolog Karakter (Emosional)'},
+                    {value: 'drama_opening', label: '🎥 Opening Scene (Hook 30 Detik)'},
+                    {value: 'breakup_scene', label: '💔 Adegan Putus Cinta'},
+                    {value: 'reunion_scene', label: '🥹 Adegan Reuni Mengharukan'},
+                    {value: 'misunderstanding_scene', label: '😤 Adegan Salah Paham'},
+                    {value: 'confession_scene', label: '💌 Adegan Confess Perasaan'},
+                    {value: 'villain_dialogue', label: '😈 Dialog Villain / Antagonis'},
+                    {value: 'family_drama', label: '👨‍👩‍👧 Drama Keluarga'},
+                    {value: 'office_romance', label: '💼 Office Romance'},
+                    {value: 'enemies_to_lovers', label: '⚔️ Enemies to Lovers'},
+                    {value: 'second_chance_romance', label: '🔄 Second Chance Romance (Mantan)'}
                 ]
             },
             
@@ -1378,6 +3352,249 @@
                 this.imageForm.file = null;
                 this.imageForm.preview = null;
                 this.$refs.imageInput.value = '';
+            },
+
+            // Image Analysis Methods
+            handleAnalysisImageSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.analysisForm.file = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.analysisForm.preview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            handleAnalysisImageDrop(event) {
+                event.target.classList.remove('border-purple-400', 'bg-purple-50');
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this.analysisForm.file = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.analysisForm.preview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            removeAnalysisImage() {
+                this.analysisForm.file = null;
+                this.analysisForm.preview = null;
+                this.$refs.analysisImageInput.value = '';
+            },
+
+            setAnalysisPreset(preset) {
+                switch(preset) {
+                    case 'product':
+                        this.analysisForm.options = ['objects', 'colors', 'quality', 'marketing', 'suggestions'];
+                        this.analysisForm.context = 'Analisis foto produk untuk keperluan marketing dan penjualan online';
+                        break;
+                    case 'social':
+                        this.analysisForm.options = ['composition', 'mood', 'colors', 'marketing'];
+                        this.analysisForm.context = 'Analisis foto untuk konten social media (Instagram/TikTok)';
+                        break;
+                    case 'complete':
+                        this.analysisForm.options = ['objects', 'colors', 'composition', 'mood', 'text', 'marketing', 'quality', 'suggestions'];
+                        this.analysisForm.context = 'Analisis lengkap semua aspek gambar untuk keperluan bisnis';
+                        break;
+                }
+            },
+
+            async analyzeImageWithAI() {
+                if (!this.analysisForm.file) {
+                    alert('Mohon upload gambar terlebih dahulu');
+                    return;
+                }
+
+                if (this.analysisForm.options.length === 0) {
+                    alert('Mohon pilih minimal satu jenis analisis');
+                    return;
+                }
+
+                this.loading = true;
+                this.result = '';
+                this.error = '';
+
+                const formData = new FormData();
+                formData.append('image', this.analysisForm.file);
+                formData.append('options', JSON.stringify(this.analysisForm.options));
+                formData.append('context', this.analysisForm.context);
+
+                try {
+                    const response = await fetch('/api/ai/analyze-image', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.result = data.analysis;
+                        this.lastCaptionId = data.caption_id || null;
+                        
+                        // Show success notification
+                        this.showNotification('✅ Analisis gambar berhasil!', 'success');
+                        
+                        // Scroll to result
+                        setTimeout(() => {
+                            document.querySelector('.mt-6').scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                    } else {
+                        this.error = data.message || 'Terjadi kesalahan saat menganalisis gambar';
+                        this.showNotification('❌ ' + this.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.error = 'Terjadi kesalahan jaringan';
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            // Video Generator Methods
+            setVideoPreset(preset) {
+                switch(preset) {
+                    case 'viral-tiktok':
+                        this.videoForm.content_type = 'script';
+                        this.videoForm.platform = 'tiktok';
+                        this.videoForm.duration = '30';
+                        this.videoForm.goal = 'viral';
+                        this.videoForm.styles = ['trending', 'funny'];
+                        this.videoForm.context = 'Video viral TikTok dengan hook kuat dan trending sound';
+                        break;
+                    case 'product-demo':
+                        this.videoForm.content_type = 'script';
+                        this.videoForm.platform = 'instagram-reels';
+                        this.videoForm.duration = '60';
+                        this.videoForm.goal = 'sales';
+                        this.videoForm.styles = ['professional', 'casual'];
+                        this.videoForm.context = 'Demo produk dengan showcase benefit dan testimoni';
+                        break;
+                    case 'educational':
+                        this.videoForm.content_type = 'script';
+                        this.videoForm.platform = 'youtube-shorts';
+                        this.videoForm.duration = '60';
+                        this.videoForm.goal = 'education';
+                        this.videoForm.styles = ['professional'];
+                        this.videoForm.context = 'Konten edukatif dengan tips dan tutorial step-by-step';
+                        break;
+                }
+            },
+
+            // Video Image Upload Methods
+            handleVideoImageSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.videoForm.image_file = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.videoForm.image_preview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            handleVideoImageDrop(event) {
+                event.target.classList.remove('border-red-400', 'bg-red-50');
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this.videoForm.image_file = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.videoForm.image_preview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            removeVideoImage() {
+                this.videoForm.image_file = null;
+                this.videoForm.image_preview = null;
+                this.$refs.videoImageInput.value = '';
+            },
+
+            async generateVideoContent() {
+                if (!this.videoForm.content_type || !this.videoForm.platform || !this.videoForm.product || !this.videoForm.goal) {
+                    alert('Mohon lengkapi semua field yang wajib diisi');
+                    return;
+                }
+
+                this.loading = true;
+                this.result = '';
+                this.error = '';
+
+                // Use FormData if image is uploaded, otherwise JSON
+                let requestData;
+                let headers = {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                };
+
+                if (this.videoForm.image_file) {
+                    // Use FormData for image upload
+                    requestData = new FormData();
+                    requestData.append('content_type', this.videoForm.content_type);
+                    requestData.append('platform', this.videoForm.platform);
+                    requestData.append('duration', this.videoForm.duration);
+                    requestData.append('product', this.videoForm.product);
+                    requestData.append('target_audience', this.videoForm.target_audience);
+                    requestData.append('goal', this.videoForm.goal);
+                    requestData.append('styles', JSON.stringify(this.videoForm.styles));
+                    requestData.append('context', this.videoForm.context);
+                    requestData.append('product_image', this.videoForm.image_file);
+                } else {
+                    // Use JSON for text-only
+                    requestData = JSON.stringify({
+                        content_type: this.videoForm.content_type,
+                        platform: this.videoForm.platform,
+                        duration: this.videoForm.duration,
+                        product: this.videoForm.product,
+                        target_audience: this.videoForm.target_audience,
+                        goal: this.videoForm.goal,
+                        styles: this.videoForm.styles,
+                        context: this.videoForm.context
+                    });
+                    headers['Content-Type'] = 'application/json';
+                }
+
+                try {
+                    const response = await fetch('/api/ai/generate-video-content', {
+                        method: 'POST',
+                        headers: headers,
+                        body: requestData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.result = data.content;
+                        this.lastCaptionId = data.caption_id || null;
+                        
+                        // Show success notification
+                        const imageText = this.videoForm.image_file ? ' dengan analisis visual' : '';
+                        this.showNotification(`✅ Konten video berhasil di-generate${imageText}!`, 'success');
+                        
+                        // Scroll to result
+                        setTimeout(() => {
+                            document.querySelector('.mt-6').scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                    } else {
+                        this.error = data.message || 'Terjadi kesalahan saat generate konten video';
+                        this.showNotification('❌ ' + this.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.error = 'Terjadi kesalahan jaringan';
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
+                } finally {
+                    this.loading = false;
+                }
             },
 
             async generateImageCaption() {
@@ -2017,15 +4234,15 @@
                         'walmart': 'instagram',
                         'youtube': 'instagram',
                         'youtube_shorts': 'tiktok',
-                        'twitter': 'twitter',
+                        'twitter': 'x',
                         'linkedin': 'linkedin'
                     };
                     
                     const rawPlatform = this.form.platform || this.simpleForm.platform || 'instagram';
                     const validPlatform = platformMap[rawPlatform] || rawPlatform;
                     
-                    // Ensure platform is one of: instagram, tiktok, facebook, twitter, linkedin
-                    const finalPlatform = ['instagram', 'tiktok', 'facebook', 'twitter', 'linkedin'].includes(validPlatform) 
+                    // Ensure platform is one of: instagram, tiktok, facebook, x, linkedin
+                    const finalPlatform = ['instagram', 'tiktok', 'facebook', 'x', 'linkedin'].includes(validPlatform) 
                         ? validPlatform 
                         : 'instagram';
 
@@ -2236,6 +4453,1287 @@
                 const hoursAgo = Math.floor((now - generatedAt) / (1000 * 60 * 60));
                 
                 return hoursAgo < 24;
+            },
+
+            // 📈 PERFORMANCE PREDICTOR FUNCTIONS
+            async predictCaptionPerformance() {
+                if (!this.predictorForm.caption.trim()) {
+                    alert('Masukkan caption yang mau dianalisis!');
+                    return;
+                }
+
+                this.predictorLoading = true;
+                this.predictorError = null;
+                this.predictionResults = null;
+
+                try {
+                    // Try authenticated endpoint first, fallback to demo if needed
+                    let endpoint = '/api/ai/predict-performance';
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    };
+
+                    let response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(this.predictorForm)
+                    });
+
+                    // If authentication fails, try demo endpoint (GET)
+                    if (response.status === 401 || response.status === 419 || response.status === 500) {
+                        console.log('Using demo endpoint for unauthenticated user');
+                        const encodedCaption = encodeURIComponent(this.predictorForm.caption);
+                        endpoint = `/demo-predict/${encodedCaption}`;
+                        response = await fetch(endpoint, { method: 'GET' });
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.predictionResults = data;
+                        console.log('Prediction results:', data);
+                    } else {
+                        throw new Error(data.message || 'Gagal memprediksi performa caption');
+                    }
+
+                } catch (error) {
+                    console.error('Prediction error:', error);
+                    this.predictorError = error.message || 'Terjadi kesalahan saat memprediksi performa';
+                    alert(this.predictorError);
+                } finally {
+                    this.predictorLoading = false;
+                }
+            },
+
+            async generateMoreVariants() {
+                if (!this.predictorForm.caption.trim()) {
+                    alert('Caption tidak ditemukan!');
+                    return;
+                }
+
+                this.variantsLoading = true;
+
+                try {
+                    // Try authenticated endpoint first, fallback to demo if needed
+                    let endpoint = '/api/ai/generate-ab-variants';
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    };
+
+                    let response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({
+                            caption: this.predictorForm.caption,
+                            platform: this.predictorForm.platform,
+                            industry: this.predictorForm.industry,
+                            variant_count: 3,
+                            focus_area: 'overall'
+                        })
+                    });
+
+                    // If authentication fails, try demo endpoint (GET)
+                    if (response.status === 401 || response.status === 419 || response.status === 500) {
+                        console.log('Using demo endpoint for A/B variants');
+                        const encodedCaption = encodeURIComponent(this.predictorForm.caption);
+                        endpoint = `/demo-variants/${encodedCaption}`;
+                        response = await fetch(endpoint, { method: 'GET' });
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Show variants in a modal or new section
+                        this.showVariantsModal(data);
+                    } else {
+                        throw new Error(data.message || 'Gagal generate variants');
+                    }
+
+                } catch (error) {
+                    console.error('Variants generation error:', error);
+                    alert(error.message || 'Terjadi kesalahan saat generate variants');
+                } finally {
+                    this.variantsLoading = false;
+                }
+            },
+
+            showVariantsModal(data) {
+                let modalContent = `
+                    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-semibold">🧪 A/B Testing Variants</h3>
+                                <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                `;
+
+                // Add original
+                modalContent += `
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">📝 Original (A)</h4>
+                        <div class="bg-gray-50 p-3 rounded text-sm">${data.original_caption}</div>
+                    </div>
+                `;
+
+                // Add variants
+                data.variants.forEach((variant, index) => {
+                    modalContent += `
+                        <div class="border rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold">🔄 Variant ${String.fromCharCode(66 + index)} (${variant.focus})</h4>
+                                <button onclick="navigator.clipboard.writeText('${variant.caption.replace(/'/g, "\\'")}'); alert('Copied!')" 
+                                        class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
+                                    Copy
+                                </button>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded text-sm mb-2">${variant.caption}</div>
+                            <div class="text-xs text-gray-600">Hypothesis: ${variant.test_hypothesis}</div>
+                        </div>
+                    `;
+                });
+
+                modalContent += `
+                            </div>
+                            <div class="mt-6 bg-gray-50 p-4 rounded">
+                                <h4 class="font-semibold mb-2">📊 Test Setup Recommendations</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div><strong>Duration:</strong> ${data.test_setup.recommended_duration}</div>
+                                    <div><strong>Sample Size:</strong> ${data.test_setup.minimum_sample_size}</div>
+                                    <div><strong>Confidence:</strong> ${data.test_setup.statistical_significance}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalContent);
+            },
+
+            // 📚 TEMPLATE LIBRARY FUNCTIONS
+            async loadTemplates() {
+                try {
+                    // Load templates from the TemplatePrompts service
+                    const response = await fetch('/api/templates/all', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.allTemplates = data.templates || [];
+                        this.filteredTemplates = this.allTemplates;
+                    } else {
+                        // Fallback to demo templates if API fails
+                        this.loadDemoTemplates();
+                    }
+                } catch (error) {
+                    console.error('Load templates error:', error);
+                    this.loadDemoTemplates();
+                }
+            },
+
+            loadDemoTemplates() {
+                // Demo templates based on TemplatePrompts service
+                this.allTemplates = [
+                    {
+                        id: 1,
+                        title: 'Clickbait Title Generator',
+                        description: 'Buat judul clickbait yang honest tapi menarik perhatian',
+                        category: 'viral_clickbait',
+                        category_label: '🔥 Viral & Clickbait',
+                        platform: 'universal',
+                        tone: 'persuasive',
+                        format: '- Maksimal 60 karakter\n- Bikin penasaran tapi tetap jujur\n- Gunakan angka, pertanyaan, atau kata kuat\n- Hindari clickbait palsu\n\nContoh:\n"5 Rahasia yang Bikin Bisnis Online Sukses"\n"Kenapa 90% UMKM Gagal? (Dan Cara Menghindarinya)"',
+                        usage_count: 1250,
+                        is_favorite: false
+                    },
+                    {
+                        id: 2,
+                        title: 'Instagram Caption Hook',
+                        description: 'Hook pembuka yang bikin audience penasaran dan mau baca lebih lanjut',
+                        category: 'viral_clickbait',
+                        category_label: '🔥 Viral & Clickbait',
+                        platform: 'instagram',
+                        tone: 'casual',
+                        format: '- Mulai dengan statement yang bikin penasaran\n- Jangan kasih jawaban di awal\n- Bikin audience mau tahu lebih lanjut\n- Maksimal 50 kata\n\nContoh:\n"Tau gak sih, ada 1 kesalahan yang bikin 80% bisnis online bangkrut..."\n"Pernah nggak kamu ngerasa udah kerja keras tapi hasil masih zonk?"',
+                        usage_count: 890,
+                        is_favorite: false
+                    },
+                    {
+                        id: 3,
+                        title: 'Flash Sale Promo',
+                        description: 'Template promosi flash sale yang bikin FOMO dan urgency',
+                        category: 'event_promo',
+                        category_label: '🎉 Event & Promo',
+                        platform: 'universal',
+                        tone: 'persuasive',
+                        format: '🚨 FLASH SALE ALERT! 🚨\n\n⏰ HANYA [DURASI]!\n💥 DISKON [PERSENTASE]% untuk [PRODUK]\n🔥 Stok terbatas: [JUMLAH] pcs saja!\n\n✅ Kualitas premium\n✅ Garansi resmi\n✅ Free ongkir seluruh Indonesia\n\n⚡ Jangan sampai kehabisan!\n📱 Order sekarang: [LINK/KONTAK]\n\n#FlashSale #Diskon #PromoTerbatas',
+                        usage_count: 2100,
+                        is_favorite: false
+                    },
+                    {
+                        id: 4,
+                        title: 'Job Vacancy Post',
+                        description: 'Template lowongan kerja yang menarik talent terbaik',
+                        category: 'hr_recruitment',
+                        category_label: '💼 HR & Recruitment',
+                        platform: 'linkedin',
+                        tone: 'formal',
+                        format: '🚀 WE ARE HIRING! 🚀\n\n📍 Posisi: [JABATAN]\n🏢 Perusahaan: [NAMA PERUSAHAAN]\n📍 Lokasi: [KOTA]\n💼 Tipe: [FULL TIME/PART TIME/CONTRACT]\n\n✨ Yang Kami Cari:\n• [KUALIFIKASI 1]\n• [KUALIFIKASI 2]\n• [KUALIFIKASI 3]\n\n🎁 Yang Kami Tawarkan:\n• Gaji kompetitif\n• Benefit menarik\n• Lingkungan kerja yang supportive\n• Kesempatan berkembang\n\n📧 Kirim CV ke: [EMAIL]\n💬 Info lebih lanjut: [KONTAK]\n\n#LowonganKerja #Hiring #Karir #[KOTA]Jobs',
+                        usage_count: 750,
+                        is_favorite: false
+                    },
+                    {
+                        id: 5,
+                        title: 'Brand Tagline Generator',
+                        description: 'Buat tagline brand yang memorable dan impactful',
+                        category: 'branding_tagline',
+                        category_label: '🎯 Branding & Tagline',
+                        platform: 'universal',
+                        tone: 'inspirational',
+                        format: 'Kriteria tagline yang baik:\n- Singkat & mudah diingat (3-7 kata)\n- Reflect brand values\n- Unique & differentiated\n- Emotional connection\n- Easy to pronounce\n\nFormula:\n1. [BENEFIT] + [EMOTION]\n2. [ACTION] + [RESULT]\n3. [PROMISE] + [ASPIRATION]\n\nContoh:\n"Wujudkan Impian Bersama" (Bank)\n"Solusi Cerdas, Hidup Mudah" (Tech)\n"Cantik Alami, Percaya Diri" (Beauty)',
+                        usage_count: 1680,
+                        is_favorite: false
+                    },
+                    {
+                        id: 6,
+                        title: 'TikTok Viral Script',
+                        description: 'Script TikTok yang berpotensi viral dengan hook kuat',
+                        category: 'video_monetization',
+                        category_label: '📹 Video Content',
+                        platform: 'tiktok',
+                        tone: 'funny',
+                        format: '⏱️ DETIK 1-3 (HOOK CRUCIAL!):\n"POV: Kamu [SITUASI RELATABLE]..."\n"Jangan scroll dulu! Ini [BENEFIT]"\n"Siapa yang [PERTANYAAN ENGAGING]?"\n\n⏱️ DETIK 4-30 (CONTENT):\n- Deliver value/entertainment\n- Keep it visual & engaging\n- Use trending sounds\n- Quick cuts/transitions\n\n⏱️ DETIK 30-60 (CTA):\n"Follow untuk tips lainnya!"\n"Tag teman yang butuh ini!"\n"Comment pengalaman kamu!"\n\n#FYP #Viral #[NICHE]TikTok',
+                        usage_count: 3200,
+                        is_favorite: false
+                    },
+                    {
+                        id: 7,
+                        title: 'Shopee Product Description',
+                        description: 'Deskripsi produk Shopee yang convert dan SEO-friendly',
+                        category: 'affiliate_marketing',
+                        category_label: '🤝 Affiliate Marketing',
+                        platform: 'shopee',
+                        tone: 'persuasive',
+                        format: '🛍️ [NAMA PRODUK] - [BENEFIT UTAMA]\n\n✨ KEUNGGULAN:\n✅ [KEUNGGULAN 1]\n✅ [KEUNGGULAN 2]\n✅ [KEUNGGULAN 3]\n\n📦 SPESIFIKASI:\n• Material: [BAHAN]\n• Ukuran: [DIMENSI]\n• Warna: [PILIHAN WARNA]\n• Berat: [BERAT]\n\n🎁 BONUS:\n• Free bubble wrap\n• Garansi [DURASI]\n• Customer service 24/7\n\n⭐ TESTIMONI: "[REVIEW CUSTOMER]"\n\n🚚 PENGIRIMAN:\n• Same day (Jakarta)\n• 1-3 hari (Jawa)\n• 3-7 hari (luar Jawa)\n\n💰 HARGA SPESIAL: Rp [HARGA] (Normal: Rp [HARGA_NORMAL])\n\n🛒 ORDER SEKARANG! Stok terbatas!\n\n#[KATEGORI] #[BRAND] #QualityProduct',
+                        usage_count: 1890,
+                        is_favorite: false
+                    },
+                    {
+                        id: 8,
+                        title: 'Blog SEO Article Outline',
+                        description: 'Outline artikel blog yang SEO-optimized dan engaging',
+                        category: 'blog_seo',
+                        category_label: '📝 Blog & SEO',
+                        platform: 'universal',
+                        tone: 'educational',
+                        format: '📝 STRUKTUR ARTIKEL SEO:\n\n1. SEO TITLE (50-60 char):\n"[KEYWORD UTAMA]: [BENEFIT/PROMISE]"\n\n2. META DESCRIPTION (150-160 char):\n"[RINGKASAN ARTIKEL + KEYWORD + CTA]"\n\n3. H1 HEADLINE:\n"[KEYWORD UTAMA] - [ANGLE UNIK]"\n\n4. INTRODUCTION (150 kata):\n- Hook (statistik/pertanyaan)\n- Problem statement\n- Preview artikel\n- Keyword naturally\n\n5. H2 SUBHEADINGS:\n- [KEYWORD] untuk Pemula\n- Cara [KEYWORD] yang Efektif\n- Tips [KEYWORD] Terbaik\n- Kesalahan [KEYWORD] yang Harus Dihindari\n\n6. CONCLUSION + CTA:\n- Ringkasan key points\n- Call to action\n- Related articles\n\n7. INTERNAL LINKS: 3-5 artikel terkait\n8. IMAGES: Alt text dengan keyword\n9. FAQ SECTION: 5-8 pertanyaan umum',
+                        usage_count: 920,
+                        is_favorite: false
+                    }
+                ];
+                this.filteredTemplates = this.allTemplates;
+            },
+
+            filterTemplates() {
+                let filtered = this.allTemplates;
+
+                // Filter by category
+                if (this.templateFilters.category) {
+                    filtered = filtered.filter(template => 
+                        template.category === this.templateFilters.category
+                    );
+                }
+
+                // Filter by platform
+                if (this.templateFilters.platform) {
+                    filtered = filtered.filter(template => 
+                        template.platform === this.templateFilters.platform || 
+                        template.platform === 'universal'
+                    );
+                }
+
+                // Filter by tone
+                if (this.templateFilters.tone) {
+                    filtered = filtered.filter(template => 
+                        template.tone === this.templateFilters.tone || 
+                        template.tone === 'universal'
+                    );
+                }
+
+                // Filter by search
+                if (this.templateFilters.search) {
+                    const search = this.templateFilters.search.toLowerCase();
+                    filtered = filtered.filter(template => 
+                        template.title.toLowerCase().includes(search) ||
+                        template.description.toLowerCase().includes(search) ||
+                        template.category_label.toLowerCase().includes(search)
+                    );
+                }
+
+                this.filteredTemplates = filtered;
+            },
+
+            selectTemplate(template) {
+                this.selectedTemplate = template;
+            },
+
+            useTemplate(template) {
+                // Close modal if open
+                this.selectedTemplate = null;
+                
+                // Switch to text generator mode
+                this.generatorType = 'text';
+                this.mode = 'advanced';
+                
+                // Set form based on template
+                this.form.category = template.category;
+                this.updateSubcategories();
+                
+                // Set the brief with template format
+                this.form.brief = `Gunakan template: ${template.title}\n\nFormat:\n${template.format}\n\n[Sesuaikan dengan produk/jasa Anda]`;
+                
+                // Set platform if specified
+                if (template.platform && template.platform !== 'universal') {
+                    this.form.platform = template.platform;
+                }
+                
+                // Set tone if specified
+                if (template.tone && template.tone !== 'universal') {
+                    this.form.tone = template.tone;
+                }
+
+                // Scroll to form
+                document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+                
+                // Show success message
+                alert(`✅ Template "${template.title}" berhasil dimuat! Sesuaikan dengan kebutuhan Anda.`);
+            },
+
+            toggleFavorite(template) {
+                template.is_favorite = !template.is_favorite;
+                
+                if (template.is_favorite) {
+                    if (!this.favoriteTemplates.find(t => t.id === template.id)) {
+                        this.favoriteTemplates.push(template);
+                    }
+                } else {
+                    this.favoriteTemplates = this.favoriteTemplates.filter(t => t.id !== template.id);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('favoriteTemplates', JSON.stringify(this.favoriteTemplates));
+            },
+
+            loadFavoriteTemplates() {
+                try {
+                    const saved = localStorage.getItem('favoriteTemplates');
+                    if (saved) {
+                        this.favoriteTemplates = JSON.parse(saved);
+                        // Update favorite status in allTemplates
+                        this.allTemplates.forEach(template => {
+                            template.is_favorite = this.favoriteTemplates.some(fav => fav.id === template.id);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Load favorites error:', error);
+                }
+            },
+
+            // 🎯 MULTI-PLATFORM OPTIMIZER FUNCTIONS
+            async generateMultiPlatform() {
+                if (this.multiPlatformForm.platforms.length < 2) {
+                    alert('Pilih minimal 2 platform untuk optimasi');
+                    return;
+                }
+
+                this.multiPlatformLoading = true;
+                this.multiPlatformResults = null;
+
+                try {
+                    const response = await fetch('/api/ai/generate-multiplatform', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            content: this.multiPlatformForm.content,
+                            business_type: this.multiPlatformForm.business_type,
+                            target_audience: this.multiPlatformForm.target_audience,
+                            goal: this.multiPlatformForm.goal,
+                            platforms: this.multiPlatformForm.platforms
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.multiPlatformResults = data.results;
+                        
+                        // Scroll to results
+                        setTimeout(() => {
+                            document.querySelector('[x-show="multiPlatformResults"]').scrollIntoView({ 
+                                behavior: 'smooth' 
+                            });
+                        }, 100);
+                    } else {
+                        alert('Error: ' + (data.message || 'Gagal generate multi-platform content'));
+                    }
+
+                } catch (error) {
+                    console.error('Multi-platform generation error:', error);
+                    alert('Terjadi kesalahan saat generate content. Silakan coba lagi.');
+                } finally {
+                    this.multiPlatformLoading = false;
+                }
+            },
+
+            getPlatformEmoji(platform) {
+                const emojis = {
+                    'instagram': '📸',
+                    'tiktok': '🎵',
+                    'facebook': '👥',
+                    'twitter': '🐦',
+                    'whatsapp': '💬',
+                    'marketplace': '🛒'
+                };
+                return emojis[platform] || '📱';
+            },
+
+            getPlatformName(platform) {
+                const names = {
+                    'instagram': 'Instagram',
+                    'tiktok': 'TikTok',
+                    'facebook': 'Facebook',
+                    'twitter': 'Twitter/X',
+                    'whatsapp': 'WhatsApp Status',
+                    'marketplace': 'Marketplace (Shopee/Tokped)'
+                };
+                return names[platform] || platform;
+            },
+
+            getPlatformSpecs(platform) {
+                const specs = {
+                    'instagram': 'Max 2200 chars • 30 hashtags • Visual focus',
+                    'tiktok': 'Max 150 chars • Trending sounds • Short & catchy',
+                    'facebook': 'Storytelling format • Longer content • Community focus',
+                    'twitter': 'Max 280 chars • Thread support • News style',
+                    'whatsapp': 'Short & punchy • Personal tone • Direct message',
+                    'marketplace': 'SEO optimized • Product focus • Conversion oriented'
+                };
+                return specs[platform] || 'Platform optimized';
+            },
+
+            copyPlatformContent(platform, content) {
+                navigator.clipboard.writeText(content).then(() => {
+                    // Show temporary success message
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = '✅ Copied!';
+                    button.classList.add('bg-green-600');
+                    button.classList.remove('bg-blue-600');
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('bg-green-600');
+                        button.classList.add('bg-blue-600');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('Gagal copy content');
+                });
+            },
+
+            copyAllPlatforms() {
+                if (!this.multiPlatformResults) return;
+
+                let allContent = '';
+                Object.entries(this.multiPlatformResults).forEach(([platform, result]) => {
+                    allContent += `=== ${this.getPlatformName(platform).toUpperCase()} ===\n`;
+                    allContent += result.content + '\n\n';
+                    if (result.hashtags && result.hashtags.length > 0) {
+                        allContent += 'Hashtags: ' + result.hashtags.join(' ') + '\n\n';
+                    }
+                    allContent += '---\n\n';
+                });
+
+                navigator.clipboard.writeText(allContent).then(() => {
+                    alert('✅ Semua content berhasil di-copy!');
+                }).catch(err => {
+                    console.error('Copy all failed:', err);
+                    alert('Gagal copy content');
+                });
+            },
+
+            exportMultiPlatform(format) {
+                if (!this.multiPlatformResults) return;
+
+                let content = '';
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+
+                if (format === 'txt') {
+                    Object.entries(this.multiPlatformResults).forEach(([platform, result]) => {
+                        content += `=== ${this.getPlatformName(platform).toUpperCase()} ===\n`;
+                        content += `Character Count: ${result.char_count}\n`;
+                        content += `Content:\n${result.content}\n\n`;
+                        if (result.hashtags && result.hashtags.length > 0) {
+                            content += `Hashtags: ${result.hashtags.join(' ')}\n\n`;
+                        }
+                        if (result.optimization_notes && result.optimization_notes.length > 0) {
+                            content += `Optimization Notes:\n`;
+                            result.optimization_notes.forEach(note => {
+                                content += `• ${note}\n`;
+                            });
+                            content += '\n';
+                        }
+                        content += '---\n\n';
+                    });
+
+                    this.downloadFile(content, `multiplatform-content-${timestamp}.txt`, 'text/plain');
+
+                } else if (format === 'csv') {
+                    content = 'Platform,Character Count,Content,Hashtags,Optimization Notes\n';
+                    Object.entries(this.multiPlatformResults).forEach(([platform, result]) => {
+                        const hashtags = result.hashtags ? result.hashtags.join(' ') : '';
+                        const notes = result.optimization_notes ? result.optimization_notes.join('; ') : '';
+                        const contentEscaped = '"' + result.content.replace(/"/g, '""') + '"';
+                        content += `${this.getPlatformName(platform)},${result.char_count},${contentEscaped},"${hashtags}","${notes}"\n`;
+                    });
+
+                    this.downloadFile(content, `multiplatform-content-${timestamp}.csv`, 'text/csv');
+                }
+            },
+
+            downloadFile(content, filename, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            },
+
+            // Helper functions for UI styling
+            getScoreColor(score) {
+                if (score >= 90) return 'text-green-600';
+                if (score >= 80) return 'text-blue-600';
+                if (score >= 70) return 'text-yellow-600';
+                if (score >= 60) return 'text-orange-600';
+                return 'text-red-600';
+            },
+
+            getPriorityColor(priority) {
+                switch (priority) {
+                    case 'high': return 'bg-red-100 text-red-800';
+                    case 'medium': return 'bg-yellow-100 text-yellow-800';
+                    case 'low': return 'bg-green-100 text-green-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            },
+
+            getConfidenceColor(confidence) {
+                switch (confidence) {
+                    case 'high': return 'bg-green-100 text-green-800';
+                    case 'medium': return 'bg-yellow-100 text-yellow-800';
+                    case 'low': return 'bg-red-100 text-red-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            },
+
+            getConfidenceDot(confidence) {
+                switch (confidence) {
+                    case 'high': return 'bg-green-500';
+                    case 'medium': return 'bg-yellow-500';
+                    case 'low': return 'bg-red-500';
+                    default: return 'bg-gray-500';
+                }
+            },
+
+            // ♻️ CONTENT REPURPOSING FUNCTIONS
+            async generateRepurposedContent() {
+                if (!this.repurposeForm.originalContent.trim()) {
+                    alert('Mohon masukkan konten asli yang ingin di-repurpose');
+                    return;
+                }
+
+                if (this.repurposeForm.selectedFormats.length === 0) {
+                    alert('Pilih minimal 1 format repurposing');
+                    return;
+                }
+
+                this.repurposeLoading = true;
+                this.repurposeResults = [];
+
+                try {
+                    const response = await fetch('/api/ai/repurpose-content', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            original_content: this.repurposeForm.originalContent,
+                            original_type: this.repurposeForm.originalType,
+                            industry: this.repurposeForm.industry,
+                            selected_formats: this.repurposeForm.selectedFormats,
+                            include_hashtags: this.repurposeForm.includeHashtags,
+                            include_cta: this.repurposeForm.includeCTA,
+                            optimize_length: this.repurposeForm.optimizeLength,
+                            generate_variations: this.repurposeForm.generateVariations
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.repurposeResults = data.results;
+                        
+                        // Scroll to results
+                        setTimeout(() => {
+                            const resultsElement = document.querySelector('[x-show="repurposeResults && repurposeResults.length > 0"]');
+                            if (resultsElement) {
+                                resultsElement.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }, 100);
+                    } else {
+                        alert('Error: ' + (data.message || 'Gagal repurpose content'));
+                    }
+
+                } catch (error) {
+                    console.error('Content repurposing error:', error);
+                    alert('Terjadi kesalahan saat repurpose content. Silakan coba lagi.');
+                } finally {
+                    this.repurposeLoading = false;
+                }
+            },
+
+            copyRepurposedContent(content) {
+                navigator.clipboard.writeText(content).then(() => {
+                    // Show temporary success message
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = '✅ Copied!';
+                    button.classList.add('bg-green-600');
+                    button.classList.remove('bg-blue-600', 'bg-gray-500');
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('bg-green-600');
+                        button.classList.add('bg-blue-600');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    alert('Gagal copy content');
+                });
+            },
+
+            copyAllRepurposed() {
+                if (!this.repurposeResults || this.repurposeResults.length === 0) return;
+
+                let allContent = '';
+                this.repurposeResults.forEach(result => {
+                    allContent += `=== ${result.format.toUpperCase().replace('_', ' ')} ===\n`;
+                    allContent += result.content + '\n\n';
+                    
+                    if (result.variations && result.variations.length > 0) {
+                        allContent += 'VARIATIONS:\n';
+                        result.variations.forEach((variation, index) => {
+                            allContent += `${index + 1}. ${variation}\n`;
+                        });
+                        allContent += '\n';
+                    }
+                    allContent += '---\n\n';
+                });
+
+                navigator.clipboard.writeText(allContent).then(() => {
+                    alert('✅ Semua repurposed content berhasil di-copy!');
+                }).catch(err => {
+                    console.error('Copy all failed:', err);
+                    alert('Gagal copy content');
+                });
+            },
+
+            exportRepurposed(format) {
+                if (!this.repurposeResults || this.repurposeResults.length === 0) return;
+
+                let content = '';
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+
+                if (format === 'txt') {
+                    this.repurposeResults.forEach(result => {
+                        content += `=== ${result.format.toUpperCase().replace('_', ' ')} ===\n`;
+                        content += `Character Count: ${result.content.length}\n`;
+                        content += `Content:\n${result.content}\n\n`;
+                        
+                        if (result.variations && result.variations.length > 0) {
+                            content += 'VARIATIONS:\n';
+                            result.variations.forEach((variation, index) => {
+                                content += `${index + 1}. ${variation}\n`;
+                            });
+                            content += '\n';
+                        }
+                        content += '---\n\n';
+                    });
+
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `repurposed-content-${timestamp}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+
+                } else if (format === 'csv') {
+                    content = 'Format,Content,Character Count,Variations\n';
+                    this.repurposeResults.forEach(result => {
+                        const variations = result.variations ? result.variations.join(' | ') : '';
+                        content += `"${result.format}","${result.content.replace(/"/g, '""')}","${result.content.length}","${variations.replace(/"/g, '""')}"\n`;
+                    });
+
+                    const blob = new Blob([content], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `repurposed-content-${timestamp}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            },
+
+            resetRepurpose() {
+                this.repurposeForm = {
+                    originalContent: '',
+                    originalType: '',
+                    industry: 'general',
+                    selectedFormats: [],
+                    includeHashtags: true,
+                    includeCTA: true,
+                    optimizeLength: true,
+                    generateVariations: false
+                };
+                this.repurposeResults = [];
+            },
+
+            // 🔔 TREND ALERT FUNCTIONS
+            selectTrend(trend) {
+                this.selectedTrend = trend;
+                this.trendContentTypes = [];
+                this.trendBusinessContext = '';
+            },
+
+            async refreshTrends() {
+                this.trendsLoading = true;
+                
+                try {
+                    // Simulate API call to get latest trends
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Update trends with fresh data (in real implementation, this would be from API)
+                    this.dailyTrends = [
+                        {
+                            id: Date.now(),
+                            title: 'New Viral Challenge #IndonesiaSehat',
+                            description: 'Challenge baru untuk promosi kesehatan mental dan fisik',
+                            category: 'Health',
+                            popularity: '3.1M',
+                            timeAgo: 'Baru saja',
+                            icon: '💪',
+                            hashtags: ['#IndonesiaSehat', '#MentalHealth', '#Wellness', '#Viral']
+                        },
+                        ...this.dailyTrends.slice(0, 3)
+                    ];
+                    
+                    alert('✅ Trends berhasil di-refresh!');
+                } catch (error) {
+                    console.error('Refresh trends error:', error);
+                    alert('❌ Gagal refresh trends. Silakan coba lagi.');
+                } finally {
+                    this.trendsLoading = false;
+                }
+            },
+
+            async generateTrendContent() {
+                if (!this.selectedTrend || this.trendContentTypes.length === 0 || !this.trendBusinessContext) {
+                    alert('Mohon lengkapi semua field yang diperlukan');
+                    return;
+                }
+
+                this.trendLoading = true;
+
+                try {
+                    const response = await fetch('/api/ai/generate-trend-content', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            trend: this.selectedTrend,
+                            content_types: this.trendContentTypes,
+                            business_context: this.trendBusinessContext
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.trendResults = data.results;
+                        alert('✅ Konten trend berhasil di-generate!');
+                    } else {
+                        throw new Error(data.error || 'Failed to generate trend content');
+                    }
+
+                } catch (error) {
+                    console.error('Trend content generation error:', error);
+                    
+                    // Fallback to basic generation
+                    this.generateBasicTrendContent();
+                } finally {
+                    this.trendLoading = false;
+                }
+            },
+
+            generateBasicTrendContent() {
+                const contentTypeMap = {
+                    caption: { icon: '📱', title: 'Instagram/Facebook Caption' },
+                    story: { icon: '📸', title: 'Instagram Story' },
+                    tiktok: { icon: '🎵', title: 'TikTok Script' },
+                    thread: { icon: '🧵', title: 'Twitter Thread' },
+                    blog: { icon: '📝', title: 'Blog Post' },
+                    email: { icon: '📧', title: 'Email Marketing' },
+                    ads: { icon: '💰', title: 'Facebook/Instagram Ads' },
+                    whatsapp: { icon: '💬', title: 'WhatsApp Blast' }
+                };
+
+                this.trendResults = this.trendContentTypes.map(type => {
+                    const typeInfo = contentTypeMap[type];
+                    return {
+                        type: type,
+                        icon: typeInfo.icon,
+                        title: typeInfo.title,
+                        content: this.generateTrendContentByType(type),
+                        hashtags: this.selectedTrend.hashtags || []
+                    };
+                });
+
+                alert('✅ Konten trend berhasil di-generate (mode basic)!');
+            },
+
+            generateTrendContentByType(type) {
+                const trend = this.selectedTrend;
+                const business = this.trendBusinessContext;
+                
+                const templates = {
+                    caption: `🔥 IKUTAN TREND ${trend.title.toUpperCase()}! 🔥
+
+${trend.description}
+
+Sebagai ${business}, kita juga mau ikutan nih! 
+
+✨ Gimana kalau kita bikin versi kita sendiri?
+💡 Yuk share ide kalian di comment!
+
+#TrendAlert #${business.replace(/\s+/g, '')} ${trend.hashtags?.join(' ') || ''}`,
+
+                    story: `📸 STORY SERIES: ${trend.title}
+
+Slide 1: "Lagi viral nih!"
+Slide 2: "${trend.description}"
+Slide 3: "Versi ${business} gimana ya?"
+Slide 4: "Swipe up untuk lihat!"
+Slide 5: CTA - "Follow untuk update trend terbaru!"`,
+
+                    tiktok: `🎵 TIKTOK SCRIPT: ${trend.title}
+
+HOOK (0-3 detik):
+"Eh tau gak sih trend ${trend.title} yang lagi viral?"
+
+CONTENT (3-15 detik):
+"Jadi ceritanya ${trend.description}. Nah sebagai ${business}, kita juga bisa loh ikutan!"
+
+TRANSITION (15-20 detik):
+"Tapi versi kita gimana ya?"
+
+REVEAL (20-25 detik):
+[Tunjukkan produk/jasa dengan twist trend]
+
+CTA (25-30 detik):
+"Kalian mau coba juga? Comment 'TREND' ya!"`,
+
+                    thread: `🧵 TWITTER THREAD: ${trend.title}
+
+1/5 🔥 Lagi viral banget nih ${trend.title}! 
+
+2/5 📈 ${trend.description}
+
+3/5 💡 Sebagai ${business}, kita lihat peluang buat ikutan dengan cara yang unik
+
+4/5 ✨ Ide kita: [sesuaikan dengan bisnis]
+
+5/5 🚀 Kalian ada ide lain? Reply thread ini! ${trend.hashtags?.join(' ') || ''}`,
+
+                    blog: `# Memanfaatkan Trend ${trend.title} untuk Bisnis ${business}
+
+## Apa itu ${trend.title}?
+${trend.description}
+
+## Mengapa Trend Ini Penting?
+- Engagement tinggi di media sosial
+- Reach organik yang lebih luas
+- Kesempatan viral marketing
+
+## Cara ${business} Memanfaatkan Trend Ini:
+1. Adaptasi sesuai brand voice
+2. Buat konten yang relevan
+3. Gunakan hashtag yang tepat
+4. Timing yang pas
+
+## Kesimpulan
+Trend ${trend.title} memberikan peluang besar untuk ${business} meningkatkan visibility dan engagement.`,
+
+                    email: `Subject: 🔥 Jangan Ketinggalan Trend ${trend.title}!
+
+Halo [Nama],
+
+Pasti udah tau dong trend ${trend.title} yang lagi viral banget?
+
+${trend.description}
+
+Nah, sebagai ${business}, kita gak mau ketinggalan dong! 
+
+Makanya kita bikin [produk/promo spesial] yang terinspirasi dari trend ini.
+
+[CTA Button: Lihat Sekarang]
+
+Jangan sampai kehabisan ya!
+
+Salam,
+Tim ${business}`,
+
+                    ads: `🔥 TRENDING ALERT: ${trend.title}
+
+${trend.description}
+
+Sebagai ${business} terdepan, kita ikutan trend ini dengan cara yang unik!
+
+✅ [Benefit 1]
+✅ [Benefit 2] 
+✅ [Benefit 3]
+
+Jangan sampai ketinggalan!
+
+[CTA: Pesan Sekarang]
+
+#TrendAlert ${trend.hashtags?.join(' ') || ''}`,
+
+                    whatsapp: `🔥 *TREND ALERT!*
+
+Hai! Pasti udah tau kan trend *${trend.title}* yang lagi viral?
+
+${trend.description}
+
+Nah, sebagai ${business}, kita juga mau ikutan nih! 
+
+Gimana kalau kita bikin versi kita sendiri? 
+
+Yuk chat balik kalau tertarik! 😊
+
+${trend.hashtags?.join(' ') || ''}`
+                };
+
+                return templates[type] || `Konten ${type} untuk trend ${trend.title} - ${business}`;
+            },
+
+            copyTrendContent(content) {
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('✅ Konten berhasil di-copy!');
+                }).catch(() => {
+                    alert('❌ Gagal copy konten');
+                });
+            },
+
+            copyAllTrendContent() {
+                const allContent = this.trendResults.map(result => 
+                    `${result.title}:\n${result.content}\n\nHashtags: ${result.hashtags.join(' ')}\n\n---\n`
+                ).join('\n');
+                
+                navigator.clipboard.writeText(allContent).then(() => {
+                    alert('✅ Semua konten berhasil di-copy!');
+                }).catch(() => {
+                    alert('❌ Gagal copy konten');
+                });
+            },
+
+            exportTrendContent(format) {
+                if (this.trendResults.length === 0) {
+                    alert('Belum ada konten untuk di-export');
+                    return;
+                }
+
+                let content = '';
+                let filename = `trend-content-${Date.now()}`;
+
+                if (format === 'txt') {
+                    content = this.trendResults.map(result => 
+                        `${result.title}\n${'='.repeat(result.title.length)}\n\n${result.content}\n\nHashtags: ${result.hashtags.join(' ')}\n\n`
+                    ).join('\n');
+                    filename += '.txt';
+                }
+
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            },
+
+            resetTrends() {
+                this.selectedTrend = null;
+                this.trendContentTypes = [];
+                this.trendBusinessContext = '';
+                this.trendResults = [];
+            },
+
+            // 📝 CAPTION OPTIMIZER FUNCTIONS
+            
+            // Grammar Checker
+            showGrammarChecker: false,
+            grammarLoading: false,
+            grammarResult: null,
+            grammarFixing: false,
+
+            openGrammarChecker() {
+                this.showGrammarChecker = true;
+                this.checkGrammar();
+            },
+
+            async checkGrammar() {
+                if (!this.result) {
+                    alert('Tidak ada caption untuk dicheck');
+                    return;
+                }
+
+                this.grammarLoading = true;
+                this.grammarResult = null;
+
+                try {
+                    const response = await fetch('/api/optimizer/check-grammar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            text: this.result,
+                            language: 'id'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.grammarResult = data.data;
+                    } else {
+                        alert('Error: ' + (data.message || 'Gagal check grammar'));
+                    }
+
+                } catch (error) {
+                    console.error('Grammar check error:', error);
+                    alert('Terjadi kesalahan saat check grammar');
+                } finally {
+                    this.grammarLoading = false;
+                }
+            },
+
+            async quickGrammarFix() {
+                if (!this.result) return;
+
+                this.grammarFixing = true;
+
+                try {
+                    const response = await fetch('/api/optimizer/quick-grammar-fix', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            text: this.result,
+                            language: 'id'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.result = data.data.corrected_text;
+                        alert('✅ Grammar berhasil diperbaiki!');
+                        this.showGrammarChecker = false;
+                    } else {
+                        alert('Error: ' + (data.message || 'Gagal fix grammar'));
+                    }
+
+                } catch (error) {
+                    console.error('Quick fix error:', error);
+                    alert('Terjadi kesalahan saat fix grammar');
+                } finally {
+                    this.grammarFixing = false;
+                }
+            },
+
+            useCorrectedText() {
+                if (this.grammarResult?.corrected_text) {
+                    this.result = this.grammarResult.corrected_text;
+                    alert('✅ Corrected text berhasil digunakan!');
+                    this.showGrammarChecker = false;
+                }
+            },
+
+            // Caption Shortener
+            showCaptionShortener: false,
+            shortenerLoading: false,
+            shortenerResult: null,
+            shortenerTargetLength: 150,
+            shortenerPreserveHashtags: true,
+            shortenerPreserveEmojis: true,
+            shortenerPreserveCTA: true,
+
+            openCaptionShortener() {
+                if (this.result) {
+                    this.shortenerTargetLength = Math.floor(this.result.length * 0.7); // Default 70% of current
+                }
+                this.showCaptionShortener = true;
+            },
+
+            async shortenCaption() {
+                if (!this.result) {
+                    alert('Tidak ada caption untuk diperpendek');
+                    return;
+                }
+
+                this.shortenerLoading = true;
+                this.shortenerResult = null;
+
+                try {
+                    const response = await fetch('/api/optimizer/shorten-caption', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            caption: this.result,
+                            target_length: this.shortenerTargetLength,
+                            platform: this.form.platform || 'instagram',
+                            preserve_hashtags: this.shortenerPreserveHashtags,
+                            preserve_emojis: this.shortenerPreserveEmojis,
+                            preserve_cta: this.shortenerPreserveCTA
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.shortenerResult = data.data;
+                    } else {
+                        alert('Error: ' + (data.message || 'Gagal shorten caption'));
+                    }
+
+                } catch (error) {
+                    console.error('Caption shortening error:', error);
+                    alert('Terjadi kesalahan saat shorten caption');
+                } finally {
+                    this.shortenerLoading = false;
+                }
+            },
+
+            useShortened(shortenedText) {
+                this.result = shortenedText;
+                alert('✅ Shortened caption berhasil digunakan!');
+                this.showCaptionShortener = false;
+            },
+
+            // Caption Expander
+            showCaptionExpander: false,
+            expanderLoading: false,
+            expanderResult: null,
+            expanderTargetLength: 300,
+            expanderType: 'detailed',
+            expanderAddHashtags: true,
+            expanderAddEmojis: true,
+
+            openCaptionExpander() {
+                if (this.result) {
+                    this.expanderTargetLength = Math.floor(this.result.length * 1.5); // Default 150% of current
+                }
+                this.showCaptionExpander = true;
+            },
+
+            async expandCaption() {
+                if (!this.result) {
+                    alert('Tidak ada caption untuk diperpanjang');
+                    return;
+                }
+
+                this.expanderLoading = true;
+                this.expanderResult = null;
+
+                try {
+                    const response = await fetch('/api/optimizer/expand-caption', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            caption: this.result,
+                            target_length: this.expanderTargetLength,
+                            platform: this.form.platform || 'instagram',
+                            expansion_type: this.expanderType,
+                            industry: this.form.category || 'general',
+                            add_hashtags: this.expanderAddHashtags,
+                            add_emojis: this.expanderAddEmojis
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.expanderResult = data.data;
+                    } else {
+                        alert('Error: ' + (data.message || 'Gagal expand caption'));
+                    }
+
+                } catch (error) {
+                    console.error('Caption expansion error:', error);
+                    alert('Terjadi kesalahan saat expand caption');
+                } finally {
+                    this.expanderLoading = false;
+                }
+            },
+
+            useExpanded(expandedText) {
+                this.result = expandedText;
+                alert('✅ Expanded caption berhasil digunakan!');
+                this.showCaptionExpander = false;
             },
         }
     }

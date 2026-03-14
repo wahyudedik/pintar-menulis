@@ -63,8 +63,277 @@ class TemplatePrompts
             self::getHRRecruitmentTemplates(),
             self::getBrandingTaglineTemplates(),
             self::getEducationTemplates(),
-            self::getMonetizationTemplates()
+            self::getMonetizationTemplates(),
+            self::getShortDramaTemplates()
         );
+    }
+
+    /**
+     * Get all templates formatted for API response
+     */
+    public static function getAllTemplatesForAPI()
+    {
+        $templates = self::getAllTemplates();
+        $formattedTemplates = [];
+        $id = 1;
+
+        foreach ($templates as $key => $template) {
+            $formattedTemplates[] = [
+                'id' => $id++,
+                'key' => $key,
+                'title' => self::generateTitleFromKey($key),
+                'description' => $template['task'] ?? 'Template untuk ' . str_replace('_', ' ', $key),
+                'category' => self::getCategoryFromKey($key),
+                'category_label' => self::getCategoryLabel($key),
+                'platform' => $template['platform'] ?? 'universal',
+                'tone' => $template['tone'] ?? 'universal',
+                'format' => $template['format'] ?? $template['criteria'] ?? 'Template format akan disesuaikan dengan kebutuhan Anda.',
+                'usage_count' => rand(50, 2500), // Simulated usage count
+                'is_favorite' => false
+            ];
+        }
+
+        return $formattedTemplates;
+    }
+
+    /**
+     * Generate human-readable title from template key
+     */
+    private static function generateTitleFromKey($key)
+    {
+        $titles = [
+            // Viral & Clickbait
+            'clickbait_title' => 'Clickbait Title Generator',
+            'curiosity_gap' => 'Curiosity Gap Hook',
+            'shocking_statement' => 'Shocking Statement',
+            'controversial_take' => 'Controversial Take',
+            'before_after' => 'Before & After Story',
+            'secret_reveal' => 'Secret Reveal',
+            'mistake_warning' => 'Mistake Warning',
+            'myth_busting' => 'Myth Busting',
+            'unpopular_opinion' => 'Unpopular Opinion',
+            'life_hack' => 'Life Hack Tips',
+            'challenge_trend' => 'Challenge Trend',
+            'reaction_bait' => 'Reaction Bait',
+            'cliffhanger' => 'Cliffhanger Ending',
+            'number_list' => 'Number List (Listicle)',
+            'question_hook' => 'Question Hook',
+            'emotional_trigger' => 'Emotional Trigger',
+            'fomo_content' => 'FOMO Content',
+            'plot_twist' => 'Plot Twist Story',
+            'relatable_content' => 'Relatable Content',
+            'storytime' => 'Storytime Format',
+
+            // Event & Promo
+            'grand_opening' => 'Grand Opening Promo',
+            'flash_sale' => 'Flash Sale Campaign',
+            'discount_promo' => 'Discount Promotion',
+            'bazaar' => 'Bazaar Event',
+            'exhibition' => 'Exhibition Promo',
+            'workshop' => 'Workshop Seminar',
+            'anniversary' => 'Anniversary Campaign',
+            'seasonal_promo' => 'Seasonal Promotion',
+            'clearance_sale' => 'Clearance Sale',
+            'buy_1_get_1' => 'Buy 1 Get 1 Promo',
+            'loyalty_program' => 'Loyalty Program',
+            'giveaway' => 'Giveaway Campaign',
+            'pre_order' => 'Pre-Order Campaign',
+            'limited_edition' => 'Limited Edition',
+            'collaboration' => 'Brand Collaboration',
+
+            // HR & Recruitment
+            'job_description' => 'Job Description',
+            'job_vacancy' => 'Job Vacancy Post',
+            'job_requirements' => 'Job Requirements',
+            'company_culture' => 'Company Culture',
+            'employee_benefits' => 'Employee Benefits',
+            'interview_questions' => 'Interview Questions',
+            'offer_letter' => 'Offer Letter',
+            'rejection_letter' => 'Rejection Letter',
+            'onboarding_message' => 'Onboarding Message',
+            'internship_program' => 'Internship Program',
+
+            // Branding & Tagline
+            'brand_tagline' => 'Brand Tagline',
+            'company_tagline' => 'Company Tagline',
+            'product_tagline' => 'Product Tagline',
+            'brand_name' => 'Brand Name Ideas',
+            'product_name' => 'Product Name Ideas',
+            'business_name' => 'Business Name Ideas',
+            'brand_story' => 'Brand Story',
+            'brand_mission' => 'Brand Mission',
+            'brand_vision' => 'Brand Vision',
+            'usp' => 'Unique Selling Proposition',
+            'elevator_pitch' => 'Elevator Pitch',
+
+            // Monetization
+            'tiktok_viral' => 'TikTok Viral Script',
+            'youtube_long' => 'YouTube Long Video',
+            'youtube_shorts' => 'YouTube Shorts',
+            'shopee_affiliate' => 'Shopee Affiliate Review',
+            'tokopedia_affiliate' => 'Tokopedia Affiliate',
+            'amazon_associates' => 'Amazon Associates Review',
+            'blog_post' => 'SEO Blog Post',
+            'medium_article' => 'Medium Article',
+            'kindle_description' => 'Kindle Book Description',
+            'upwork_proposal' => 'Upwork Proposal',
+            'fiverr_gig' => 'Fiverr Gig Description',
+        ];
+
+        return $titles[$key] ?? ucwords(str_replace('_', ' ', $key));
+    }
+
+    /**
+     * Get category from template key
+     */
+    private static function getCategoryFromKey($key)
+    {
+        $categoryMap = [
+            // Viral & Clickbait
+            'clickbait_title' => 'viral_clickbait',
+            'curiosity_gap' => 'viral_clickbait',
+            'shocking_statement' => 'viral_clickbait',
+            'controversial_take' => 'viral_clickbait',
+            'before_after' => 'viral_clickbait',
+            'secret_reveal' => 'viral_clickbait',
+            'mistake_warning' => 'viral_clickbait',
+            'myth_busting' => 'viral_clickbait',
+            'unpopular_opinion' => 'viral_clickbait',
+            'life_hack' => 'viral_clickbait',
+            'challenge_trend' => 'viral_clickbait',
+            'reaction_bait' => 'viral_clickbait',
+            'cliffhanger' => 'viral_clickbait',
+            'number_list' => 'viral_clickbait',
+            'question_hook' => 'viral_clickbait',
+            'emotional_trigger' => 'viral_clickbait',
+            'fomo_content' => 'viral_clickbait',
+            'plot_twist' => 'viral_clickbait',
+            'relatable_content' => 'viral_clickbait',
+            'storytime' => 'viral_clickbait',
+
+            // Event & Promo
+            'grand_opening' => 'event_promo',
+            'flash_sale' => 'event_promo',
+            'discount_promo' => 'event_promo',
+            'bazaar' => 'event_promo',
+            'exhibition' => 'event_promo',
+            'workshop' => 'event_promo',
+            'anniversary' => 'event_promo',
+            'seasonal_promo' => 'event_promo',
+            'clearance_sale' => 'event_promo',
+            'buy_1_get_1' => 'event_promo',
+            'loyalty_program' => 'event_promo',
+            'giveaway' => 'event_promo',
+            'pre_order' => 'event_promo',
+            'limited_edition' => 'event_promo',
+            'collaboration' => 'event_promo',
+
+            // HR & Recruitment
+            'job_description' => 'hr_recruitment',
+            'job_vacancy' => 'hr_recruitment',
+            'job_requirements' => 'hr_recruitment',
+            'company_culture' => 'hr_recruitment',
+            'employee_benefits' => 'hr_recruitment',
+            'interview_questions' => 'hr_recruitment',
+            'offer_letter' => 'hr_recruitment',
+            'rejection_letter' => 'hr_recruitment',
+            'onboarding_message' => 'hr_recruitment',
+            'internship_program' => 'hr_recruitment',
+
+            // Branding
+            'brand_tagline' => 'branding_tagline',
+            'company_tagline' => 'branding_tagline',
+            'product_tagline' => 'branding_tagline',
+            'brand_name' => 'branding_tagline',
+            'product_name' => 'branding_tagline',
+            'business_name' => 'branding_tagline',
+            'brand_story' => 'branding_tagline',
+            'brand_mission' => 'branding_tagline',
+            'brand_vision' => 'branding_tagline',
+            'usp' => 'branding_tagline',
+            'elevator_pitch' => 'branding_tagline',
+
+            // Video Monetization
+            'tiktok_viral' => 'video_monetization',
+            'youtube_long' => 'video_monetization',
+            'youtube_shorts' => 'video_monetization',
+            'facebook_video' => 'video_monetization',
+
+            // Affiliate Marketing
+            'shopee_affiliate' => 'affiliate_marketing',
+            'tokopedia_affiliate' => 'affiliate_marketing',
+            'amazon_associates' => 'affiliate_marketing',
+            'tiktok_affiliate' => 'affiliate_marketing',
+
+            // Blog & SEO
+            'blog_post' => 'blog_seo',
+            'article_intro' => 'blog_seo',
+            'meta_description' => 'blog_seo',
+            'seo_title' => 'blog_seo',
+
+            // Writing Monetization
+            'medium_article' => 'writing_monetization',
+            'substack_post' => 'writing_monetization',
+            'newsletter_intro' => 'writing_monetization',
+
+            // eBook Publishing
+            'kindle_description' => 'ebook_publishing',
+            'book_title' => 'ebook_publishing',
+            'author_bio' => 'ebook_publishing',
+
+            // Freelance
+            'upwork_proposal' => 'freelance',
+            'fiverr_gig' => 'freelance',
+            'portfolio' => 'freelance',
+
+            // Short Drama & Story
+            'drama_script' => 'short_drama',
+            'romantic_dialogue' => 'short_drama',
+            'conflict_scene' => 'short_drama',
+            'plot_twist_drama' => 'short_drama',
+            'character_monologue' => 'short_drama',
+            'drama_opening' => 'short_drama',
+            'breakup_scene' => 'short_drama',
+            'reunion_scene' => 'short_drama',
+            'misunderstanding_scene' => 'short_drama',
+            'confession_scene' => 'short_drama',
+            'villain_dialogue' => 'short_drama',
+            'family_drama' => 'short_drama',
+            'office_romance' => 'short_drama',
+            'enemies_to_lovers' => 'short_drama',
+            'second_chance_romance' => 'short_drama',
+        ];
+
+        return $categoryMap[$key] ?? 'general';
+    }
+
+    /**
+     * Get category label
+     */
+    private static function getCategoryLabel($key)
+    {
+        $category = self::getCategoryFromKey($key);
+        
+        $labels = [
+            'viral_clickbait' => '🔥 Viral & Clickbait',
+            'trend_fresh_ideas' => '💡 Trend & Fresh Ideas',
+            'event_promo' => '🎉 Event & Promo',
+            'hr_recruitment' => '💼 HR & Recruitment',
+            'branding_tagline' => '🎯 Branding & Tagline',
+            'education_institution' => '🎓 Education & Institution',
+            'video_monetization' => '📹 Video Content',
+            'affiliate_marketing' => '🤝 Affiliate Marketing',
+            'blog_seo' => '📝 Blog & SEO',
+            'writing_monetization' => '✍️ Writing Monetization',
+            'ebook_publishing' => '📚 eBook Publishing',
+            'freelance' => '💻 Freelance',
+            'digital_products' => '💾 Digital Products',
+            'academic_writing' => '🎓 Academic Writing',
+            'general' => '📄 General',
+            'short_drama' => '🎭 Short Drama & Story',
+        ];
+
+        return $labels[$category] ?? '📄 General';
     }
 
     
@@ -975,6 +1244,121 @@ class TemplatePrompts
             'roundup_post' => [
                 'task' => 'Buatkan expert roundup post.',
                 'format' => "- Introduction\n- Question asked\n- Expert responses (5-10)\n- Key takeaways\n- Conclusion\n\nBuatkan outline"
+            ],
+        ];
+    }
+
+    /**
+     * Short Drama & Story Templates (15 items)
+     */
+    protected static function getShortDramaTemplates()
+    {
+        return [
+            'drama_script' => [
+                'task' => 'Buatkan script short drama lengkap ala drakor/dracin dengan scene, dialog, dan arahan akting.',
+                'format' => "Format:\n[JUDUL DRAMA]\nGenre: [genre]\nDurasi: [estimasi]\n\nKARAKTER:\n- [Nama]: [deskripsi singkat]\n\nSCENE 1 - [LOKASI, WAKTU]\n[Narasi/setting]\n[NAMA]: \"[dialog]\"\n[NAMA]: \"[dialog]\"\n[arahan akting: *melakukan sesuatu*]\n\n... dst\n\nAkhiri dengan cliffhanger atau ending yang berkesan.",
+                'criteria' => "- Dialog natural dan emosional\n- Ada konflik yang jelas\n- Karakter yang relatable\n- Cocok untuk TikTok/Reels (3-7 menit)\n- Bahasa Indonesia yang natural",
+                'tips' => "Gunakan brief untuk menentukan tema, genre, dan karakter utama",
+                'platform' => 'tiktok',
+                'tone' => 'dramatic'
+            ],
+            'romantic_dialogue' => [
+                'task' => 'Buatkan percakapan romantis antara dua karakter yang natural, manis, dan bikin baper.',
+                'format' => "Format:\n[Setting: lokasi dan suasana]\n\n[NAMA_A]: \"[dialog]\"\n[NAMA_B]: \"[dialog]\"\n*[arahan akting/ekspresi]*\n[NAMA_A]: \"[dialog]\"\n...\n\nBuat 3-5 variasi percakapan dengan nuansa berbeda:\n1. Percakapan pertama kali jatuh cinta\n2. Momen confess perasaan\n3. Percakapan mesra pasangan",
+                'criteria' => "- Dialog yang bikin baper\n- Natural dan tidak kaku\n- Ada chemistry antar karakter\n- Cocok untuk konten TikTok drama",
+                'platform' => 'tiktok',
+                'tone' => 'romantic'
+            ],
+            'conflict_scene' => [
+                'task' => 'Buatkan adegan konflik/pertengkaran yang dramatis, emosional, dan menegangkan.',
+                'format' => "Format:\n[Setting: lokasi, waktu, suasana tegang]\n\n[NAMA_A]: \"[dialog marah/kecewa]\"\n[NAMA_B]: \"[dialog defensif/menyerang balik]\"\n*[arahan: nada suara, ekspresi, gerakan]*\n...\n\nKlimaks konflik:\n[NAMA]: \"[dialog puncak emosi]\"\n\nEnding scene (pilih salah satu):\n- Salah satu pergi\n- Keheningan yang menyakitkan\n- Cliffhanger",
+                'criteria' => "- Emosi yang terasa nyata\n- Dialog yang tajam dan berkesan\n- Ada sebab-akibat yang logis\n- Bikin penonton penasaran kelanjutannya",
+                'platform' => 'tiktok',
+                'tone' => 'dramatic'
+            ],
+            'plot_twist_drama' => [
+                'task' => 'Buatkan cerita drama pendek dengan plot twist yang mengejutkan dan tak terduga.',
+                'format' => "Format:\nACT 1 - SETUP (pengenalan karakter & situasi normal)\n[dialog & narasi]\n\nACT 2 - KONFLIK (masalah mulai muncul)\n[dialog & narasi]\n\nACT 3 - PLOT TWIST (kejutan yang mengubah segalanya!)\n[TWIST REVEAL]\n[reaksi karakter]\n\nACT 4 - RESOLUTION atau CLIFFHANGER\n[ending]\n\nCatatan: Twist harus mengejutkan tapi masuk akal secara logika cerita.",
+                'criteria' => "- Setup yang meyakinkan\n- Twist yang benar-benar mengejutkan\n- Logis secara cerita\n- Bikin penonton replay",
+                'platform' => 'tiktok',
+                'tone' => 'dramatic'
+            ],
+            'character_monologue' => [
+                'task' => 'Buatkan monolog karakter yang emosional, dalam, dan menyentuh hati.',
+                'format' => "Format:\n[NAMA KARAKTER] - [situasi/kondisi karakter]\n\n\"[Monolog panjang yang mengungkapkan perasaan terdalam karakter...\nBisa berupa:\n- Curahan hati\n- Pengakuan dosa/kesalahan\n- Surat perpisahan\n- Ungkapan rindu\n- Tekad/resolusi]\"\n\n*[arahan akting: ekspresi, gerakan, emosi]*\n\nBuat 2 versi: versi sedih dan versi bangkit/kuat.",
+                'criteria' => "- Emosi yang dalam dan autentik\n- Kata-kata yang puitis tapi natural\n- Bikin penonton ikut merasakan\n- Cocok untuk konten solo performance",
+                'platform' => 'instagram',
+                'tone' => 'emotional'
+            ],
+            'drama_opening' => [
+                'task' => 'Buatkan opening scene drama yang langsung menarik perhatian dalam 30 detik pertama.',
+                'format' => "Format:\n[HOOK VISUAL: deskripsi gambar/adegan pembuka]\n\nNARASI/VOICE OVER:\n\"[kalimat pembuka yang misterius/menarik]\"\n\nSCENE PEMBUKA:\n[NAMA]: \"[dialog pertama yang langsung bikin penasaran]\"\n\n[TITLE CARD: JUDUL DRAMA]\n\nTeaser konflik:\n[cuplikan singkat konflik utama]\n\nCTA: \"Tonton sampai habis untuk tahu kelanjutannya!\"",
+                'criteria' => "- Langsung menarik dalam 3 detik pertama\n- Bikin penonton penasaran\n- Ada hook yang kuat\n- Cocok untuk format TikTok/Reels",
+                'platform' => 'tiktok',
+                'tone' => 'dramatic'
+            ],
+            'breakup_scene' => [
+                'task' => 'Buatkan adegan putus cinta yang emosional, realistis, dan bikin baper.',
+                'format' => "Format:\n[Setting: lokasi yang bermakna bagi keduanya]\n\n[Dialog menuju perpisahan...]\n[NAMA_A]: \"[dialog]\"\n[NAMA_B]: \"[dialog]\"\n*[arahan emosi]*\n\nMomen perpisahan:\n[NAMA]: \"[kalimat perpisahan yang berkesan]\"\n\nAftermath:\n[narasi singkat perasaan setelah berpisah]\n\nBuat 2 versi:\n1. Putus dengan marah\n2. Putus dengan air mata (sad ending)",
+                'criteria' => "- Emosi yang terasa nyata\n- Dialog yang memorable\n- Bikin penonton ikut sedih\n- Ada closure yang jelas",
+                'platform' => 'tiktok',
+                'tone' => 'emotional'
+            ],
+            'reunion_scene' => [
+                'task' => 'Buatkan adegan reuni yang mengharukan antara dua karakter yang lama berpisah.',
+                'format' => "Format:\n[Setting: lokasi reuni yang dramatis]\n\nMomen pertama bertemu kembali:\n*[arahan: ekspresi kaget, haru, campur aduk]*\n[NAMA_A]: \"[dialog pertama setelah lama berpisah]\"\n[NAMA_B]: \"[respon emosional]\"\n\nFlashback singkat (opsional):\n[kenangan bersama]\n\nDialog reuni:\n[percakapan yang mengungkap apa yang terjadi selama berpisah]\n\nEnding: happy reunion atau complicated feelings",
+                'criteria' => "- Emosi yang mengharukan\n- Ada chemistry yang masih terasa\n- Bikin penonton senyum atau nangis\n- Natural dan tidak lebay",
+                'platform' => 'tiktok',
+                'tone' => 'emotional'
+            ],
+            'misunderstanding_scene' => [
+                'task' => 'Buatkan adegan kesalahpahaman yang bikin frustrasi tapi relate dengan kehidupan nyata.',
+                'format' => "Format:\n[Setup: situasi yang memicu kesalahpahaman]\n\nAdegan kesalahpahaman:\n[NAMA_A melihat/mendengar sesuatu yang salah diartikan]\n*[inner monologue/reaksi salah paham]*\n\nKonfrontasi:\n[NAMA_A]: \"[tuduhan/pertanyaan berdasarkan salah paham]\"\n[NAMA_B]: \"[respon bingung/defensif]\"\n\nEskalasi:\n[dialog yang makin panas karena salah paham]\n\nPilihan ending:\n1. Salah paham terungkap (happy)\n2. Salah paham makin dalam (cliffhanger)",
+                'criteria' => "- Situasi yang relatable\n- Logis kenapa bisa salah paham\n- Bikin penonton gemas tapi relate\n- Ada humor atau drama",
+                'platform' => 'tiktok',
+                'tone' => 'dramatic'
+            ],
+            'confession_scene' => [
+                'task' => 'Buatkan adegan pengakuan perasaan (confess) yang manis, nervous, dan bikin baper.',
+                'format' => "Format:\n[Setting: lokasi yang romantis atau unexpected]\n\nBuild up nervous:\n*[NAMA_A gugup, jantung berdebar]*\n[NAMA_A dalam hati]: \"[inner monologue]\"\n\nMomen confess:\n[NAMA_A]: \"[kalimat pembuka yang awkward/manis]\"\n[NAMA_B]: \"[respon]\"\n[NAMA_A]: \"[pengakuan perasaan yang tulus]\"\n\nReaksi:\n*[hening sejenak]*\n[NAMA_B]: \"[respon yang bikin baper]\"\n\nBuat 3 versi ending:\n1. Diterima (happy)\n2. Ditolak dengan baik (sad tapi sweet)\n3. Cliffhanger (belum dijawab)",
+                'criteria' => "- Nervous energy yang terasa\n- Dialog yang tulus dan natural\n- Bikin penonton deg-degan\n- Memorable dan quotable",
+                'platform' => 'tiktok',
+                'tone' => 'romantic'
+            ],
+            'villain_dialogue' => [
+                'task' => 'Buatkan dialog villain/antagonis yang kuat, intimidatif, dan berkesan.',
+                'format' => "Format:\n[VILLAIN NAME] - [motivasi/latar belakang]\n\nDialog intimidasi:\n[VILLAIN]: \"[kalimat pembuka yang mengancam/dingin]\"\n[PROTAGONIST]: \"[respon]\"\n[VILLAIN]: \"[monolog villain yang mengungkap rencana/filosofi]\"\n\nMomen villain menang:\n[VILLAIN]: \"[kalimat kemenangan yang iconic]\"\n\nBuat juga:\n- 5 one-liner villain yang memorable\n- Backstory singkat yang bikin villain relatable",
+                'criteria' => "- Villain yang kompleks, bukan sekedar jahat\n- Dialog yang intimidatif tapi cerdas\n- Ada motivasi yang bisa dipahami\n- Memorable dan quotable",
+                'platform' => 'tiktok',
+                'tone' => 'dramatic'
+            ],
+            'family_drama' => [
+                'task' => 'Buatkan drama keluarga yang relate, emosional, dan menyentuh tentang hubungan antar anggota keluarga.',
+                'format' => "Format:\n[Setting: rumah keluarga, momen penting]\n\nKarakter:\n- [Anggota keluarga 1]\n- [Anggota keluarga 2]\n- [dst]\n\nKonflik keluarga:\n[dialog yang mengungkap masalah keluarga]\n\nPuncak emosi:\n[momen paling dramatis]\n\nResolution atau cliffhanger\n\nTema yang bisa dipilih:\n- Orang tua vs anak (generasi berbeda)\n- Sibling rivalry\n- Rahasia keluarga terungkap\n- Reuni keluarga yang awkward",
+                'criteria' => "- Sangat relatable dengan kehidupan nyata\n- Emosi yang autentik\n- Karakter yang kompleks\n- Bikin penonton teringat keluarga sendiri",
+                'platform' => 'tiktok',
+                'tone' => 'emotional'
+            ],
+            'office_romance' => [
+                'task' => 'Buatkan drama romance di lingkungan kantor/kerja yang sweet, awkward, dan relatable.',
+                'format' => "Format:\n[Setting: kantor, meeting room, pantry, dll]\n\nSituasi awkward/sweet:\n[NAMA_A]: \"[dialog profesional tapi ada subtext romantis]\"\n[NAMA_B]: \"[respon]\"\n*[arahan: eye contact, nervous, dll]*\n\nMomen tidak terduga:\n[situasi yang mempertemukan keduanya]\n\nDialog yang bikin baper:\n[percakapan yang blur antara profesional dan personal]\n\nEnding: akan kemana hubungan ini?",
+                'criteria' => "- Chemistry yang terasa\n- Situasi kantor yang relatable\n- Ada tension yang menarik\n- Humor ringan yang natural",
+                'platform' => 'tiktok',
+                'tone' => 'romantic'
+            ],
+            'enemies_to_lovers' => [
+                'task' => 'Buatkan drama enemies-to-lovers yang penuh tension, banter sengit, dan slow burn romance.',
+                'format' => "Format:\nEPISODE STRUCTURE:\n\nPhase 1 - ENEMIES:\n[dialog saling sindir/benci]\n[NAMA_A]: \"[kalimat sengit]\"\n[NAMA_B]: \"[comeback yang lebih sengit]\"\n\nPhase 2 - RELUCTANT ALLIES:\n[situasi yang memaksa mereka bekerja sama]\n[dialog yang mulai ada respect]\n\nPhase 3 - REALIZATION:\n*[momen NAMA_A/B sadar ada perasaan]*\n[inner conflict]\n\nPhase 4 - CONFESSION:\n[momen breakthrough]\n\nBuat juga 10 banter dialog yang iconic untuk enemies-to-lovers",
+                'criteria' => "- Banter yang witty dan tajam\n- Chemistry yang terasa dari awal\n- Slow burn yang memuaskan\n- Karakter yang kuat dan equal",
+                'platform' => 'tiktok',
+                'tone' => 'dramatic'
+            ],
+            'second_chance_romance' => [
+                'task' => 'Buatkan drama second chance romance tentang mantan kekasih yang bertemu kembali.',
+                'format' => "Format:\nMOMEN BERTEMU KEMBALI:\n[Setting: pertemuan tak terduga]\n*[reaksi keduanya]*\n[NAMA_A]: \"[dialog pertama yang awkward]\"\n[NAMA_B]: \"[respon yang campur aduk]\"\n\nFlashback kenangan:\n[cuplikan masa lalu yang indah]\n\nKonflik masa lalu:\n[apa yang memisahkan mereka dulu]\n\nPertanyaan besar:\n[NAMA]: \"[dialog yang mengungkap masih ada perasaan]\"\n\nEnding options:\n1. Mulai dari awal lagi\n2. Terlambat (sudah ada orang lain)\n3. Cliffhanger",
+                'criteria' => "- Nostalgia yang terasa\n- Konflik yang logis\n- Emosi yang kompleks (rindu + sakit hati)\n- Bikin penonton mau tahu kelanjutannya",
+                'platform' => 'tiktok',
+                'tone' => 'romantic'
             ],
         ];
     }

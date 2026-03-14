@@ -37,6 +37,32 @@
     </svg>
 </a>
 
+<!-- Template Marketplace -->
+<a href="{{ route('templates.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('templates.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="Template Marketplace">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+    </svg>
+</a>
+
+<!-- Competitor Analysis -->
+@php
+    $unreadAlertsCount = \App\Models\CompetitorAlert::where('user_id', auth()->id())->where('is_read', false)->count();
+@endphp
+<a href="{{ route('competitor-analysis.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition relative {{ request()->routeIs('competitor-analysis.*') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="Competitor Analysis">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+    </svg>
+    @if($unreadAlertsCount > 0)
+    <span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold">
+        {{ $unreadAlertsCount > 9 ? '9+' : $unreadAlertsCount }}
+    </span>
+    @endif
+</a>
+
 <!-- Browse Operators -->
 <a href="{{ route('browse.operators') }}" 
    class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('browse.operators') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100' }}"

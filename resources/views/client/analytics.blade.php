@@ -114,6 +114,455 @@
         </div>
     </div>
 
+    <!-- 📊 Enhanced Analytics Dashboard -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">📊 Advanced Analytics</h2>
+            <div class="flex gap-2">
+                <button onclick="refreshAnalytics()" class="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                    🔄 Refresh Data
+                </button>
+                <button onclick="toggleAnalyticsView()" class="px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition">
+                    📈 Toggle View
+                </button>
+            </div>
+        </div>
+
+        <!-- Performance Analysis Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Best Performing Analysis -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">🏆 Best Performing Analysis</h3>
+                    <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">Top 10%</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Best Caption -->
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h4 class="font-medium text-gray-900 mb-2">🥇 Champion Caption</h4>
+                        <div class="bg-green-50 rounded-lg p-3 mb-3">
+                            <p class="text-sm text-gray-800" id="bestCaption">{{ $bestCaption->caption_text ?? 'Belum ada data caption terbaik' }}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Engagement Rate:</span>
+                                <span class="font-semibold text-green-600" id="bestEngagement">{{ $bestCaption->engagement_rate ?? 0 }}%</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Total Reach:</span>
+                                <span class="font-semibold text-green-600" id="bestReach">{{ number_format($bestCaption->reach ?? 0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success Patterns -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">📈 Success Patterns</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Best Platform:</span>
+                                <span class="font-medium" id="bestPlatform">{{ $analytics['best_platform'] ?? 'Instagram' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Best Category:</span>
+                                <span class="font-medium" id="bestCategory">{{ $analytics['best_category'] ?? 'Social Media' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Avg Caption Length:</span>
+                                <span class="font-medium" id="bestLength">{{ $analytics['best_length'] ?? '150' }} chars</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Best Hashtag Count:</span>
+                                <span class="font-medium" id="bestHashtags">{{ $analytics['best_hashtags'] ?? '5-7' }} tags</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success Keywords -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">🔑 High-Impact Keywords</h4>
+                        <div class="flex flex-wrap gap-1">
+                            @php
+                                $successKeywords = $analytics['success_keywords'] ?? ['promo', 'diskon', 'terbatas', 'eksklusif', 'gratis'];
+                            @endphp
+                            @foreach($successKeywords as $keyword)
+                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">{{ $keyword }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Worst Performing Analysis -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">📉 Areas for Improvement</h3>
+                    <span class="text-xs px-2 py-1 bg-red-100 text-red-700 rounded">Bottom 10%</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Worst Caption -->
+                    <div class="border-l-4 border-red-500 pl-4">
+                        <h4 class="font-medium text-gray-900 mb-2">⚠️ Needs Improvement</h4>
+                        <div class="bg-red-50 rounded-lg p-3 mb-3">
+                            <p class="text-sm text-gray-800" id="worstCaption">{{ $worstCaption->caption_text ?? 'Belum ada data caption terburuk' }}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Engagement Rate:</span>
+                                <span class="font-semibold text-red-600" id="worstEngagement">{{ $worstCaption->engagement_rate ?? 0 }}%</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Total Reach:</span>
+                                <span class="font-semibold text-red-600" id="worstReach">{{ number_format($worstCaption->reach ?? 0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Problem Patterns -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">🚫 Problem Patterns</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Worst Platform:</span>
+                                <span class="font-medium" id="worstPlatform">{{ $analytics['worst_platform'] ?? 'Twitter' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Worst Category:</span>
+                                <span class="font-medium" id="worstCategory">{{ $analytics['worst_category'] ?? 'Generic' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Problem Length:</span>
+                                <span class="font-medium" id="worstLength">{{ $analytics['worst_length'] ?? '300+' }} chars</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Hashtag Overuse:</span>
+                                <span class="font-medium" id="worstHashtags">{{ $analytics['worst_hashtags'] ?? '15+' }} tags</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Improvement Suggestions -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">💡 Improvement Tips</h4>
+                        <div class="space-y-1 text-sm text-gray-600">
+                            <div class="flex items-start">
+                                <span class="text-blue-600 mr-2">•</span>
+                                <span>Fokus pada platform dengan engagement terbaik</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-600 mr-2">•</span>
+                                <span>Gunakan 5-7 hashtag yang relevan</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-600 mr-2">•</span>
+                                <span>Optimalkan panjang caption 100-200 karakter</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-blue-600 mr-2">•</span>
+                                <span>Gunakan kata kunci yang terbukti efektif</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optimal Posting Time & Audience Patterns -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Optimal Posting Time -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">⏰ Optimal Posting Time</h3>
+                
+                <!-- Time Heatmap -->
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-900 mb-3">📅 Best Days & Hours</h4>
+                    <div class="grid grid-cols-7 gap-1 text-xs mb-2">
+                        <div class="text-center font-medium text-gray-600">Sen</div>
+                        <div class="text-center font-medium text-gray-600">Sel</div>
+                        <div class="text-center font-medium text-gray-600">Rab</div>
+                        <div class="text-center font-medium text-gray-600">Kam</div>
+                        <div class="text-center font-medium text-gray-600">Jum</div>
+                        <div class="text-center font-medium text-gray-600">Sab</div>
+                        <div class="text-center font-medium text-gray-600">Min</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1" id="timeHeatmap">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Peak Hours -->
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <h4 class="font-medium text-blue-900 mb-2">🔥 Peak Performance Hours</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-blue-800">Morning Peak:</span>
+                            <span class="font-semibold text-blue-900" id="morningPeak">08:00 - 10:00</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-blue-800">Afternoon Peak:</span>
+                            <span class="font-semibold text-blue-900" id="afternoonPeak">13:00 - 15:00</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-blue-800">Evening Peak:</span>
+                            <span class="font-semibold text-blue-900" id="eveningPeak">19:00 - 21:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="mt-4 p-3 bg-green-50 rounded-lg">
+                    <h4 class="font-medium text-green-900 mb-2">📈 Posting Recommendations</h4>
+                    <div class="text-sm text-green-800 space-y-1">
+                        <div>• Post pada <strong>Selasa-Kamis</strong> untuk engagement terbaik</div>
+                        <div>• Waktu optimal: <strong>19:00-21:00 WIB</strong></div>
+                        <div>• Hindari posting pada <strong>Minggu pagi</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audience Engagement Patterns -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">👥 Audience Engagement Patterns</h3>
+                
+                <!-- Engagement Types -->
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-900 mb-3">💬 Engagement Breakdown</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="text-red-500 mr-2">❤️</span>
+                                <span class="text-sm text-gray-600">Likes</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: {{ $engagementBreakdown['likes_percentage'] ?? 70 }}%"></div>
+                                </div>
+                                <span class="text-sm font-medium">{{ $engagementBreakdown['likes_percentage'] ?? 70 }}%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="text-blue-500 mr-2">💬</span>
+                                <span class="text-sm text-gray-600">Comments</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $engagementBreakdown['comments_percentage'] ?? 20 }}%"></div>
+                                </div>
+                                <span class="text-sm font-medium">{{ $engagementBreakdown['comments_percentage'] ?? 20 }}%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="text-green-500 mr-2">🔄</span>
+                                <span class="text-sm text-gray-600">Shares</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: {{ $engagementBreakdown['shares_percentage'] ?? 10 }}%"></div>
+                                </div>
+                                <span class="text-sm font-medium">{{ $engagementBreakdown['shares_percentage'] ?? 10 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audience Behavior -->
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-900 mb-3">🎯 Audience Behavior</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-purple-50 rounded-lg p-3">
+                            <div class="text-purple-900 font-medium">Avg Response Time</div>
+                            <div class="text-purple-700 text-lg font-bold" id="avgResponseTime">2.5 hours</div>
+                        </div>
+                        <div class="bg-orange-50 rounded-lg p-3">
+                            <div class="text-orange-900 font-medium">Peak Activity</div>
+                            <div class="text-orange-700 text-lg font-bold" id="peakActivity">Evening</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Preferences -->
+                <div class="bg-indigo-50 rounded-lg p-4">
+                    <h4 class="font-medium text-indigo-900 mb-2">🎨 Content Preferences</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-indigo-800">Visual Content:</span>
+                            <span class="font-semibold text-indigo-900">+45% engagement</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-indigo-800">Question Posts:</span>
+                            <span class="font-semibold text-indigo-900">+32% comments</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-indigo-800">Behind-the-Scenes:</span>
+                            <span class="font-semibold text-indigo-900">+28% shares</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Calculator & Competitor Comparison -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- ROI Calculator -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">💰 ROI Calculator</h3>
+                
+                <!-- ROI Input Form -->
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sales dari Caption (Rp)</label>
+                        <input type="number" id="salesAmount" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="1000000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Marketing Cost (Rp)</label>
+                        <input type="number" id="marketingCost" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="100000">
+                    </div>
+                    <button onclick="calculateROI()" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition">
+                        Calculate ROI
+                    </button>
+                </div>
+
+                <!-- ROI Results -->
+                <div id="roiResults" class="hidden">
+                    <div class="bg-green-50 rounded-lg p-4 mb-4">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-green-600" id="roiPercentage">0%</div>
+                            <div class="text-sm text-green-800">Return on Investment</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-blue-50 rounded-lg p-3">
+                            <div class="text-blue-900 font-medium">Net Profit</div>
+                            <div class="text-blue-700 text-lg font-bold" id="netProfit">Rp 0</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-3">
+                            <div class="text-purple-900 font-medium">Profit Margin</div>
+                            <div class="text-purple-700 text-lg font-bold" id="profitMargin">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROI Insights -->
+                <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
+                    <h4 class="font-medium text-yellow-900 mb-2">📊 ROI Insights</h4>
+                    <div class="text-sm text-yellow-800 space-y-1">
+                        <div>• ROI > 300% = Excellent performance</div>
+                        <div>• ROI 100-300% = Good performance</div>
+                        <div>• ROI < 100% = Needs improvement</div>
+                    </div>
+                </div>
+
+                <!-- Top ROI Captions -->
+                <div class="mt-4">
+                    <h4 class="font-medium text-gray-900 mb-2">🏆 Top ROI Captions</h4>
+                    <div class="space-y-2" id="topROICaptions">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Competitor Comparison -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🥊 Competitor Comparison</h3>
+                
+                <!-- Competitor Selection -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Competitor</label>
+                    <select id="competitorSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="loadCompetitorData()">
+                        <option value="">Choose competitor...</option>
+                        @if(isset($competitors))
+                            @foreach($competitors as $competitor)
+                            <option value="{{ $competitor->id }}">{{ $competitor->username }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                <!-- Comparison Results -->
+                <div id="competitorComparison" class="hidden">
+                    <div class="space-y-4">
+                        <!-- Performance Comparison -->
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">📊 Performance vs Competitor</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Engagement Rate</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm font-medium text-blue-600" id="myEngagement">5.2%</span>
+                                        <span class="text-xs text-gray-500">vs</span>
+                                        <span class="text-sm font-medium text-red-600" id="competitorEngagement">3.8%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Avg Reach</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm font-medium text-blue-600" id="myReach">2.5K</span>
+                                        <span class="text-xs text-gray-500">vs</span>
+                                        <span class="text-sm font-medium text-red-600" id="competitorReach">3.2K</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Posting Frequency</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm font-medium text-blue-600" id="myFrequency">5/week</span>
+                                        <span class="text-xs text-gray-500">vs</span>
+                                        <span class="text-sm font-medium text-red-600" id="competitorFrequency">7/week</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competitive Advantages -->
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <h4 class="font-medium text-green-900 mb-2">✅ Your Advantages</h4>
+                            <div class="space-y-1 text-sm text-green-800" id="myAdvantages">
+                                <div>• Higher engagement rate (+1.4%)</div>
+                                <div>• Better content quality score</div>
+                                <div>• More consistent posting schedule</div>
+                            </div>
+                        </div>
+
+                        <!-- Areas to Improve -->
+                        <div class="bg-orange-50 rounded-lg p-4">
+                            <h4 class="font-medium text-orange-900 mb-2">📈 Areas to Improve</h4>
+                            <div class="space-y-1 text-sm text-orange-800" id="improvementAreas">
+                                <div>• Increase posting frequency</div>
+                                <div>• Improve reach optimization</div>
+                                <div>• Use trending hashtags more effectively</div>
+                            </div>
+                        </div>
+
+                        <!-- Competitive Insights -->
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-medium text-blue-900 mb-2">🎯 Competitive Insights</h4>
+                            <div class="space-y-1 text-sm text-blue-800">
+                                <div>• Competitor posts more during weekends</div>
+                                <div>• They use 8-10 hashtags per post</div>
+                                <div>• Strong in video content format</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Competitor Selected -->
+                <div id="noCompetitorSelected" class="text-center py-8">
+                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <p class="text-gray-500 text-sm">Select a competitor to see comparison</p>
+                    <a href="{{ route('competitor-analysis.index') }}" class="text-blue-600 hover:text-blue-700 text-sm mt-2 inline-block">
+                        Add competitors in Competitor Analysis →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="grid lg:grid-cols-2 gap-6 mb-6">
         <!-- Platform Performance -->
         <div class="bg-white rounded-lg border border-gray-200 p-4">
@@ -515,5 +964,186 @@
             alert('Failed to save metrics');
         });
     }
+
+    // 📊 Enhanced Analytics Functions
+    function refreshAnalytics() {
+        // Show loading state
+        const refreshBtn = document.querySelector('button[onclick="refreshAnalytics()"]');
+        const originalText = refreshBtn.innerHTML;
+        refreshBtn.innerHTML = '⏳ Loading...';
+        refreshBtn.disabled = true;
+
+        // Simulate API call to refresh analytics data
+        setTimeout(() => {
+            // In real implementation, this would fetch fresh data from server
+            location.reload();
+        }, 1500);
+    }
+
+    function toggleAnalyticsView() {
+        // Toggle between different analytics views
+        const sections = document.querySelectorAll('.analytics-section');
+        sections.forEach(section => {
+            section.classList.toggle('hidden');
+        });
+    }
+
+    // ⏰ Initialize Time Heatmap
+    function initializeTimeHeatmap() {
+        const heatmapContainer = document.getElementById('timeHeatmap');
+        if (!heatmapContainer) return;
+
+        // Sample data for time heatmap (in real app, this would come from analytics)
+        const heatmapData = [
+            [2, 1, 1, 2, 3, 4, 2], // Monday to Sunday
+            [1, 2, 3, 4, 5, 3, 1], // Different time slots
+            [3, 4, 5, 4, 3, 2, 1],
+            [2, 3, 4, 5, 4, 3, 2]
+        ];
+
+        let heatmapHTML = '';
+        for (let i = 0; i < 4; i++) { // 4 time periods
+            for (let j = 0; j < 7; j++) { // 7 days
+                const intensity = heatmapData[i][j];
+                const color = getHeatmapColor(intensity);
+                heatmapHTML += `<div class="w-8 h-6 rounded ${color} flex items-center justify-center text-xs text-white font-medium" title="Day ${j+1}, Period ${i+1}: ${intensity}/5">${intensity}</div>`;
+            }
+        }
+        heatmapContainer.innerHTML = heatmapHTML;
+    }
+
+    function getHeatmapColor(intensity) {
+        const colors = [
+            'bg-gray-200',
+            'bg-blue-200',
+            'bg-blue-400',
+            'bg-blue-600',
+            'bg-blue-800',
+            'bg-blue-900'
+        ];
+        return colors[intensity] || colors[0];
+    }
+
+    // 💰 ROI Calculator Functions
+    function calculateROI() {
+        const salesAmount = parseFloat(document.getElementById('salesAmount').value) || 0;
+        const marketingCost = parseFloat(document.getElementById('marketingCost').value) || 0;
+
+        if (salesAmount <= 0 || marketingCost <= 0) {
+            alert('Please enter valid sales amount and marketing cost');
+            return;
+        }
+
+        const netProfit = salesAmount - marketingCost;
+        const roiPercentage = ((netProfit / marketingCost) * 100).toFixed(1);
+        const profitMarginPercentage = ((netProfit / salesAmount) * 100).toFixed(1);
+
+        // Update UI
+        document.getElementById('roiPercentage').textContent = roiPercentage + '%';
+        document.getElementById('netProfit').textContent = formatRupiah(netProfit);
+        document.getElementById('profitMargin').textContent = profitMarginPercentage + '%';
+
+        // Show results
+        document.getElementById('roiResults').classList.remove('hidden');
+
+        // Update ROI color based on performance
+        const roiElement = document.getElementById('roiPercentage');
+        roiElement.className = 'text-3xl font-bold';
+        if (roiPercentage >= 300) {
+            roiElement.classList.add('text-green-600');
+        } else if (roiPercentage >= 100) {
+            roiElement.classList.add('text-blue-600');
+        } else {
+            roiElement.classList.add('text-red-600');
+        }
+
+        // Generate top ROI captions (sample data)
+        generateTopROICaptions(roiPercentage);
+    }
+
+    function generateTopROICaptions(currentROI) {
+        const topROIContainer = document.getElementById('topROICaptions');
+        const sampleCaptions = [
+            { text: '🔥 Flash Sale 50% OFF! Limited time only...', roi: 450 },
+            { text: '✨ New product launch with exclusive discount...', roi: 320 },
+            { text: '💎 Premium quality at affordable price...', roi: 280 }
+        ];
+
+        let html = '';
+        sampleCaptions.forEach(caption => {
+            const roiColor = caption.roi >= 300 ? 'text-green-600' : caption.roi >= 100 ? 'text-blue-600' : 'text-red-600';
+            html += `
+                <div class="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                    <span class="flex-1 truncate">${caption.text}</span>
+                    <span class="font-bold ${roiColor} ml-2">${caption.roi}%</span>
+                </div>
+            `;
+        });
+        topROIContainer.innerHTML = html;
+    }
+
+    // 🥊 Competitor Comparison Functions
+    function loadCompetitorData() {
+        const competitorId = document.getElementById('competitorSelect').value;
+        
+        if (!competitorId) {
+            document.getElementById('competitorComparison').classList.add('hidden');
+            document.getElementById('noCompetitorSelected').classList.remove('hidden');
+            return;
+        }
+
+        // Show loading state
+        document.getElementById('noCompetitorSelected').classList.add('hidden');
+        document.getElementById('competitorComparison').classList.remove('hidden');
+
+        // In real implementation, this would fetch competitor data from API
+        // For now, we'll use sample data
+        updateCompetitorComparison({
+            engagement_rate: 3.8,
+            avg_reach: 3200,
+            posting_frequency: 7,
+            advantages: [
+                'Higher engagement rate (+1.4%)',
+                'Better content quality score',
+                'More consistent posting schedule'
+            ],
+            improvements: [
+                'Increase posting frequency',
+                'Improve reach optimization',
+                'Use trending hashtags more effectively'
+            ]
+        });
+    }
+
+    function updateCompetitorComparison(competitorData) {
+        // Update comparison metrics
+        document.getElementById('competitorEngagement').textContent = competitorData.engagement_rate + '%';
+        document.getElementById('competitorReach').textContent = (competitorData.avg_reach / 1000).toFixed(1) + 'K';
+        document.getElementById('competitorFrequency').textContent = competitorData.posting_frequency + '/week';
+
+        // Update advantages
+        const advantagesContainer = document.getElementById('myAdvantages');
+        advantagesContainer.innerHTML = competitorData.advantages.map(adv => `<div>• ${adv}</div>`).join('');
+
+        // Update improvement areas
+        const improvementsContainer = document.getElementById('improvementAreas');
+        improvementsContainer.innerHTML = competitorData.improvements.map(imp => `<div>• ${imp}</div>`).join('');
+    }
+
+    // 🔧 Utility Functions
+    function formatRupiah(number) {
+        return 'Rp ' + number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    // Initialize enhanced analytics on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeTimeHeatmap();
+        
+        // Auto-refresh analytics every 5 minutes
+        setInterval(() => {
+            console.log('Auto-refreshing analytics data...');
+            // In production, this would silently update data without page reload
+        }, 300000); // 5 minutes
+    });
 </script>
 @endsection
