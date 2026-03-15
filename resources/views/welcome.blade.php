@@ -829,48 +829,53 @@
         </div>
     </div>
 
-    <!-- Today's Articles Section -->
+    <!-- Latest Articles Section -->
     <div class="bg-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-3">📰 Artikel Hari Ini</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">📰 Artikel Terbaru</h2>
                 <p class="text-lg text-gray-600">Inspirasi caption, quotes, dan tips terbaru untuk konten marketing kamu</p>
             </div>
 
             @php
-                $todayArticles = \App\Models\Article::today()->latest('created_at')->get()->groupBy('category');
+                $latestArticles = \App\Models\Article::latest('created_at')->take(5)->get();
             @endphp
 
-            @if($todayArticles->count() > 0)
+            @if($latestArticles->count() > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    @foreach($todayArticles as $category => $articles)
-                        @foreach($articles->take(1) as $article)
-                            <a href="{{ route('articles.show', $article->slug) }}" class="group bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-md hover:shadow-lg transition-all overflow-hidden border-2 border-blue-200 hover:border-blue-400">
-                                <div class="p-6">
-                                    <div class="mb-3">
-                                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full
-                                            @if($category === 'caption') bg-blue-100 text-blue-800
-                                            @elseif($category === 'quote') bg-purple-100 text-purple-800
-                                            @else bg-green-100 text-green-800
-                                            @endif">
-                                            {{ ucfirst($category) }}
-                                        </span>
-                                        <span class="inline-block ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                            {{ ucfirst($article->industry) }}
-                                        </span>
-                                    </div>
-                                    <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition">
-                                        {{ $article->title }}
-                                    </h3>
-                                    <p class="text-gray-600 text-sm line-clamp-3 mb-4">
-                                        {{ Str::limit($article->content, 120) }}
-                                    </p>
+                    @foreach($latestArticles as $article)
+                        <a href="{{ route('articles.show', $article->slug) }}" class="group bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-md hover:shadow-lg transition-all overflow-hidden border-2 border-blue-200 hover:border-blue-400">
+                            <div class="p-6">
+                                <div class="mb-3">
+                                    @if($article->category)
+                                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full
+                                        @if($article->category === 'caption') bg-blue-100 text-blue-800
+                                        @elseif($article->category === 'quote') bg-purple-100 text-purple-800
+                                        @else bg-green-100 text-green-800
+                                        @endif">
+                                        {{ ucfirst($article->category) }}
+                                    </span>
+                                    @endif
+                                    @if($article->industry)
+                                    <span class="inline-block ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        {{ ucfirst($article->industry) }}
+                                    </span>
+                                    @endif
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition">
+                                    {{ $article->title }}
+                                </h3>
+                                <p class="text-gray-600 text-sm line-clamp-3 mb-4">
+                                    {{ Str::limit(strip_tags($article->content), 120) }}
+                                </p>
+                                <div class="flex items-center justify-between">
                                     <span class="text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform inline-block">
                                         Baca Selengkapnya →
                                     </span>
+                                    <span class="text-xs text-gray-400">{{ $article->created_at->diffForHumans() }}</span>
                                 </div>
-                            </a>
-                        @endforeach
+                            </div>
+                        </a>
                     @endforeach
                 </div>
 
@@ -881,7 +886,7 @@
                 </div>
             @else
                 <div class="text-center py-12 bg-gray-50 rounded-lg">
-                    <p class="text-gray-500 text-lg">Artikel hari ini akan segera tersedia. Cek kembali nanti!</p>
+                    <p class="text-gray-500 text-lg">Belum ada artikel tersedia. Cek kembali nanti!</p>
                 </div>
             @endif
         </div>

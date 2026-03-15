@@ -41,8 +41,8 @@ class NotificationController extends Controller
         $notification->markAsRead();
 
         // Redirect to the notification's link if available, otherwise back
-        if ($notification->link) {
-            return redirect($notification->link);
+        if ($notification->action_url) {
+            return redirect($notification->action_url);
         }
 
         return back()->with('success', 'Notifikasi ditandai sudah dibaca');

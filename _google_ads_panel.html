@@ -1,0 +1,209 @@
+<!-- 🎯 GOOGLE ADS CAMPAIGN GENERATOR -->
+<div x-show="generatorType === 'google-ads'" x-cloak class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="mb-6">
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">🎯 Google Ads Campaign Generator</h3>
+        <p class="text-gray-600 text-sm">Isi satu form, AI generate paket kampanye Google Ads lengkap siap copy-paste.
+        </p>
+    </div>
+
+    <!-- Input Form -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bisnis <span
+                    class="text-red-500">*</span></label>
+            <input type="text" x-model="googleAdsForm.business_name" placeholder="Contoh: Toko Baju Cantik"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Produk / Layanan <span
+                    class="text-red-500">*</span></label>
+            <input type="text" x-model="googleAdsForm.product_service" placeholder="Contoh: Baju wanita muslimah modern"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Target Audience <span
+                    class="text-red-500">*</span></label>
+            <input type="text" x-model="googleAdsForm.target_audience"
+                placeholder="Contoh: Wanita 20-35 tahun, ibu rumah tangga"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi Target <span
+                    class="text-red-500">*</span></label>
+            <input type="text" x-model="googleAdsForm.location" placeholder="Contoh: Jakarta, Surabaya, Indonesia"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Budget Harian (Rp) <span
+                    class="text-red-500">*</span></label>
+            <input type="number" x-model="googleAdsForm.daily_budget" placeholder="50000" min="10000"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tujuan Kampanye <span
+                    class="text-red-500">*</span></label>
+            <select x-model="googleAdsForm.campaign_goal"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">-- Pilih Tujuan --</option>
+                <option value="sales">💰 Penjualan / Konversi</option>
+                <option value="leads">📋 Leads / Prospek</option>
+                <option value="traffic">🌐 Traffic Website</option>
+                <option value="brand_awareness">📢 Brand Awareness</option>
+                <option value="app_installs">📱 Install Aplikasi</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Kampanye <span
+                    class="text-red-500">*</span></label>
+            <select x-model="googleAdsForm.campaign_type"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">-- Pilih Tipe --</option>
+                <option value="search">🔍 Search Ads — Muncul saat orang mencari</option>
+                <option value="display">🖼️ Display Ads — Banner di website partner</option>
+                <option value="shopping">🛍️ Shopping Ads — Tampilkan produk + harga</option>
+                <option value="video">🎬 Video Ads (YouTube)</option>
+                <option value="performance_max">⚡ Performance Max — Semua channel otomatis</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Landing Page URL</label>
+            <input type="url" x-model="googleAdsForm.landing_page_url" placeholder="https://tokobajucantik.com"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Kata Kunci Awal (opsional)</label>
+            <input type="text" x-model="googleAdsForm.keywords_hint" placeholder="baju muslimah, gamis modern, hijab"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Keunggulan Produk / USP (opsional)</label>
+            <input type="text" x-model="googleAdsForm.usp" placeholder="Gratis ongkir, bahan premium, harga terjangkau"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+    </div>
+
+    <!-- Generate Button -->
+    <button @click="generateGoogleAdsAction()"
+        :disabled="!googleAdsForm.business_name || !googleAdsForm.product_service || !googleAdsForm.target_audience || !googleAdsForm.location || !googleAdsForm.daily_budget || !googleAdsForm.campaign_goal || !googleAdsForm.campaign_type || googleAdsLoading"
+        class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+        <span x-show="!googleAdsLoading" class="flex items-center justify-center">
+            🎯 Generate Kampanye Google Ads (1 Kuota)
+        </span>
+        <span x-show="googleAdsLoading" class="flex items-center justify-center">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+            AI sedang membuat kampanye...
+        </span>
+    </button>
+
+    <!-- Error -->
+    <div x-show="googleAdsError" x-cloak
+        class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm" x-text="googleAdsError"></div>
+
+            <!-- Results -->
+            <div x-show="googleAdsCampaign" x-cloak class="mt-8 space-y-6">
+
+                <!-- Campaign Summary Card -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold" x-text="googleAdsCampaign?.campaign_summary?.name"></h4>
+                            <p class="text-blue-200 text-sm mt-1">
+                                <span x-text="googleAdsCampaign?.campaign_summary?.type"></span> &bull;
+                                <span x-text="googleAdsCampaign?.campaign_summary?.goal"></span>
+                            </p>
+                        </div>
+                        <div class="text-center bg-white bg-opacity-20 rounded-xl px-4 py-2">
+                            <div class="text-3xl font-bold" x-text="googleAdsCampaign?.campaign_summary?.campaign_score"></div>
+                            <div class="text-xs text-blue-200">Campaign Score</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <div class="text-blue-200">Budget Harian</div>
+                            <div class="font-semibold" x-text="'Rp ' + Number(googleAdsCampaign?.campaign_summary?.daily_budget_idr).toLocaleString('id-ID')"></div>
+                        </div>
+                        <div>
+                            <div class="text-blue-200">Est. Klik/Hari</div>
+                            <div class="font-semibold" x-text="googleAdsCampaign?.campaign_summary?.estimated_daily_clicks"></div>
+                        </div>
+                        <div>
+                            <div class="text-blue-200">Est. CPC</div>
+                            <div class="font-semibold" x-text="googleAdsCampaign?.campaign_summary?.estimated_cpc_idr"></div>
+                        </div>
+                        <div>
+                            <div class="text-blue-200">Bid Strategy</div>
+                            <div class="font-semibold text-xs" x-text="googleAdsCampaign?.campaign_summary?.recommended_bid_strategy"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ad Groups -->
+                <template x-for="(group, gi) in (googleAdsCampaign?.ad_groups || [])" :key="gi">
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-3 flex items-center justify-between">
+                            <div>
+                                <span class="font-semibold text-gray-800" x-text="'Ad Group ' + (gi+1) + ': ' + group.name"></span>
+                                <span class="ml-2 text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full" x-text="group.theme"></span>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-4">
+                            <!-- Keywords -->
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Keywords</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <template x-for="(kws, ktype) in (group.keywords || {})" :key="ktype">
+                                        <div class="bg-gray-50 rounded-lg p-3">
+                                            <p class="text-xs font-medium text-gray-600 mb-1 capitalize" x-text="ktype.replace(/_/g,' ')"></p>
+                                            <div class="flex flex-wrap gap-1">
+                                                <template x-for="kw in kws" :key="kw">
+                                                    <span class="text-xs bg-white border border-gray-200 px-2 py-0.5 rounded cursor-pointer hover:bg-blue-50"
+                                                          @click="copyText(kw)"
+                                                          x-text="kw"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <!-- RSA Ad -->
+                            <template x-for="(ad, ai) in (group.ads || [])" :key="ai">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Headlines (15) — klik untuk copy</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                                        <template x-for="(hl, hi) in (ad.headlines || [])" :key="hi">
+                                            <div class="flex items-center justify-between bg-blue-50 border border-blue-100 rounded px-3 py-2 cursor-pointer hover:bg-blue-100 group"
+                                                 @click="copyText(hl)">
+                                                <span class="text-sm text-blue-800 flex-1" x-text="hl"></span>
+                                                <span class="text-xs text-blue-400 ml-2 opacity-0 group-hover:opacity-100">📋</span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Descriptions (4) — klik untuk copy</p>
+                                    <div class="space-y-2">
+                                        <template x-for="(desc, di) in (ad.descriptions || [])" :key="di">
+                                            <div class="flex items-center justify-between bg-green-50 border border-green-100 rounded px-3 py-2 cursor-pointer hover:bg-green-100 group"
+                                                 @click="copyText(desc)">
+                                                <span class="text-sm text-green-800 flex-1" x-text="desc"></span>
+                                                <span class="text-xs text-green-400 ml-2 opacity-0 group-hover:opacity-100">📋</span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Ad Extensions -->
+                <div class="border border-gray-200 rounded-xl p-4">
+                    <h5 class="font-semibold text-gray-800 mb-4">🔗 Ad Extensions</h5>
+                    <!-- Sitelinks -->
+                    <div class="mb-4">
+                        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Sitelinks</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <template x-for="(sl, si) in (googleAdsCampaign?.ad_extensions?.sitelinks || [])" :key="si">
+                                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-blue-700 text-sm" x-text="sl.title"></span>
+                                        <button @click="copyText(sl.title)" class="text-xs text-gray-400 hover:text-blue-600">📋</button>
+ 

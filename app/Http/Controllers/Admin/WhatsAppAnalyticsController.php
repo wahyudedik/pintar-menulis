@@ -35,9 +35,9 @@ class WhatsAppAnalyticsController extends Controller
     /**
      * 📈 Get comprehensive analytics data
      */
-    public function getAnalyticsData(Request $request)
+    public function getAnalyticsData(Request $request = null)
     {
-        $period = $request->get('period', '7d'); // 1d, 7d, 30d, 90d
+        $period = $request ? $request->get('period', '7d') : '7d'; // 1d, 7d, 30d, 90d
         $startDate = $this->getStartDate($period);
 
         $analytics = [
@@ -51,7 +51,7 @@ class WhatsAppAnalyticsController extends Controller
             'device_status' => $this->getDeviceStatus()
         ];
 
-        if ($request->expectsJson()) {
+        if ($request && $request->expectsJson()) {
             return response()->json($analytics);
         }
 

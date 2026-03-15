@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
@@ -155,6 +155,11 @@ Route::middleware(['auth'])->group(function () {
         // Browse Operators & Request Order
         Route::get('/browse-operators', [\App\Http\Controllers\Client\OrderRequestController::class, 'index'])->name('browse.operators');
         Route::post('/request-order', [\App\Http\Controllers\Client\OrderRequestController::class, 'store'])->name('request.order');
+
+        // Referral
+        Route::get('/referral', [\App\Http\Controllers\Client\ReferralController::class, 'index'])->name('client.referral.index');
+        Route::get('/referral/withdraw', [\App\Http\Controllers\Client\ReferralController::class, 'withdrawCreate'])->name('client.referral.withdraw');
+        Route::post('/referral/withdraw', [\App\Http\Controllers\Client\ReferralController::class, 'withdrawStore'])->name('client.referral.withdraw.store');
         
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -258,6 +263,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/training/caption', [\App\Http\Controllers\Guru\MLTrainingController::class, 'trainFromCaption'])->name('training.caption');
         Route::get('/training-history', [\App\Http\Controllers\Guru\MLTrainingController::class, 'history'])->name('training.history');
         Route::get('/analytics', [\App\Http\Controllers\Guru\MLTrainingController::class, 'analytics'])->name('analytics');
+
+        // Earnings & Withdrawal
+        Route::get('/earnings', [\App\Http\Controllers\Guru\WithdrawalController::class, 'earnings'])->name('earnings');
+        Route::get('/withdrawal/create', [\App\Http\Controllers\Guru\WithdrawalController::class, 'create'])->name('withdrawal.create');
+        Route::post('/withdrawal', [\App\Http\Controllers\Guru\WithdrawalController::class, 'store'])->name('withdrawal.store');
+        Route::get('/withdrawal/history', [\App\Http\Controllers\Guru\WithdrawalController::class, 'history'])->name('withdrawal.history');
     });
     
     // Admin routes
@@ -347,6 +358,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ad-placements', [\App\Http\Controllers\Admin\AdPlacementController::class, 'index'])->name('ad-placements.index');
         Route::put('/ad-placements/{placement}', [\App\Http\Controllers\Admin\AdPlacementController::class, 'update'])->name('ad-placements.update');
         Route::patch('/ad-placements/{placement}/toggle', [\App\Http\Controllers\Admin\AdPlacementController::class, 'toggle'])->name('ad-placements.toggle');
+
+        // Guru Monitor
+        Route::get('/guru-monitor', [\App\Http\Controllers\Admin\GuruMonitorController::class, 'index'])->name('guru-monitor.index');
+        Route::get('/guru-monitor/{guru}', [\App\Http\Controllers\Admin\GuruMonitorController::class, 'show'])->name('guru-monitor.show');
+        Route::post('/guru-monitor/{guru}/adjust-earnings', [\App\Http\Controllers\Admin\GuruMonitorController::class, 'adjustEarnings'])->name('guru-monitor.adjust-earnings');
+
+        // Referral Monitor
+        Route::get('/referrals', [\App\Http\Controllers\Admin\ReferralController::class, 'index'])->name('referrals.index');
     });
 });
 
@@ -373,6 +392,25 @@ Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
     
     // 🔔 Trend Alert API
     Route::post('/ai/generate-trend-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendContent'])->name('api.ai.generate-trend-content');
+
+    // 🎯 Google Ads Campaign Generator API
+    Route::post('/ai/generate-google-ads', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateGoogleAds'])->name('api.ai.generate-google-ads');
+
+    // 🔗 Magic Promo Link Generator API
+    Route::post('/ai/generate-promo-link', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMagicPromoLink'])->name('api.ai.generate-promo-link');
+
+    // 💬 AI Product Explainer for WhatsApp
+    Route::post('/ai/generate-product-explainer', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateProductExplainer'])->name('api.ai.generate-product-explainer');
+
+    // Features 3-10
+    Route::post('/ai/generate-seo-metadata',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateSeoMetadata'])->name('api.ai.generate-seo-metadata');
+    Route::post('/ai/generate-comparison',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateComparison'])->name('api.ai.generate-comparison');
+    Route::post('/ai/generate-faq',                [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateFaq'])->name('api.ai.generate-faq');
+    Route::post('/ai/generate-reels-hook',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateReelsHook'])->name('api.ai.generate-reels-hook');
+    Route::post('/ai/generate-quality-badge',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateQualityBadge'])->name('api.ai.generate-quality-badge');
+    Route::post('/ai/generate-discount-campaign',  [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateDiscountCampaign'])->name('api.ai.generate-discount-campaign');
+    Route::post('/ai/generate-trend-tags',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendTags'])->name('api.ai.generate-trend-tags');
+    Route::post('/ai/generate-lead-magnet',        [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateLeadMagnet'])->name('api.ai.generate-lead-magnet');
     
     // 👥 Collaboration Content Generation API
     Route::post('/ai/generate-content', [\App\Http\Controllers\Client\ProjectContentController::class, 'generateContent'])->name('api.ai.generate-content');

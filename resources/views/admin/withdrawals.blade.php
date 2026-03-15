@@ -5,7 +5,7 @@
     <!-- Header -->
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Withdrawal Management</h1>
-        <p class="text-sm text-gray-600 mt-1">Kelola permintaan penarikan dana operator</p>
+        <p class="text-sm text-gray-600 mt-1">Kelola permintaan penarikan dana operator & guru</p>
     </div>
 
     @if(session('success'))
@@ -87,6 +87,9 @@
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
                             <h3 class="text-base font-semibold text-gray-900">{{ $withdrawal->user->name }}</h3>
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $withdrawal->user->isGuru() ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                                {{ ucfirst($withdrawal->user->role) }}
+                            </span>
                             <span class="px-2 py-1 text-xs font-medium rounded
                                 @if($withdrawal->status === 'pending') bg-yellow-100 text-yellow-700
                                 @elseif($withdrawal->status === 'approved') bg-blue-100 text-blue-700

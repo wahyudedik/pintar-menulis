@@ -81,7 +81,7 @@
                 <h3 class="text-lg font-semibold mb-2">Current Model: {{ $latestModel->version }}</h3>
                 <p class="text-purple-100 text-sm">{{ $latestModel->description }}</p>
                 <div class="mt-2 text-sm text-purple-100">
-                    Training Data: {{ $latestModel->training_data_count }} • 
+                    Training Data: {{ $latestModel->training_count }} • 
                     Accuracy: {{ $latestModel->accuracy_score }}%
                 </div>
             </div>

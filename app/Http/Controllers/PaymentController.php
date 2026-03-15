@@ -5,10 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\PaymentSetting;
 use App\Models\Order;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     // Show payment page for order
     public function show(Order $order)
     {
@@ -69,11 +76,12 @@ class PaymentController extends Controller
             ],
         ]);
 
+        // Notify client with confirmation
+        $this->notificationService->notifyPaymentProofSubmitted(auth()->user(), $order);
+
         return redirect()->route('orders.show', $order)
             ->with('success', 'Bukti pembayaran berhasil diupload! Menunggu verifikasi admin.');
     }
-
-    // Midtrans Integration (Skeleton for future)
     public function midtransCheckout(Order $order)
     {
         // TODO: Implement Midtrans Snap API

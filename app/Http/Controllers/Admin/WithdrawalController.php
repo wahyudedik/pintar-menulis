@@ -60,13 +60,21 @@ class WithdrawalController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
-        // Deduct from operator's total earnings
+        // Deduct from user's earnings based on role
         $operator = $withdrawal->user;
-        $profile = $operator->operatorProfile;
-        
-        if ($profile) {
-            // Deduct the withdrawal amount from total earnings
-            $profile->decrement('total_earnings', $withdrawal->amount);
+
+        if ($operator->isGuru()) {
+            // Guru: deduct from guru_total_earnings on users table
+            $operator->decrement('guru_total_earnings', $withdrawal->amount);
+        } elseif ($operator->isClient()) {
+            // Client: deduct from referral_earnings
+            $operator->decrement('referral_earnings', $withdrawal->amount);
+        } else {
+            // Operator: deduct from operator_profiles.total_earnings
+            $profile = $operator->operatorProfile;
+            if ($profile) {
+                $profile->decrement('total_earnings', $withdrawal->amount);
+            }
         }
 
         // Notify operator

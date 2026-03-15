@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class MLTrainingController extends Controller
 {
+    const EARNINGS_PER_ENTRY = 5; // Rp 5 per training data entry
+
     // Training Dashboard
     public function index()
     {
@@ -39,6 +41,8 @@ class MLTrainingController extends Controller
             'excellent_quality' => MLTrainingData::where('quality_rating', 'excellent')->count(),
             'average_quality' => $this->calculateAverageQuality(),
             'successful_captions' => CaptionAnalytics::where('marked_as_successful', true)->count(),
+            'my_total_entries' => MLTrainingData::where('guru_id', auth()->id())->count(),
+            'my_total_earnings' => auth()->user()->guru_total_earnings,
         ];
 
         // Get latest model version
@@ -72,11 +76,21 @@ class MLTrainingController extends Controller
 
         $order = Order::findOrFail($validated['order_id']);
 
+        // Prevent duplicate submission for same order by same guru
+        $alreadySubmitted = MLTrainingData::where('guru_id', auth()->id())
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.order_id')) = ?", [$order->id])
+            ->exists();
+
+        if ($alreadySubmitted) {
+            return redirect()->route('guru.training')
+                ->with('error', 'Kamu sudah pernah submit training data untuk order ini.');
+        }
+
         // Create training data
-        MLTrainingData::create([
+        $training = MLTrainingData::create([
             'guru_id' => auth()->id(),
-            'copywriting_request_id' => null, // Not linked to copywriting request
-            'input_prompt' => $order->brief,
+            'copywriting_request_id' => null,
+            'input_prompt' => $order->brief ?? '(brief tidak tersedia)',
             'ai_output' => $order->result,
             'corrected_output' => $validated['corrected_output'] ?? $order->result,
             'quality_rating' => $validated['quality_rating'],
@@ -86,10 +100,19 @@ class MLTrainingController extends Controller
                 'category' => $order->category,
                 'operator_id' => $order->operator_id,
             ],
+            'earnings_paid' => true,
         ]);
 
+        // Credit Rp 5 to guru's earnings balance
+        auth()->user()->increment('guru_total_earnings', self::EARNINGS_PER_ENTRY);
+
+        // Invalidate few-shot cache so new excellent data is picked up immediately
+        if ($validated['quality_rating'] === 'excellent') {
+            \Illuminate\Support\Facades\Cache::forget('fewshot_' . md5("{$order->category}__"));
+        }
+
         return redirect()->route('guru.training')
-            ->with('success', 'Training data berhasil disimpan!');
+            ->with('success', 'Training data berhasil disimpan! Kamu mendapat Rp ' . number_format(self::EARNINGS_PER_ENTRY, 0, ',', '.') . ' 🎉');
     }
     
     // Train from caption analytics
@@ -103,6 +126,16 @@ class MLTrainingController extends Controller
         ]);
 
         $caption = CaptionAnalytics::findOrFail($validated['caption_id']);
+
+        // Prevent duplicate submission for same caption by same guru
+        $alreadySubmitted = MLTrainingData::where('guru_id', auth()->id())
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.caption_id')) = ?", [$caption->id])
+            ->exists();
+
+        if ($alreadySubmitted) {
+            return redirect()->route('guru.training')
+                ->with('error', 'Kamu sudah pernah submit training data untuk caption ini.');
+        }
 
         // Create training data from caption
         MLTrainingData::create([
@@ -122,13 +155,22 @@ class MLTrainingController extends Controller
                 'comments' => $caption->comments,
                 'shares' => $caption->shares,
             ],
+            'earnings_paid' => true,
         ]);
-        
+
+        // Credit Rp 5 to guru's earnings balance
+        auth()->user()->increment('guru_total_earnings', self::EARNINGS_PER_ENTRY);
+
+        // Invalidate few-shot cache so new excellent data is picked up immediately
+        if ($validated['quality_rating'] === 'excellent') {
+            \Illuminate\Support\Facades\Cache::forget('fewshot_' . md5("{$caption->category}_{$caption->platform}_"));
+        }
+
         // Mark caption as used for training
         $caption->update(['used_for_training' => true]);
 
         return redirect()->route('guru.training')
-            ->with('success', 'Caption berhasil ditambahkan ke training data!');
+            ->with('success', 'Caption berhasil ditambahkan ke training data! Kamu mendapat Rp ' . number_format(self::EARNINGS_PER_ENTRY, 0, ',', '.') . ' 🎉');
     }
 
     // Training History

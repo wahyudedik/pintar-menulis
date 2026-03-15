@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OperatorProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Services\NotificationService;
 
 class OrderController extends Controller
@@ -44,26 +45,45 @@ class OrderController extends Controller
     // Accept Order
     public function accept(Order $order)
     {
-        if ($order->operator_id !== null) {
-            return back()->with('error', 'Order sudah diambil operator lain');
-        }
+        // Race condition protection: lock the row inside a transaction
+        return DB::transaction(function () use ($order) {
+            $order = Order::lockForUpdate()->findOrFail($order->id);
 
-        $order->update([
-            'operator_id' => auth()->id(),
-            'status' => 'accepted',
-        ]);
+            if ($order->operator_id !== null) {
+                return back()->with('error', 'Order sudah diambil operator lain');
+            }
 
-        // Send notification to client
-        $this->notificationService->notifyOrderAccepted($order);
+            if ($order->payment_status !== 'held') {
+                return back()->with('error', 'Order belum dibayar, tidak bisa diterima');
+            }
 
-        return redirect()->route('operator.workspace', $order)
-            ->with('success', 'Order berhasil diterima! Silakan kerjakan.');
+            // Check operator is verified
+            $profile = auth()->user()->operatorProfile;
+            if (!$profile || !$profile->is_verified) {
+                return back()->with('error', 'Akun operator Anda belum diverifikasi admin');
+            }
+
+            $order->update([
+                'operator_id' => auth()->id(),
+                'status' => 'accepted',
+            ]);
+
+            // Send notification to client
+            $this->notificationService->notifyOrderAccepted($order);
+
+            return redirect()->route('operator.workspace', $order)
+                ->with('success', 'Order berhasil diterima! Silakan kerjakan.');
+        });
     }
 
     // Reject Order
     public function reject(Order $order)
     {
-        if ($order->operator_id !== auth()->id()) {
+        // Allow reject if: order is assigned to me, OR order is still unassigned (from queue)
+        $isAssignedToMe = $order->operator_id === auth()->id();
+        $isUnassigned   = $order->operator_id === null && $order->status === 'pending';
+
+        if (!$isAssignedToMe && !$isUnassigned) {
             return back()->with('error', 'Anda tidak bisa reject order ini');
         }
 
@@ -72,8 +92,10 @@ class OrderController extends Controller
             'status' => 'pending',
         ]);
 
-        // Send notification to client
-        $this->notificationService->notifyOrderRejected($order);
+        // Only notify client if order was previously accepted by this operator
+        if ($isAssignedToMe) {
+            $this->notificationService->notifyOrderRejected($order);
+        }
 
         return redirect()->route('operator.queue')
             ->with('success', 'Order berhasil ditolak');
@@ -161,7 +183,7 @@ class OrderController extends Controller
             'total_earnings' => $totalEarnings,
             'completed_orders' => $profile->completed_orders ?? 0,
             'average_rating' => $profile->average_rating ?? 0,
-            'pending_withdrawal' => $availableBalance,
+            'available_balance' => $availableBalance,
         ];
 
         return view('operator.earnings', compact('stats', 'completedOrders'));

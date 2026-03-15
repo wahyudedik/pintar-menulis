@@ -17,10 +17,12 @@ class MLTrainingData extends Model
         'feedback_notes',
         'quality_rating',
         'metadata',
+        'earnings_paid',
     ];
 
     protected $casts = [
         'metadata' => 'array',
+        'earnings_paid' => 'boolean',
     ];
 
     public function guru()

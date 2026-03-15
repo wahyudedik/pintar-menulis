@@ -4,10 +4,17 @@ namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
 use App\Models\WithdrawalRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class WithdrawalController extends Controller
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     public function create()
     {
         $profile = auth()->user()->operatorProfile;
@@ -43,7 +50,7 @@ class WithdrawalController extends Controller
             return back()->with('error', 'Saldo tidak mencukupi');
         }
 
-        WithdrawalRequest::create([
+        $withdrawal = WithdrawalRequest::create([
             'user_id' => auth()->id(),
             'amount' => $validated['amount'],
             'bank_name' => $validated['bank_name'],
@@ -52,6 +59,9 @@ class WithdrawalController extends Controller
             'notes' => $validated['notes'] ?? null,
             'status' => 'pending',
         ]);
+
+        // Notify operator with confirmation
+        $this->notificationService->notifyWithdrawalSubmitted(auth()->user(), $withdrawal);
 
         return redirect()->route('operator.earnings')
             ->with('success', 'Request withdrawal berhasil disubmit! Menunggu approval admin.');

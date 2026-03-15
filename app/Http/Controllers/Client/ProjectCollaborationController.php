@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectMember;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -13,6 +14,13 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class ProjectCollaborationController extends Controller
 {
     use AuthorizesRequests;
+
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Show project team management
      */
@@ -109,6 +117,9 @@ class ProjectCollaborationController extends Controller
             'joined_at' => now()
         ]);
 
+        // Notify project owner
+        $this->notificationService->notifyInvitationAccepted($invitation->load('project.user', 'user'));
+
         return redirect()->route('projects.collaboration.workspace', $invitation->project)
             ->with('success', 'Selamat datang di tim ' . $invitation->project->business_name . '!');
     }
@@ -128,6 +139,9 @@ class ProjectCollaborationController extends Controller
         }
 
         $invitation->update(['status' => 'declined']);
+
+        // Notify project owner
+        $this->notificationService->notifyInvitationDeclined($invitation->load('project.user', 'user'));
 
         return redirect()->route('projects.index')
             ->with('success', 'Undangan ditolak.');

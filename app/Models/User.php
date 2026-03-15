@@ -31,7 +31,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'whatsapp_verification_code',
         'whatsapp_preferences',
         'whatsapp_notifications_enabled',
-        'last_whatsapp_interaction'
+        'last_whatsapp_interaction',
+        'guru_total_earnings',
+        'referral_code',
+        'referred_by_id',
+        'referral_earnings',
     ];
 
     /**
@@ -58,7 +62,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'whatsapp_verified_at' => 'datetime',
             'whatsapp_preferences' => 'array',
             'whatsapp_notifications_enabled' => 'boolean',
-            'last_whatsapp_interaction' => 'datetime'
+            'last_whatsapp_interaction' => 'datetime',
+            'guru_total_earnings' => 'decimal:2',
+            'referral_earnings'   => 'decimal:2',
         ];
     }
 
@@ -105,6 +111,26 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    public function isGuru()
+    {
+        return $this->role === 'guru';
+    }
+
+    public function mlTrainingData()
+    {
+        return $this->hasMany(MLTrainingData::class, 'guru_id');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(\App\Models\Referral::class, 'referrer_id');
+    }
+
+    public function referredBy()
+    {
+        return $this->belongsTo(User::class, 'referred_by_id');
     }
 
     public function brandVoices()

@@ -58,9 +58,9 @@
         <div class="bg-white rounded-lg border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-gray-500 mb-1">Pending Withdrawal</p>
+                    <p class="text-xs text-gray-500 mb-1">Saldo Tersedia</p>
                     <p class="text-2xl font-semibold text-purple-600">
-                        Rp {{ number_format($stats['pending_withdrawal'], 0, ',', '.') }}
+                        Rp {{ number_format($stats['available_balance'], 0, ',', '.') }}
                     </p>
                 </div>
                 <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
@@ -106,13 +106,13 @@
         <div class="flex justify-between items-center">
             <div>
                 <h3 class="text-lg font-semibold mb-1">Tarik Penghasilan</h3>
-                <p class="text-green-100 text-sm">Saldo tersedia: Rp {{ number_format($stats['pending_withdrawal'], 0, ',', '.') }}</p>
+                <p class="text-green-100 text-sm">Saldo tersedia: Rp {{ number_format($stats['available_balance'], 0, ',', '.') }}</p>
             </div>
             <div class="flex space-x-2">
                 <a href="{{ route('operator.withdrawal.history') }}" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition text-sm border border-white/30">
                     Riwayat
                 </a>
-                @if($stats['pending_withdrawal'] >= 50000)
+                @if($stats['available_balance'] >= 50000)
                 <a href="{{ route('operator.withdrawal.create') }}" class="px-4 py-2 bg-white text-green-600 rounded-lg font-medium hover:bg-green-50 transition text-sm">
                     Tarik Saldo
                 </a>

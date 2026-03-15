@@ -2015,4 +2015,407 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
             'trend_title' => $trend['title']
         ];
     }
+
+    /**
+     * 🎯 Google Ads Campaign Generator
+     */
+    public function generateGoogleAds(Request $request)
+    {
+        set_time_limit(300);
+
+        $user = auth()->user();
+        $sub  = $user->currentSubscription();
+
+        if (!$sub || !$sub->isValid()) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '⚡ Kamu belum memiliki langganan aktif.',
+            ], 403);
+        }
+
+        if ($sub->remaining_quota <= 0) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '🚫 Kuota AI kamu sudah habis bulan ini.',
+            ], 403);
+        }
+
+        try {
+            $validated = $request->validate([
+                'business_name'    => 'required|string|max:100',
+                'product_service'  => 'required|string|max:500',
+                'target_audience'  => 'required|string|max:300',
+                'location'         => 'required|string|max:100',
+                'daily_budget'     => 'required|numeric|min:10000',
+                'campaign_goal'    => 'required|in:sales,leads,traffic,brand_awareness,app_installs',
+                'campaign_type'    => 'required|in:search,display,shopping,video,performance_max',
+                'landing_page_url' => 'nullable|url|max:500',
+                'keywords_hint'    => 'nullable|string|max:500',
+                'usp'              => 'nullable|string|max:300',
+                'language'         => 'nullable|in:id,en',
+            ]);
+
+            $result = $this->geminiService->generateGoogleAdsCampaign($validated);
+
+            $sub->consumeQuota(1);
+
+            return response()->json([
+                'success'         => true,
+                'campaign'        => $result,
+                'quota_remaining' => $sub->fresh()->remaining_quota,
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->implode('; '),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Google Ads Generator Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * 💬 AI Product Explainer for WhatsApp
+     */
+    public function generateProductExplainer(Request $request)
+    {
+        set_time_limit(120);
+
+        $user = auth()->user();
+        $sub  = $user->currentSubscription();
+
+        if (!$sub || !$sub->isValid()) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '⚡ Kamu belum memiliki langganan aktif.',
+            ], 403);
+        }
+
+        if ($sub->remaining_quota <= 0) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '🚫 Kuota AI kamu sudah habis bulan ini.',
+            ], 403);
+        }
+
+        try {
+            $validated = $request->validate([
+                'product_name'  => 'required|string|max:100',
+                'product_desc'  => 'required|string|max:500',
+                'price'         => 'nullable|string|max:100',
+                'features'      => 'nullable|string|max:500',
+                'target_buyer'  => 'nullable|string|max:200',
+                'seller_name'   => 'nullable|string|max:100',
+                'wa_number'     => 'nullable|string|max:20',
+            ]);
+
+            $result = $this->geminiService->generateProductExplainer($validated);
+
+            $sub->consumeQuota(1);
+
+            return response()->json([
+                'success'         => true,
+                'data'            => $result,
+                'quota_remaining' => $sub->fresh()->remaining_quota,
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->implode('; '),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Product Explainer Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * 🔗 Magic Promo Link Generator
+     */
+    public function generateMagicPromoLink(Request $request)
+    {
+        set_time_limit(120);
+
+        $user = auth()->user();
+        $sub  = $user->currentSubscription();
+
+        if (!$sub || !$sub->isValid()) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '⚡ Kamu belum memiliki langganan aktif.',
+            ], 403);
+        }
+
+        if ($sub->remaining_quota <= 0) {
+            return response()->json([
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => '🚫 Kuota AI kamu sudah habis bulan ini.',
+            ], 403);
+        }
+
+        try {
+            $validated = $request->validate([
+                'product_name'    => 'required|string|max:100',
+                'product_desc'    => 'required|string|max:500',
+                'price'           => 'nullable|string|max:100',
+                'target_audience' => 'nullable|string|max:200',
+                'promo_detail'    => 'nullable|string|max:300',
+                'wa_number'       => 'nullable|string|max:20',
+                'language'        => 'nullable|in:id,en',
+            ]);
+
+            $result = $this->geminiService->generateMagicPromoLink($validated);
+
+            $sub->consumeQuota(1);
+
+            return response()->json([
+                'success'         => true,
+                'data'            => $result,
+                'quota_remaining' => $sub->fresh()->remaining_quota,
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->implode('; '),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Magic Promo Link Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ── Shared quota guard ──────────────────────────────────────────
+    private function _checkQuota(): array|null
+    {
+        $user = auth()->user();
+        $sub  = $user->currentSubscription();
+        if (!$sub || !$sub->isValid()) {
+            return ['success' => false, 'quota_error' => true, 'message' => '⚡ Kamu belum memiliki langganan aktif.'];
+        }
+        if ($sub->remaining_quota <= 0) {
+            return ['success' => false, 'quota_error' => true, 'message' => '🚫 Kuota AI kamu sudah habis bulan ini.'];
+        }
+        return null;
+    }
+
+    private function _quotaResponse(array|null $err, int $status = 403)
+    {
+        return response()->json($err, $status);
+    }
+
+    private function _consume(): int
+    {
+        $sub = auth()->user()->currentSubscription();
+        $sub->consumeQuota(1);
+        return $sub->fresh()->remaining_quota;
+    }
+
+    /** 3. SEO Metadata */
+    public function generateSeoMetadata(Request $request)
+    {
+        set_time_limit(60);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'product_name'   => 'required|string|max:150',
+                'product_desc'   => 'required|string|max:500',
+                'category'       => 'nullable|string|max:100',
+                'keywords'       => 'nullable|string|max:200',
+                'url'            => 'nullable|string|max:200',
+            ]);
+            $result = $this->geminiService->generateSeoMetadata($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /** 4. Smart Comparison */
+    public function generateComparison(Request $request)
+    {
+        set_time_limit(90);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'product_a_name'  => 'required|string|max:150',
+                'product_a_desc'  => 'required|string|max:400',
+                'product_a_price' => 'nullable|string|max:100',
+                'product_b_name'  => 'required|string|max:150',
+                'product_b_desc'  => 'required|string|max:400',
+                'product_b_price' => 'nullable|string|max:100',
+                'buyer_persona'   => 'nullable|string|max:300',
+            ]);
+            $result = $this->geminiService->generateComparison($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /** 5. FAQ Generator */
+    public function generateFaq(Request $request)
+    {
+        set_time_limit(60);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'product_name' => 'required|string|max:150',
+                'product_desc' => 'required|string|max:500',
+                'price'        => 'nullable|string|max:100',
+                'category'     => 'nullable|string|max:100',
+            ]);
+            $result = $this->geminiService->generateFaq($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /** 6. Reels/TikTok Hook */
+    public function generateReelsHook(Request $request)
+    {
+        set_time_limit(90);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'product_name'    => 'required|string|max:150',
+                'product_desc'    => 'required|string|max:500',
+                'target_audience' => 'nullable|string|max:200',
+                'platform'        => 'nullable|string|max:50',
+                'tone'            => 'nullable|string|max:50',
+                'video_goal'      => 'nullable|string|max:200',
+            ]);
+            $result = $this->geminiService->generateReelsHook($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /** 7. Quality Badge Scanner */
+    public function generateQualityBadge(Request $request)
+    {
+        set_time_limit(90);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'product_name' => 'required|string|max:150',
+                'product_desc' => 'required|string|max:500',
+                'asset_type'   => 'nullable|string|max:100',
+                'code_or_doc'  => 'nullable|string|max:3000',
+            ]);
+            $result = $this->geminiService->generateQualityBadge($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /** 8. Discount Campaign Copywriter */
+    public function generateDiscountCampaign(Request $request)
+    {
+        set_time_limit(90);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'promo_name'     => 'required|string|max:100',
+                'product_name'   => 'required|string|max:150',
+                'product_desc'   => 'required|string|max:400',
+                'original_price' => 'nullable|string|max:100',
+                'discount_price' => 'nullable|string|max:100',
+                'discount_pct'   => 'nullable|string|max:10',
+                'duration'       => 'nullable|string|max:100',
+                'platform'       => 'nullable|string|max:100',
+                'wa_number'      => 'nullable|string|max:20',
+            ]);
+            $result = $this->geminiService->generateDiscountCampaign($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /** 9. Trend-Based Product Tagging */
+    public function generateTrendTags(Request $request)
+    {
+        set_time_limit(60);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'product_name' => 'required|string|max:150',
+                'product_desc' => 'required|string|max:500',
+                'category'     => 'nullable|string|max:100',
+                'current_tags' => 'nullable|string|max:300',
+            ]);
+            $result = $this->geminiService->generateTrendTags($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /** 10. Lead Magnet Creator */
+    public function generateLeadMagnet(Request $request)
+    {
+        set_time_limit(90);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        try {
+            $v = $request->validate([
+                'product_name'    => 'required|string|max:150',
+                'product_desc'    => 'required|string|max:500',
+                'product_type'    => 'nullable|string|max:100',
+                'price'           => 'nullable|string|max:100',
+                'target_audience' => 'nullable|string|max:200',
+                'goal'            => 'nullable|string|max:200',
+                'wa_number'       => 'nullable|string|max:20',
+            ]);
+            $result = $this->geminiService->generateLeadMagnet($v);
+            $quota  = $this->_consume();
+            return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

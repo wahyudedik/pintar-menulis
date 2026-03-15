@@ -196,11 +196,20 @@ class OrderController extends Controller
                     // Notify operator
                     $this->notificationService->create(
                         $order->operator,
-                        'payment_released',
+                        \App\Models\Notification::TYPE_PAYMENT_RELEASED,
                         'Pembayaran Diterima!',
                         "Client telah approve order #{$order->id}. Penghasilan Rp " . number_format($operatorEarnings, 0, ',', '.') . " (setelah komisi 10%) telah masuk ke saldo Anda.",
                         route('operator.earnings'),
                         ['order_id' => $order->id]
+                    );
+
+                    // Send email to operator
+                    $this->notificationService->sendEmail(
+                        $order->operator,
+                        'Pembayaran Diterima - Pintar Menulis',
+                        "Client telah approve order #{$order->id}. Penghasilan Rp " . number_format($operatorEarnings, 0, ',', '.') . " (setelah komisi 10%) telah masuk ke saldo Anda.",
+                        route('operator.earnings'),
+                        'Lihat Penghasilan'
                     );
                 }
             }
@@ -234,11 +243,19 @@ class OrderController extends Controller
         foreach ($admins as $admin) {
             $this->notificationService->create(
                 $admin,
-                'order_disputed',
+                \App\Models\Notification::TYPE_ORDER_DISPUTED,
                 'Order Disputed!',
                 "Order #{$order->id} di-dispute oleh client. Alasan: {$validated['dispute_reason']}",
-                route('admin.orders.show', $order),
+                route('admin.payments'),
                 ['order_id' => $order->id]
+            );
+
+            $this->notificationService->sendEmail(
+                $admin,
+                'Order Disputed - Pintar Menulis',
+                "Order #{$order->id} di-dispute oleh client. Alasan: {$validated['dispute_reason']}. Silakan mediasi segera.",
+                route('admin.payments'),
+                'Lihat Pembayaran'
             );
         }
 
@@ -246,11 +263,19 @@ class OrderController extends Controller
         if ($order->operator_id) {
             $this->notificationService->create(
                 $order->operator,
-                'order_disputed',
+                \App\Models\Notification::TYPE_ORDER_DISPUTED,
                 'Order Disputed',
                 "Client dispute order #{$order->id}. Admin akan mediasi. Alasan: {$validated['dispute_reason']}",
                 route('operator.workspace', $order),
                 ['order_id' => $order->id]
+            );
+
+            $this->notificationService->sendEmail(
+                $order->operator,
+                'Order Disputed - Pintar Menulis',
+                "Client dispute order #{$order->id}. Admin akan mediasi. Alasan: {$validated['dispute_reason']}.",
+                route('operator.workspace', $order),
+                'Lihat Workspace'
             );
         }
 

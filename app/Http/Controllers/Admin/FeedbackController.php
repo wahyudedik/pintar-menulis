@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Display all feedback
      */
@@ -83,28 +91,36 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Notify user about admin response
+     * Notify user about admin response (in-app + email)
      */
     private function notifyUser(Feedback $feedback, bool $hasResponse)
     {
-        $title = $hasResponse ? '💬 Admin Merespons Feedback Anda' : '✅ Feedback Anda Telah Diselesaikan';
-        $message = $hasResponse 
+        $title   = $hasResponse ? '💬 Admin Merespons Feedback Anda' : '✅ Feedback Anda Telah Diselesaikan';
+        $message = $hasResponse
             ? 'Admin telah merespons feedback Anda: ' . $feedback->title
             : 'Feedback Anda "' . $feedback->title . '" telah diselesaikan';
 
-        \App\Models\Notification::create([
-            'user_id' => $feedback->user_id,
-            'type' => \App\Models\Notification::TYPE_FEEDBACK_RESPONSE,
-            'title' => $title,
-            'message' => $message,
-            'data' => [
-                'feedback_id' => $feedback->id,
+        $this->notificationService->create(
+            $feedback->user,
+            \App\Models\Notification::TYPE_FEEDBACK_RESPONSE,
+            $title,
+            $message,
+            route('feedback.show', $feedback->id),
+            [
+                'feedback_id'   => $feedback->id,
                 'feedback_type' => $feedback->type,
-                'status' => $feedback->status,
-            ],
-            'action_url' => route('feedback.show', $feedback->id),
-            'is_read' => false,
-        ]);
+                'status'        => $feedback->status,
+            ]
+        );
+
+        $emailMessage = $message . ($feedback->admin_response ? "\n\nRespons admin: " . $feedback->admin_response : '');
+        $this->notificationService->sendEmail(
+            $feedback->user,
+            $title . ' - Pintar Menulis',
+            $emailMessage,
+            route('feedback.show', $feedback->id),
+            'Lihat Feedback'
+        );
     }
 
     /**

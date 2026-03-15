@@ -33,6 +33,7 @@ class RegisteredUserController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'referral_code' => ['nullable', 'string', 'max:10'],
         ]);
 
         $user = User::create([
@@ -41,6 +42,14 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'role'     => 'client', // default role
         ]);
+
+        // Generate referral code for new user
+        app(\App\Services\ReferralService::class)->generateCode($user);
+
+        // Track referral if code provided
+        if ($request->filled('referral_code')) {
+            app(\App\Services\ReferralService::class)->trackSignup($user, $request->referral_code);
+        }
 
         // Auto-start free trial on registration
         $freePackage = \App\Models\Package::where('price', 0)->where('is_active', true)->first();

@@ -197,6 +197,61 @@
                     class="px-4 py-2 rounded-md text-sm font-medium transition">
                 🔔 Trend Alert
             </button>
+            <button @click="generatorType = 'google-ads'" 
+                    :class="generatorType === 'google-ads' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🎯 Google Ads
+            </button>
+            <button @click="generatorType = 'promo-link'" 
+                    :class="generatorType === 'promo-link' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🔗 Magic Promo Link
+            </button>
+            <button @click="generatorType = 'product-explainer'" 
+                    :class="generatorType === 'product-explainer' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                💬 Product Explainer
+            </button>
+            <button @click="generatorType = 'seo-metadata'" 
+                    :class="generatorType === 'seo-metadata' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🔍 SEO Metadata
+            </button>
+            <button @click="generatorType = 'smart-comparison'" 
+                    :class="generatorType === 'smart-comparison' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                ⚖️ Smart Comparison
+            </button>
+            <button @click="generatorType = 'faq-generator'" 
+                    :class="generatorType === 'faq-generator' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                ❓ FAQ Generator
+            </button>
+            <button @click="generatorType = 'reels-hook'" 
+                    :class="generatorType === 'reels-hook' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🎬 Reels Hook
+            </button>
+            <button @click="generatorType = 'quality-badge'" 
+                    :class="generatorType === 'quality-badge' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🏅 Quality Badge
+            </button>
+            <button @click="generatorType = 'discount-campaign'" 
+                    :class="generatorType === 'discount-campaign' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🏷️ Discount Campaign
+            </button>
+            <button @click="generatorType = 'trend-tags'" 
+                    :class="generatorType === 'trend-tags' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📈 Trend Tags
+            </button>
+            <button @click="generatorType = 'lead-magnet'" 
+                    :class="generatorType === 'lead-magnet' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                🧲 Lead Magnet
+            </button>
         </div>
     </div>
 
@@ -2549,11 +2604,62 @@
             </div>
         </div>
         
+        {{-- 🎯 Google Ads Campaign Generator --}}
+        @include('client.partials.google-ads-generator')
+
+        {{-- 🔗 Magic Promo Link Generator --}}
+        @include('client.partials.promo-link-generator')
+
+        {{-- 💬 AI Product Explainer for WhatsApp --}}
+        @include('client.partials.product-explainer')
+
+        {{-- 🔍 SEO Metadata Auto-Fill --}}
+        @include('client.partials.seo-metadata')
+
+        {{-- ⚖️ Smart Comparison Tool --}}
+        @include('client.partials.smart-comparison')
+
+        {{-- ❓ Automated FAQ Generator --}}
+        @include('client.partials.faq-generator')
+
+        {{-- 🎬 AI Reels/TikTok Hook Generator --}}
+        @include('client.partials.reels-hook')
+
+        {{-- 🏅 Digital Asset Quality Badge --}}
+        @include('client.partials.quality-badge')
+
+        {{-- 🏷️ Discount Campaign Copywriter --}}
+        @include('client.partials.discount-campaign')
+
+        {{-- 📈 Trend-Based Product Tagging --}}
+        @include('client.partials.trend-tags')
+
+        {{-- 🧲 AI Lead Magnet Creator --}}
+        @include('client.partials.lead-magnet')
+
         <!-- 🤖 ML Upgrade Modal & Features -->
         @include('client.partials.ml-upgrade-modal')
     </div>
 
 <script>
+    // Clipboard helper — works on HTTP (non-secure) and HTTPS
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return copyToClipboard(text);
+        }
+        // Fallback for non-secure contexts (HTTP)
+        return new Promise((resolve, reject) => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+            document.body.appendChild(ta);
+            ta.focus(); ta.select();
+            try { document.execCommand('copy') ? resolve() : reject(); }
+            catch (e) { reject(e); }
+            finally { document.body.removeChild(ta); }
+        });
+    }
+
     function aiGenerator() {
         return {
             mode: 'simple', // default simple mode
@@ -2680,6 +2786,126 @@
             },
             repurposeLoading: false,
             repurposeResults: [],
+
+            // 🎯 Google Ads state
+            adsForm: {
+                business_name: '',
+                product_service: '',
+                target_audience: '',
+                location: '',
+                daily_budget: '',
+                campaign_goal: '',
+                campaign_type: '',
+                landing_page_url: '',
+                keywords_hint: '',
+                usp: '',
+                language: 'id'
+            },
+            adsLoading: false,
+            adsResult: null,
+            adsTab: 'copy',
+            adsCopied: false,
+            adsTabs: [
+                {id: 'copy',       label: '📝 Ad Copy'},
+                {id: 'keywords',   label: '🔑 Keywords'},
+                {id: 'extensions', label: '🔗 Sitelinks & Extensions'},
+                {id: 'targeting',  label: '🎯 Targeting'},
+                {id: 'budget',     label: '💰 Budget & Estimasi'},
+                {id: 'review',     label: '📊 Review & Analysis'},
+            ],
+
+            // 🔗 Magic Promo Link state
+            promoForm: {
+                product_name: '',
+                product_desc: '',
+                price: '',
+                target_audience: '',
+                promo_detail: '',
+                wa_number: '',
+                language: 'id'
+            },
+            promoLoading: false,
+            promoResult: null,
+            promoError: null,
+            promoCopied: {},
+
+            // 💬 AI Product Explainer state
+            explainerForm: {
+                product_name: '',
+                product_desc: '',
+                price: '',
+                features: '',
+                target_buyer: '',
+                seller_name: '',
+                wa_number: '',
+            },
+            explainerLoading: false,
+            explainerResult: null,
+            explainerError: null,
+            explainerCopied: {},
+            explainerLinkCopied: {},
+
+            // 🔍 SEO Metadata state
+            seoForm: { product_name: '', product_desc: '', category: '', keywords: '', url: '' },
+            seoLoading: false,
+            seoResult: null,
+            seoError: null,
+            seoCopied: {},
+
+            // ⚖️ Smart Comparison state
+            compForm: { product_a_name: '', product_a_desc: '', product_a_price: '', product_b_name: '', product_b_desc: '', product_b_price: '', buyer_persona: '' },
+            compLoading: false,
+            compResult: null,
+            compError: null,
+            compCopied: false,
+
+            // ❓ FAQ Generator state
+            faqForm: { product_name: '', product_desc: '', category: '', target_buyer: '' },
+            faqLoading: false,
+            faqResult: null,
+            faqError: null,
+            faqCopied: {},
+            faqSchemaCopied: false,
+
+            // 🎬 Reels Hook state
+            reelsForm: { product_name: '', product_desc: '', target_audience: '', platform: 'reels', tone: 'energetic' },
+            reelsLoading: false,
+            reelsResult: null,
+            reelsError: null,
+            reelsCopied: {},
+            reelsScriptCopied: false,
+            reelsSelectedHook: null,
+            reelsBioCopied: false,
+
+            // 🏅 Quality Badge state
+            badgeForm: { product_name: '', product_desc: '', asset_type: '', code_or_doc: '' },
+            badgeLoading: false,
+            badgeResult: null,
+            badgeError: null,
+            badgeCopied: false,
+
+            // 🏷️ Discount Campaign state
+            discForm: { promo_name: '', product_name: '', product_desc: '', original_price: '', discount_price: '', discount_pct: '', duration: '', wa_number: '' },
+            discLoading: false,
+            discResult: null,
+            discError: null,
+            discCopied: {},
+            discWACopied: false,
+
+            // 📈 Trend Tags state
+            tagsForm: { product_name: '', product_desc: '', category: '', current_tags: '', platform: 'marketplace' },
+            tagsLoading: false,
+            tagsResult: null,
+            tagsError: null,
+            tagsCopied: false,
+
+            // 🧲 Lead Magnet state
+            magnetForm: { product_name: '', product_desc: '', product_type: '', price: '', target_audience: '', goal: 'email', wa_number: '' },
+            magnetLoading: false,
+            magnetResult: null,
+            magnetError: null,
+            magnetCopied: false,
+            magnetWACopied: false,
             repurposeOptions: [
                 {value: 'instagram_story', label: '📱 Instagram Story', description: 'Short, visual, engaging'},
                 {value: 'tiktok_script', label: '🎵 TikTok Video Script', description: 'Hook + content + CTA'},
@@ -3974,7 +4200,7 @@
                     
                     // Modern method
                     if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(textToCopy)
+                        copyToClipboard(textToCopy)
                             .then(() => {
                                 this.copied = true;
                                 setTimeout(() => this.copied = false, 2000);
@@ -4662,7 +4888,7 @@
                         <div class="border rounded-lg p-4">
                             <div class="flex justify-between items-center mb-2">
                                 <h4 class="font-semibold">🔄 Variant ${String.fromCharCode(66 + index)} (${variant.focus})</h4>
-                                <button onclick="navigator.clipboard.writeText('${variant.caption.replace(/'/g, "\\'")}'); alert('Copied!')" 
+                                <button onclick="copyToClipboard('${variant.caption.replace(/'/g, "\\'")}'); alert('Copied!')" 
                                         class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
                                     Copy
                                 </button>
@@ -5010,7 +5236,7 @@
             },
 
             copyPlatformContent(platform, content) {
-                navigator.clipboard.writeText(content).then(() => {
+                copyToClipboard(content).then(() => {
                     // Show temporary success message
                     const button = event.target;
                     const originalText = button.textContent;
@@ -5042,7 +5268,7 @@
                     allContent += '---\n\n';
                 });
 
-                navigator.clipboard.writeText(allContent).then(() => {
+                copyToClipboard(allContent).then(() => {
                     alert('✅ Semua content berhasil di-copy!');
                 }).catch(err => {
                     console.error('Copy all failed:', err);
@@ -5196,7 +5422,7 @@
             },
 
             copyRepurposedContent(content) {
-                navigator.clipboard.writeText(content).then(() => {
+                copyToClipboard(content).then(() => {
                     // Show temporary success message
                     const button = event.target;
                     const originalText = button.textContent;
@@ -5233,7 +5459,7 @@
                     allContent += '---\n\n';
                 });
 
-                navigator.clipboard.writeText(allContent).then(() => {
+                copyToClipboard(allContent).then(() => {
                     alert('✅ Semua repurposed content berhasil di-copy!');
                 }).catch(err => {
                     console.error('Copy all failed:', err);
@@ -5533,7 +5759,7 @@ ${trend.hashtags?.join(' ') || ''}`
             },
 
             copyTrendContent(content) {
-                navigator.clipboard.writeText(content).then(() => {
+                copyToClipboard(content).then(() => {
                     alert('✅ Konten berhasil di-copy!');
                 }).catch(() => {
                     alert('❌ Gagal copy konten');
@@ -5545,7 +5771,7 @@ ${trend.hashtags?.join(' ') || ''}`
                     `${result.title}:\n${result.content}\n\nHashtags: ${result.hashtags.join(' ')}\n\n---\n`
                 ).join('\n');
                 
-                navigator.clipboard.writeText(allContent).then(() => {
+                copyToClipboard(allContent).then(() => {
                     alert('✅ Semua konten berhasil di-copy!');
                 }).catch(() => {
                     alert('❌ Gagal copy konten');
@@ -5808,6 +6034,455 @@ ${trend.hashtags?.join(' ') || ''}`
                 this.result = expandedText;
                 alert('✅ Expanded caption berhasil digunakan!');
                 this.showCaptionExpander = false;
+            },
+
+            // ─── Google Ads Functions ───────────────────────────────────
+            async generateGoogleAds() {
+                this.adsLoading = true;
+                this.adsResult = null;
+                try {
+                    const response = await fetch('/api/ai/generate-google-ads', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(this.adsForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.adsResult = data.campaign;
+                        this.adsTab = 'copy';
+                        if (data.quota_remaining !== undefined) {
+                            this.quotaRemaining = data.quota_remaining;
+                        }
+                    } else if (data.quota_error) {
+                        alert('⚡ ' + data.message);
+                    } else {
+                        alert('❌ ' + (data.message || 'Gagal generate kampanye'));
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Terjadi kesalahan. Coba lagi.');
+                } finally {
+                    this.adsLoading = false;
+                }
+            },
+
+            copyText(text) {
+                if (!text) return;
+                copyToClipboard(text).then(() => {
+                    this.adsCopied = true;
+                    setTimeout(() => this.adsCopied = false, 2000);
+                });
+            },
+
+            copyAdGroup(group) {
+                if (!group) return;
+                let out = `=== ${group.name} ===\n${group.theme}\n\n`;
+                (group.ads || []).forEach(ad => {
+                    out += `HEADLINES:\n${(ad.headlines || []).join('\n')}\n\nDESCRIPTIONS:\n${(ad.descriptions || []).join('\n')}\n\n`;
+                });
+                this.copyText(out);
+            },
+
+            copyAllKeywords(group) {
+                if (!group?.keywords) return;
+                const kw = group.keywords;
+                const out = [
+                    'EXACT MATCH:\n' + (kw.exact_match || []).join('\n'),
+                    'PHRASE MATCH:\n' + (kw.phrase_match || []).join('\n'),
+                    'BROAD MATCH:\n' + (kw.broad_match_modifier || []).join('\n'),
+                    'NEGATIVE:\n' + (kw.negative_keywords || []).join('\n'),
+                ].join('\n\n');
+                this.copyText(out);
+            },
+
+            copyAllSitelinks() {
+                const sitelinks = this.adsResult?.ad_extensions?.sitelinks || [];
+                const out = sitelinks.map(sl =>
+                    `Title: ${sl.title}\nDesc1: ${sl.description1}\nDesc2: ${sl.description2}\nURL: ${sl.url}`
+                ).join('\n\n');
+                this.copyText(out);
+            },
+
+            copySitelink(sl) {
+                this.copyText(`Title: ${sl.title}\nDesc1: ${sl.description1}\nDesc2: ${sl.description2}\nURL: ${sl.url}`);
+            },
+
+            copyFullCampaign() {
+                if (!this.adsResult) return;
+                const r = this.adsResult;
+                let out = `============================\nGOOGLE ADS CAMPAIGN\n============================\n`;
+                out += `Nama: ${r.campaign_summary?.name}\nTipe: ${r.campaign_summary?.type}\nTujuan: ${r.campaign_summary?.goal}\n`;
+                out += `Budget Harian: Rp ${(r.campaign_summary?.daily_budget_idr || 0).toLocaleString('id-ID')}\n`;
+                out += `Campaign Score: ${r.campaign_summary?.campaign_score}/100\n\n`;
+
+                (r.ad_groups || []).forEach((g, i) => {
+                    out += `\n--- AD GROUP ${i+1}: ${g.name} ---\n`;
+                    (g.ads || []).forEach(ad => {
+                        out += `\nHEADLINES:\n${(ad.headlines || []).join('\n')}\n`;
+                        out += `\nDESCRIPTIONS:\n${(ad.descriptions || []).join('\n')}\n`;
+                    });
+                    const kw = g.keywords || {};
+                    out += `\nEXACT MATCH:\n${(kw.exact_match || []).join('\n')}\n`;
+                    out += `\nPHRASE MATCH:\n${(kw.phrase_match || []).join('\n')}\n`;
+                    out += `\nBROAD MATCH:\n${(kw.broad_match_modifier || []).join('\n')}\n`;
+                    out += `\nNEGATIVE:\n${(kw.negative_keywords || []).join('\n')}\n`;
+                });
+
+                const ext = r.ad_extensions || {};
+                if (ext.sitelinks?.length) {
+                    out += `\n--- SITELINKS ---\n`;
+                    ext.sitelinks.forEach(sl => out += `${sl.title} | ${sl.description1} | ${sl.url}\n`);
+                }
+                if (ext.callouts?.length) {
+                    out += `\n--- CALLOUTS ---\n${ext.callouts.join('\n')}\n`;
+                }
+                this.copyText(out);
+            },
+
+            // ─── Magic Promo Link Functions ─────────────────────────────
+            async generatePromoLink() {
+                if (!this.promoForm.product_name || !this.promoForm.product_desc) return;
+                this.promoLoading = true;
+                this.promoResult = null;
+                this.promoError = null;
+                this.promoCopied = {};
+                try {
+                    const response = await fetch('/api/ai/generate-promo-link', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(this.promoForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.promoResult = data.data;
+                        if (data.quota_remaining !== undefined) {
+                            this.quotaRemaining = data.quota_remaining;
+                        }
+                    } else {
+                        this.promoError = data.message || 'Terjadi kesalahan';
+                    }
+                } catch (e) {
+                    this.promoError = 'Gagal terhubung ke server';
+                } finally {
+                    this.promoLoading = false;
+                }
+            },
+
+            promoCopyCaption(caption, idx) {
+                const text = caption.caption + '\n\n' + (caption.hashtags || []).join(' ');
+                copyToClipboard(text).then(() => {
+                    this.promoCopied = { ...this.promoCopied, [idx]: true };
+                    setTimeout(() => {
+                        this.promoCopied = { ...this.promoCopied, [idx]: false };
+                    }, 2000);
+                });
+            },
+
+            promoShareWA(caption) {
+                const text = encodeURIComponent(caption.caption + '\n\n' + (caption.hashtags || []).join(' '));
+                const waNum = this.promoForm.wa_number ? this.promoForm.wa_number.replace(/\D/g, '') : '';
+                const url = waNum
+                    ? `https://wa.me/${waNum}?text=${text}`
+                    : `https://wa.me/?text=${text}`;
+                window.open(url, '_blank');
+            },
+
+            promoShareX(caption) {
+                // X (Twitter) has 280 char limit — use hook + CTA + hashtags
+                const tweet = encodeURIComponent(
+                    (caption.hook || '') + '\n\n' + (caption.cta || '') + '\n\n' +
+                    (caption.hashtags || []).slice(0, 3).join(' ')
+                );
+                window.open(`https://twitter.com/intent/tweet?text=${tweet}`, '_blank');
+            },
+
+            promoShareLinkedIn(caption) {
+                const text = encodeURIComponent(caption.caption);
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&summary=${text}`, '_blank');
+            },
+
+            // ─── Product Explainer Functions ────────────────────────────
+            async generateExplainer() {
+                if (!this.explainerForm.product_name || !this.explainerForm.product_desc || !this.explainerForm.wa_number) return;
+                this.explainerLoading = true;
+                this.explainerResult = null;
+                this.explainerError = null;
+                this.explainerCopied = {};
+                this.explainerLinkCopied = {};
+                try {
+                    const response = await fetch('/api/ai/generate-product-explainer', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(this.explainerForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.explainerResult = data.data;
+                        if (data.quota_remaining !== undefined) {
+                            this.quotaRemaining = data.quota_remaining;
+                        }
+                    } else {
+                        this.explainerError = data.message || 'Terjadi kesalahan';
+                    }
+                } catch (e) {
+                    this.explainerError = 'Gagal terhubung ke server';
+                } finally {
+                    this.explainerLoading = false;
+                }
+            },
+
+            explainerBuildLink(message) {
+                const waNum = (this.explainerResult?.wa_number || this.explainerForm.wa_number || '').replace(/\D/g, '');
+                if (!waNum) return 'Masukkan nomor WA untuk generate link';
+                return `https://wa.me/${waNum}?text=${encodeURIComponent(message)}`;
+            },
+
+            explainerOpenWA(message) {
+                window.open(this.explainerBuildLink(message), '_blank');
+            },
+
+            explainerCopyMsg(message, idx) {
+                copyToClipboard(message).then(() => {
+                    this.explainerCopied = { ...this.explainerCopied, [idx]: true };
+                    setTimeout(() => { this.explainerCopied = { ...this.explainerCopied, [idx]: false }; }, 2000);
+                });
+            },
+
+            explainerCopyLink(message, idx) {
+                const link = this.explainerBuildLink(message);
+                copyToClipboard(link).then(() => {
+                    this.explainerLinkCopied = { ...this.explainerLinkCopied, [idx]: true };
+                    setTimeout(() => { this.explainerLinkCopied = { ...this.explainerLinkCopied, [idx]: false }; }, 2000);
+                });
+            },
+
+            // ─── SEO Metadata ───────────────────────────────────────────────
+            async generateSeoMetadata() {
+                this.seoLoading = true; this.seoResult = null; this.seoError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-seo-metadata', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.seoForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.seoResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.seoError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.seoError = 'Gagal terhubung ke server'; }
+                finally { this.seoLoading = false; }
+            },
+            seoCopy(text, key) {
+                copyToClipboard(text).then(() => {
+                    this.seoCopied = { ...this.seoCopied, [key]: true };
+                    setTimeout(() => { this.seoCopied = { ...this.seoCopied, [key]: false }; }, 2000);
+                });
+            },
+
+            // ─── Smart Comparison ────────────────────────────────────────────
+            async generateComparison() {
+                this.compLoading = true; this.compResult = null; this.compError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-comparison', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.compForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.compResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.compError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.compError = 'Gagal terhubung ke server'; }
+                finally { this.compLoading = false; }
+            },
+            compCopyShare() {
+                const text = this.compResult?.share_text || '';
+                copyToClipboard(text).then(() => {
+                    this.compCopied = true;
+                    setTimeout(() => { this.compCopied = false; }, 2000);
+                });
+            },
+            compShareWA() {
+                const text = encodeURIComponent(this.compResult?.share_text || '');
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            },
+
+            // ─── FAQ Generator ───────────────────────────────────────────────
+            async generateFaq() {
+                this.faqLoading = true; this.faqResult = null; this.faqError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-faq', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.faqForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.faqResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.faqError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.faqError = 'Gagal terhubung ke server'; }
+                finally { this.faqLoading = false; }
+            },
+            faqCopyItem(text, idx) {
+                copyToClipboard(text).then(() => {
+                    this.faqCopied = { ...this.faqCopied, [idx]: true };
+                    setTimeout(() => { this.faqCopied = { ...this.faqCopied, [idx]: false }; }, 2000);
+                });
+            },
+            faqCopySchema() {
+                const schema = JSON.stringify(this.faqResult?.schema_markup || {}, null, 2);
+                copyToClipboard(schema).then(() => {
+                    this.faqSchemaCopied = true;
+                    setTimeout(() => { this.faqSchemaCopied = false; }, 2000);
+                });
+            },
+
+            // ─── Reels Hook ──────────────────────────────────────────────────
+            async generateReelsHook() {
+                this.reelsLoading = true; this.reelsResult = null; this.reelsError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-reels-hook', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.reelsForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.reelsResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.reelsError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.reelsError = 'Gagal terhubung ke server'; }
+                finally { this.reelsLoading = false; }
+            },
+            reelsCopyHook(text, idx) {
+                copyToClipboard(text).then(() => {
+                    this.reelsCopied = { ...this.reelsCopied, [idx]: true };
+                    setTimeout(() => { this.reelsCopied = { ...this.reelsCopied, [idx]: false }; }, 2000);
+                });
+            },
+            reelsCopyScript() {
+                const script = this.reelsResult?.full_script || '';
+                copyToClipboard(script).then(() => {
+                    this.reelsScriptCopied = true;
+                    setTimeout(() => { this.reelsScriptCopied = false; }, 2000);
+                });
+            },
+            reelsCopyBio() {
+                const bio = this.reelsResult?.bio_link_text || '';
+                copyToClipboard(bio).then(() => {
+                    this.reelsBioCopied = true;
+                    setTimeout(() => { this.reelsBioCopied = false; }, 2000);
+                });
+            },
+
+            // ─── Quality Badge ───────────────────────────────────────────────
+            async generateQualityBadge() {
+                this.badgeLoading = true; this.badgeResult = null; this.badgeError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-quality-badge', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.badgeForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.badgeResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.badgeError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.badgeError = 'Gagal terhubung ke server'; }
+                finally { this.badgeLoading = false; }
+            },
+            badgeCopyText() {
+                const text = this.badgeResult?.badge_text || '';
+                copyToClipboard(text).then(() => {
+                    this.badgeCopied = true;
+                    setTimeout(() => { this.badgeCopied = false; }, 2000);
+                });
+            },
+
+            // ─── Discount Campaign ───────────────────────────────────────────
+            async generateDiscountCampaign() {
+                this.discLoading = true; this.discResult = null; this.discError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-discount-campaign', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.discForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.discResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.discError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.discError = 'Gagal terhubung ke server'; }
+                finally { this.discLoading = false; }
+            },
+            discCopy(text, idx) {
+                copyToClipboard(text).then(() => {
+                    this.discCopied = { ...this.discCopied, [idx]: true };
+                    setTimeout(() => { this.discCopied = { ...this.discCopied, [idx]: false }; }, 2000);
+                });
+            },
+            discCopyWALink() {
+                const link = this.discResult?.wa_broadcast_link || '';
+                copyToClipboard(link).then(() => {
+                    this.discWACopied = true;
+                    setTimeout(() => { this.discWACopied = false; }, 2000);
+                });
+            },
+
+            // ─── Trend Tags ──────────────────────────────────────────────────
+            async generateTrendTags() {
+                this.tagsLoading = true; this.tagsResult = null; this.tagsError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-trend-tags', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.tagsForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.tagsResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.tagsError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.tagsError = 'Gagal terhubung ke server'; }
+                finally { this.tagsLoading = false; }
+            },
+            tagsCopyAll() {
+                const tags = (this.tagsResult?.trending_tags || []).map(t => t.tag).join(', ');
+                copyToClipboard(tags).then(() => {
+                    this.tagsCopied = true;
+                    setTimeout(() => { this.tagsCopied = false; }, 2000);
+                });
+            },
+
+            // ─── Lead Magnet ─────────────────────────────────────────────────
+            async generateLeadMagnet() {
+                this.magnetLoading = true; this.magnetResult = null; this.magnetError = null;
+                try {
+                    const response = await fetch('/api/ai/generate-lead-magnet', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify(this.magnetForm)
+                    });
+                    const data = await response.json();
+                    if (data.success) { this.magnetResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
+                    else this.magnetError = data.message || 'Terjadi kesalahan';
+                } catch (e) { this.magnetError = 'Gagal terhubung ke server'; }
+                finally { this.magnetLoading = false; }
+            },
+            magnetCopyLanding() {
+                const lc = this.magnetResult?.landing_copy || {};
+                const text = [lc.headline, lc.subheadline, ...(lc.bullets || []), lc.cta_button].filter(Boolean).join('\n');
+                copyToClipboard(text).then(() => {
+                    this.magnetCopied = true;
+                    setTimeout(() => { this.magnetCopied = false; }, 2000);
+                });
+            },
+            magnetCopyWA() {
+                const link = this.magnetResult?.wa_link || '';
+                copyToClipboard(link).then(() => {
+                    this.magnetWACopied = true;
+                    setTimeout(() => { this.magnetWACopied = false; }, 2000);
+                });
             },
         }
     }

@@ -58,6 +58,20 @@
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
 
+                    <!-- Referral Code (optional) -->
+                    <div class="mb-6">
+                        <label for="referral_code" class="block text-sm font-medium text-gray-700 mb-2">
+                            Kode Referral <span class="text-gray-400 font-normal">(opsional)</span>
+                        </label>
+                        <input id="referral_code" type="text" name="referral_code"
+                               value="{{ old('referral_code', request('ref')) }}"
+                               maxlength="10" placeholder="Masukkan kode referral jika ada"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase">
+                        @error('referral_code')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Submit Button -->
                     <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium">
                         Daftar

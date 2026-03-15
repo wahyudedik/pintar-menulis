@@ -7,12 +7,20 @@ use App\Models\Project;
 use App\Models\ProjectContent;
 use App\Models\ContentComment;
 use App\Models\ContentVersion;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProjectContentController extends Controller
 {
     use AuthorizesRequests;
+
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * List project content
      */
@@ -206,6 +214,9 @@ class ProjectContentController extends Controller
 
         $content->submitForReview();
 
+        // Notify approvers
+        $this->notificationService->notifyContentSubmitted($content->load('project.user', 'project.members.user', 'creator'));
+
         return response()->json([
             'success' => true,
             'message' => 'Content berhasil disubmit untuk review.',
@@ -231,6 +242,9 @@ class ProjectContentController extends Controller
 
         $content->approve(auth()->user(), $validated['notes'] ?? null);
 
+        // Notify content creator
+        $this->notificationService->notifyContentApproved($content->load('project', 'creator', 'reviewer'));
+
         return response()->json([
             'success' => true,
             'message' => 'Content berhasil di-approve.',
@@ -255,6 +269,9 @@ class ProjectContentController extends Controller
         ]);
 
         $content->reject(auth()->user(), $validated['notes']);
+
+        // Notify content creator
+        $this->notificationService->notifyContentRejected($content->load('project', 'creator', 'reviewer'));
 
         return response()->json([
             'success' => true,

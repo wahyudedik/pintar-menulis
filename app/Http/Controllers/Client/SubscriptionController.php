@@ -5,11 +5,19 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Package;
 use App\Models\UserSubscription;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SubscriptionController extends Controller
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     // Halaman pricing publik
     public function pricing()
     {
@@ -45,6 +53,11 @@ class SubscriptionController extends Controller
         }
 
         UserSubscription::startTrial($user, $package);
+
+        // Notify user
+        $this->notificationService->notifySubscriptionActivated(
+            $user->currentSubscription()->load('package', 'user')
+        );
 
         return redirect()->route('subscription.index')
             ->with('success', "🎉 Trial {$package->name} aktif! Nikmati 30 hari gratis.");
@@ -98,7 +111,7 @@ class SubscriptionController extends Controller
             ->where('status', 'pending_payment')
             ->update(['status' => 'cancelled']);
 
-        UserSubscription::create([
+        $newSub = UserSubscription::create([
             'user_id'           => $user->id,
             'package_id'        => $package->id,
             'status'            => 'pending_payment',
@@ -110,9 +123,10 @@ class SubscriptionController extends Controller
             'payment_reference' => $proofPath,
         ]);
 
+        $this->notificationService->notifySubscriptionPendingVerification($newSub->load('package'));
+
         return redirect()->route('subscription.index')
-            ->with('success', '✅ Bukti pembayaran berhasil dikirim! Admin akan verifikasi dalam 1×24 jam.');
-    }
+            ->with('success', '✅ Bukti pembayaran berhasil dikirim! Admin akan verifikasi dalam 1×24 jam.');    }
 
     // Cancel subscription
     public function cancel(Request $request)
@@ -144,6 +158,11 @@ class SubscriptionController extends Controller
             'quota_reset_at' => now()->addMonth(),
         ]);
 
+        // Trigger referral commission jika applicable (hanya sekali per user)
+        app(\App\Services\ReferralService::class)->convertSubscription($subscription->fresh());
+
+        $this->notificationService->notifySubscriptionActivated($subscription->fresh()->load('package', 'user'));
+
         return back()->with('success', "✅ Subscription #{$subscription->id} ({$subscription->user->name}) berhasil diaktifkan.");
     }
 
@@ -151,6 +170,9 @@ class SubscriptionController extends Controller
     public function adminReject(Request $request, UserSubscription $subscription)
     {
         $subscription->update(['status' => 'cancelled', 'cancelled_at' => now()]);
+
+        $this->notificationService->notifySubscriptionRejected($subscription->load('package', 'user'));
+
         return back()->with('success', "Subscription #{$subscription->id} ditolak.");
     }
 
@@ -190,6 +212,8 @@ class SubscriptionController extends Controller
                         'ai_quota_used'  => 0,
                         'quota_reset_at' => now()->addMonth(),
                     ]);
+                    app(\App\Services\ReferralService::class)->convertSubscription($sub->fresh());
+                    $this->notificationService->notifySubscriptionActivated($sub->fresh()->load('package', 'user'));
                 }
             }
         }
@@ -226,6 +250,8 @@ class SubscriptionController extends Controller
                         'ai_quota_used'  => 0,
                         'quota_reset_at' => now()->addMonth(),
                     ]);
+                    app(\App\Services\ReferralService::class)->convertSubscription($sub->fresh());
+                    $this->notificationService->notifySubscriptionActivated($sub->fresh()->load('package', 'user'));
                 }
             }
         }

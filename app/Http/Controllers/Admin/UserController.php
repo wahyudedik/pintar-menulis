@@ -5,11 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\OperatorProfile;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     // User Management Dashboard
     public function index()
     {
@@ -119,6 +126,9 @@ class UserController extends Controller
             ]);
         }
 
+        // Notify operator
+        $this->notificationService->notifyOperatorVerified($user);
+
         return back()->with('success', 'Operator berhasil diverifikasi');
     }
 
@@ -136,6 +146,9 @@ class UserController extends Controller
                 'verified_at' => null,
             ]);
         }
+
+        // Notify operator
+        $this->notificationService->notifyOperatorUnverified($user);
 
         return back()->with('success', 'Verifikasi operator dibatalkan');
     }

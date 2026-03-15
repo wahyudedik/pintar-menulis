@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Traits\DynamicDateAware;
+use App\Models\MLTrainingData;
 
 class GeminiService
 {
@@ -412,6 +413,64 @@ class GeminiService
 
 
     /**
+     * Get few-shot examples from guru-reviewed training data to improve AI output quality.
+     * Queries excellent-rated MLTrainingData, filtered by category then platform, cached 1 hour.
+     */
+    protected function getFewShotExamples(string $category, string $platform, string $subcategory = ''): string
+    {
+        $cacheKey = 'fewshot_' . md5("{$category}_{$platform}_{$subcategory}");
+
+        return Cache::remember($cacheKey, now()->addHour(), function () use ($category, $platform) {
+            $base = MLTrainingData::where('quality_rating', 'excellent')
+                ->whereNotNull('corrected_output');
+
+            // Try category + platform match first (caption-sourced training data has platform in metadata)
+            $examples = (clone $base)
+                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.category')) = ?", [$category])
+                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.platform')) = ?", [$platform])
+                ->latest()
+                ->limit(3)
+                ->get();
+
+            // Fallback 1: category match only
+            if ($examples->isEmpty()) {
+                $examples = (clone $base)
+                    ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.category')) = ?", [$category])
+                    ->latest()
+                    ->limit(3)
+                    ->get();
+            }
+
+            // Fallback 2: any excellent examples
+            if ($examples->isEmpty()) {
+                $examples = $base->latest()->limit(3)->get();
+            }
+
+            if ($examples->isEmpty()) {
+                return '';
+            }
+
+            $block = "📚 CONTOH KONTEN BERKUALITAS TINGGI (dari guru copywriting kami):\n";
+            $block .= "Pelajari GAYA dan STRUKTUR contoh berikut, lalu buat konten yang LEBIH BAIK:\n\n";
+
+            foreach ($examples as $i => $example) {
+                $num = $i + 1;
+                // input_prompt from trainFromCaption() is a metadata string, not a real brief
+                $isMetaPrompt = str_starts_with($example->input_prompt, 'Category:');
+                $briefLabel = $isMetaPrompt ? 'Konteks' : 'Brief';
+                $block .= "--- Contoh {$num} ---\n";
+                $block .= "{$briefLabel}: " . substr($example->input_prompt, 0, 150) . "\n";
+                $block .= "Konten terbaik:\n" . substr($example->corrected_output, 0, 300) . "\n\n";
+            }
+
+            $block .= "---\n";
+            $block .= "Gunakan contoh di atas sebagai REFERENSI KUALITAS. Buat konten yang setara atau lebih baik!\n\n";
+
+            return $block;
+        });
+    }
+
+    /**
      * Build prompt for Gemini based on parameters
      */
     protected function buildPrompt(array $params)
@@ -502,6 +561,9 @@ class GeminiService
 
         // General prompt with context awareness
         $prompt = "Kamu adalah copywriter profesional yang ahli dalam membuat konten promosi untuk UMKM Indonesia.\n\n";
+        
+        // Inject few-shot examples from guru training data
+        $prompt .= $this->getFewShotExamples($category, $platform, $subcategory);
         
         // Add CRITICAL instruction to avoid repetition
         if (!empty($recentCaptions)) {
@@ -734,6 +796,9 @@ class GeminiService
         $adjustedTone = $this->adjustToneForPlatform($tone, $platform);
         
         $basePrompt = "Kamu adalah copywriter profesional yang SANGAT PAHAM UMKM Indonesia dan cara jualan yang efektif.\n\n";
+        
+        // Inject few-shot examples from guru training data
+        $basePrompt .= $this->getFewShotExamples('industry_presets', $platform, $industry);
         
         // Add CRITICAL instruction to avoid repetition
         if (!empty($recentCaptions)) {
@@ -1010,6 +1075,9 @@ class GeminiService
         $adjustedTone = $this->adjustToneForPlatform($tone, $platform);
         
         $basePrompt = "Kamu adalah copywriter profesional yang ahli dalam membuat konten viral untuk social media.\n\n";
+        
+        // Inject few-shot examples from guru training data
+        $basePrompt .= $this->getFewShotExamples('quick_templates', $platform, $subcategory);
         
         // Add CRITICAL instruction to avoid repetition
         if (!empty($recentCaptions)) {
@@ -2698,5 +2766,886 @@ PROMPT;
         }
 
         return $prompt;
+    }
+
+    /**
+     * 🎯 Generate complete Google Ads campaign package
+     */
+    public function generateGoogleAdsCampaign(array $params): array
+    {
+        $businessName   = $params['business_name'];
+        $productService = $params['product_service'];
+        $targetAudience = $params['target_audience'];
+        $location       = $params['location'];
+        $dailyBudget    = (int) $params['daily_budget'];
+        $campaignGoal   = $params['campaign_goal'];
+        $campaignType   = $params['campaign_type'];
+        $landingUrl     = $params['landing_page_url'] ?? '';
+        $keywordsHint   = $params['keywords_hint'] ?? '';
+        $usp            = $params['usp'] ?? '';
+        $lang           = $params['language'] ?? 'id';
+
+        $goalLabels = [
+            'sales'           => 'Penjualan / Konversi',
+            'leads'           => 'Leads / Prospek',
+            'traffic'         => 'Traffic Website',
+            'brand_awareness' => 'Brand Awareness',
+            'app_installs'    => 'Install Aplikasi',
+        ];
+        $typeLabels = [
+            'search'          => 'Search Ads',
+            'display'         => 'Display Ads',
+            'shopping'        => 'Shopping Ads',
+            'video'           => 'Video Ads (YouTube)',
+            'performance_max' => 'Performance Max',
+        ];
+
+        $monthlyBudget  = $dailyBudget * 30;
+        $goalLabel      = $goalLabels[$campaignGoal] ?? $campaignGoal;
+        $typeLabel      = $typeLabels[$campaignType] ?? $campaignType;
+
+        $prompt = <<<PROMPT
+Kamu adalah Google Ads specialist berpengalaman 10+ tahun yang membantu UMKM Indonesia membuat kampanye Google Ads yang efektif dan siap pakai.
+
+Buat PAKET KAMPANYE GOOGLE ADS LENGKAP untuk:
+- Bisnis: {$businessName}
+- Produk/Layanan: {$productService}
+- Target Audience: {$targetAudience}
+- Lokasi Target: {$location}
+- Budget Harian: Rp {$dailyBudget} (Bulanan: Rp {$monthlyBudget})
+- Tujuan Kampanye: {$goalLabel}
+- Tipe Kampanye: {$typeLabel}
+- Landing Page: {$landingUrl}
+- Kata Kunci Awal: {$keywordsHint}
+- Keunggulan Produk (USP): {$usp}
+
+Berikan output dalam format JSON yang LENGKAP dan SIAP COPY-PASTE ke Google Ads:
+
+```json
+{
+  "campaign_summary": {
+    "name": "nama kampanye yang disarankan",
+    "type": "{$typeLabel}",
+    "goal": "{$goalLabel}",
+    "daily_budget_idr": {$dailyBudget},
+    "monthly_budget_idr": {$monthlyBudget},
+    "recommended_bid_strategy": "strategi bidding yang disarankan (Target CPA/ROAS/Maximize Clicks/dll)",
+    "estimated_daily_clicks": "estimasi klik per hari",
+    "estimated_monthly_reach": "estimasi jangkauan per bulan",
+    "estimated_cpc_idr": "estimasi cost per click dalam Rupiah",
+    "quality_score_prediction": "prediksi Quality Score 1-10",
+    "campaign_score": 85
+  },
+  "ad_groups": [
+    {
+      "name": "nama ad group 1",
+      "theme": "tema/fokus ad group ini",
+      "keywords": {
+        "exact_match": ["[keyword exact 1]", "[keyword exact 2]", "[keyword exact 3]"],
+        "phrase_match": ["\"keyword phrase 1\"", "\"keyword phrase 2\"", "\"keyword phrase 3\""],
+        "broad_match_modifier": ["+keyword +broad 1", "+keyword +broad 2"],
+        "negative_keywords": ["-keyword negatif 1", "-keyword negatif 2", "-keyword negatif 3"]
+      },
+      "ads": [
+        {
+          "ad_type": "Responsive Search Ad",
+          "headlines": [
+            "Headline 1 (maks 30 karakter)",
+            "Headline 2 (maks 30 karakter)",
+            "Headline 3 (maks 30 karakter)",
+            "Headline 4 (maks 30 karakter)",
+            "Headline 5 (maks 30 karakter)",
+            "Headline 6 (maks 30 karakter)",
+            "Headline 7 (maks 30 karakter)",
+            "Headline 8 (maks 30 karakter)",
+            "Headline 9 (maks 30 karakter)",
+            "Headline 10 (maks 30 karakter)",
+            "Headline 11 (maks 30 karakter)",
+            "Headline 12 (maks 30 karakter)",
+            "Headline 13 (maks 30 karakter)",
+            "Headline 14 (maks 30 karakter)",
+            "Headline 15 (maks 30 karakter)"
+          ],
+          "descriptions": [
+            "Deskripsi 1 yang menarik dan informatif, maksimal 90 karakter, sertakan CTA",
+            "Deskripsi 2 yang berbeda angle, maksimal 90 karakter, highlight USP",
+            "Deskripsi 3 yang fokus pada benefit, maksimal 90 karakter",
+            "Deskripsi 4 yang menciptakan urgency, maksimal 90 karakter"
+          ],
+          "display_url": "contoh-display-url.com/path",
+          "final_url": "{$landingUrl}"
+        }
+      ]
+    },
+    {
+      "name": "nama ad group 2",
+      "theme": "tema/fokus ad group kedua",
+      "keywords": {
+        "exact_match": ["[keyword exact 1]", "[keyword exact 2]"],
+        "phrase_match": ["\"keyword phrase 1\"", "\"keyword phrase 2\""],
+        "broad_match_modifier": ["+keyword +broad 1"],
+        "negative_keywords": ["-keyword negatif 1", "-keyword negatif 2"]
+      },
+      "ads": [
+        {
+          "ad_type": "Responsive Search Ad",
+          "headlines": [
+            "Headline 1", "Headline 2", "Headline 3", "Headline 4", "Headline 5",
+            "Headline 6", "Headline 7", "Headline 8", "Headline 9", "Headline 10",
+            "Headline 11", "Headline 12", "Headline 13", "Headline 14", "Headline 15"
+          ],
+          "descriptions": [
+            "Deskripsi 1 maks 90 karakter",
+            "Deskripsi 2 maks 90 karakter",
+            "Deskripsi 3 maks 90 karakter",
+            "Deskripsi 4 maks 90 karakter"
+          ],
+          "display_url": "contoh-display-url.com/path2",
+          "final_url": "{$landingUrl}"
+        }
+      ]
+    }
+  ],
+  "ad_extensions": {
+    "sitelinks": [
+      {"title": "Judul Sitelink 1 (maks 25 karakter)", "description1": "Deskripsi baris 1", "description2": "Deskripsi baris 2", "url": "{$landingUrl}/page1"},
+      {"title": "Judul Sitelink 2", "description1": "Deskripsi baris 1", "description2": "Deskripsi baris 2", "url": "{$landingUrl}/page2"},
+      {"title": "Judul Sitelink 3", "description1": "Deskripsi baris 1", "description2": "Deskripsi baris 2", "url": "{$landingUrl}/page3"},
+      {"title": "Judul Sitelink 4", "description1": "Deskripsi baris 1", "description2": "Deskripsi baris 2", "url": "{$landingUrl}/page4"}
+    ],
+    "callouts": [
+      "Callout 1 (maks 25 karakter)",
+      "Callout 2 (maks 25 karakter)",
+      "Callout 3 (maks 25 karakter)",
+      "Callout 4 (maks 25 karakter)",
+      "Callout 5 (maks 25 karakter)",
+      "Callout 6 (maks 25 karakter)"
+    ],
+    "structured_snippets": {
+      "header": "Pilih header yang sesuai (Merek/Layanan/Produk/dll)",
+      "values": ["Value 1", "Value 2", "Value 3", "Value 4"]
+    },
+    "call_extension": {
+      "phone_number": "nomor telepon bisnis",
+      "call_reporting": true
+    },
+    "location_extension": "Aktifkan jika ada toko fisik di {$location}"
+  },
+  "targeting_settings": {
+    "locations": ["{$location}", "area sekitar yang relevan"],
+    "languages": ["Bahasa Indonesia"],
+    "audiences": [
+      {"type": "In-market", "segment": "segmen in-market yang relevan"},
+      {"type": "Custom Intent", "keywords": ["keyword intent 1", "keyword intent 2"]},
+      {"type": "Remarketing", "description": "pengunjung website sebelumnya"}
+    ],
+    "devices": ["Mobile", "Desktop", "Tablet"],
+    "ad_schedule": {
+      "recommended_hours": "jam tayang yang disarankan berdasarkan target audience",
+      "peak_hours": "jam puncak yang disarankan"
+    },
+    "demographic": {
+      "age": "rentang usia yang disarankan",
+      "gender": "gender target jika relevan",
+      "household_income": "segmen pendapatan jika relevan"
+    }
+  },
+  "budget_allocation": {
+    "daily_budget_idr": {$dailyBudget},
+    "recommended_split": {
+      "search": "persentase untuk search",
+      "display_remarketing": "persentase untuk remarketing display"
+    },
+    "bid_adjustments": {
+      "mobile": "+X% atau -X%",
+      "top_performing_locations": "+X%",
+      "peak_hours": "+X%"
+    },
+    "estimated_results": {
+      "monthly_clicks": "estimasi klik per bulan",
+      "monthly_impressions": "estimasi impresi per bulan",
+      "estimated_conversions": "estimasi konversi per bulan",
+      "estimated_cpa_idr": "estimasi cost per acquisition dalam Rupiah",
+      "estimated_roas": "estimasi Return on Ad Spend"
+    }
+  },
+  "campaign_analysis": {
+    "strengths": [
+      "Kelebihan kampanye ini 1",
+      "Kelebihan kampanye ini 2",
+      "Kelebihan kampanye ini 3"
+    ],
+    "weaknesses": [
+      "Kelemahan/risiko yang perlu diperhatikan 1",
+      "Kelemahan/risiko yang perlu diperhatikan 2"
+    ],
+    "opportunities": [
+      "Peluang optimasi 1",
+      "Peluang optimasi 2"
+    ],
+    "recommendations": [
+      "Rekomendasi spesifik 1 untuk meningkatkan performa",
+      "Rekomendasi spesifik 2",
+      "Rekomendasi spesifik 3"
+    ],
+    "campaign_type_comparison": {
+      "chosen_type": "{$typeLabel}",
+      "why_suitable": "alasan tipe ini cocok untuk tujuan dan bisnis ini",
+      "alternative_types": [
+        {"type": "tipe alternatif 1", "pros": "kelebihan", "cons": "kekurangan", "when_to_use": "kapan pakai ini"},
+        {"type": "tipe alternatif 2", "pros": "kelebihan", "cons": "kekurangan", "when_to_use": "kapan pakai ini"}
+      ]
+    }
+  },
+  "conversion_tracking": {
+    "recommended_conversions": [
+      {"name": "nama konversi 1", "type": "tipe (Purchase/Lead/Page View/dll)", "value": "nilai konversi jika ada"},
+      {"name": "nama konversi 2", "type": "tipe", "value": "nilai"}
+    ],
+    "setup_instructions": "instruksi singkat cara setup conversion tracking"
+  },
+  "optimization_checklist": [
+    "✅ Checklist optimasi 1",
+    "✅ Checklist optimasi 2",
+    "✅ Checklist optimasi 3",
+    "✅ Checklist optimasi 4",
+    "✅ Checklist optimasi 5"
+  ],
+  "ab_test_suggestions": [
+    {"element": "elemen yang ditest", "variant_a": "versi A", "variant_b": "versi B", "hypothesis": "hipotesis"},
+    {"element": "elemen 2", "variant_a": "versi A", "variant_b": "versi B", "hypothesis": "hipotesis"}
+  ]
+}
+```
+
+PENTING:
+- Semua headline HARUS ≤ 30 karakter (hitung dengan teliti!)
+- Semua deskripsi HARUS ≤ 90 karakter
+- Semua callout HARUS ≤ 25 karakter
+- Gunakan bahasa Indonesia yang natural dan persuasif
+- Keywords harus relevan dengan bisnis dan target audience
+- Estimasi budget harus realistis untuk pasar Indonesia
+- Berikan HANYA JSON valid, tanpa teks tambahan di luar JSON
+PROMPT;
+
+        $rawResponse = $this->generateText($prompt, 8000, 0.7);
+
+        // Extract JSON from response
+        $json = $rawResponse;
+        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $rawResponse, $m)) {
+            $json = $m[1];
+        } elseif (preg_match('/\{[\s\S]+\}/', $rawResponse, $m)) {
+            $json = $m[0];
+        }
+
+        $decoded = json_decode($json, true);
+
+        if (!$decoded) {
+            // Return raw if JSON parse fails
+            return ['raw' => $rawResponse, 'parse_error' => true];
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * 💬 Generate AI Product Explainer for WhatsApp
+     */
+    public function generateProductExplainer(array $params): array
+    {
+        $productName  = $params['product_name'];
+        $productDesc  = $params['product_desc'];
+        $price        = $params['price'] ?? '';
+        $features     = $params['features'] ?? '';
+        $targetBuyer  = $params['target_buyer'] ?? 'calon pembeli';
+        $sellerName   = $params['seller_name'] ?? '';
+        $waNumber     = $params['wa_number'] ?? '';
+
+        $priceInfo   = $price    ? "Harga: {$price}" : '';
+        $featInfo    = $features ? "Fitur/Keunggulan: {$features}" : '';
+        $sellerInfo  = $sellerName ? "Nama Penjual/Toko: {$sellerName}" : '';
+
+        $prompt = <<<PROMPT
+Kamu adalah asisten penjualan profesional Indonesia yang membantu penjual membuat pesan WhatsApp otomatis yang terkesan responsif dan profesional.
+
+Buat PAKET PESAN WHATSAPP untuk produk berikut:
+- Produk: {$productName}
+- Deskripsi: {$productDesc}
+- {$priceInfo}
+- {$featInfo}
+- Target Pembeli: {$targetBuyer}
+- {$sellerInfo}
+
+Buat output dalam format JSON:
+
+```json
+{
+  "product_name": "{$productName}",
+  "seller_greeting": "pesan sambutan singkat dari penjual (1-2 kalimat, hangat dan profesional)",
+  "messages": [
+    {
+      "type": "ringkasan_singkat",
+      "label": "📋 Ringkasan Singkat",
+      "description": "Cocok untuk pembeli yang mau info cepat",
+      "message": "pesan WA ringkas 3-5 baris: salam, nama produk, 2-3 poin utama, harga, CTA. Gunakan emoji secukupnya."
+    },
+    {
+      "type": "detail_lengkap",
+      "label": "📦 Detail Lengkap",
+      "description": "Cocok untuk pembeli yang ingin tahu semua fitur",
+      "message": "pesan WA detail: salam, deskripsi produk, list fitur dengan bullet/emoji, harga, cara order, garansi jika ada, CTA. Format rapi dan mudah dibaca."
+    },
+    {
+      "type": "tanya_harga",
+      "label": "💰 Tanya Harga & Promo",
+      "description": "Cocok untuk pembeli yang fokus ke harga",
+      "message": "pesan WA fokus harga: salam, langsung ke harga, bandingkan value vs harga, promo jika ada, cara bayar, CTA urgent."
+    },
+    {
+      "type": "tanya_stok",
+      "label": "📦 Cek Ketersediaan",
+      "description": "Cocok untuk pembeli yang mau cek stok/varian",
+      "message": "pesan WA cek stok: salam, tanya ketersediaan produk, varian yang tersedia, estimasi pengiriman, CTA."
+    }
+  ],
+  "quick_replies": [
+    "pertanyaan umum calon pembeli 1 yang bisa dijawab otomatis",
+    "pertanyaan umum calon pembeli 2",
+    "pertanyaan umum calon pembeli 3"
+  ],
+  "seller_tips": [
+    "tips singkat untuk penjual agar terkesan lebih profesional saat balas WA 1",
+    "tips singkat 2",
+    "tips singkat 3"
+  ]
+}
+```
+
+ATURAN:
+- Semua pesan harus dalam Bahasa Indonesia yang natural, hangat, dan profesional
+- Gunakan emoji yang relevan tapi tidak berlebihan
+- Setiap pesan harus LENGKAP dan siap kirim tanpa perlu edit
+- Format pesan harus mudah dibaca di layar HP (baris pendek, ada spasi)
+- Berikan HANYA JSON valid, tanpa teks tambahan
+PROMPT;
+
+        $rawResponse = $this->generateText($prompt, 3000, 0.75);
+
+        $json = $rawResponse;
+        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $rawResponse, $m)) {
+            $json = $m[1];
+        } elseif (preg_match('/\{[\s\S]+\}/', $rawResponse, $m)) {
+            $json = $m[0];
+        }
+
+        $decoded = json_decode($json, true);
+
+        if (!$decoded) {
+            return ['raw' => $rawResponse, 'parse_error' => true];
+        }
+
+        // Attach wa_number for deep link generation on frontend
+        $decoded['wa_number'] = $waNumber;
+
+        return $decoded;
+    }
+
+    /**
+     * 🔗 Generate Magic Promo Link — 3 caption styles + deep links
+     */
+    public function generateMagicPromoLink(array $params): array
+    {
+        $productName    = $params['product_name'];
+        $productDesc    = $params['product_desc'];
+        $price          = $params['price'] ?? '';
+        $targetAudience = $params['target_audience'] ?? 'umum';
+        $promoDetail    = $params['promo_detail'] ?? '';
+        $waNumber       = $params['wa_number'] ?? '';
+        $lang           = $params['language'] ?? 'id';
+
+        $priceInfo  = $price ? "Harga: {$price}" : '';
+        $promoInfo  = $promoDetail ? "Detail Promo: {$promoDetail}" : '';
+        $waInfo     = $waNumber ? "Nomor WhatsApp: {$waNumber}" : '';
+
+        $prompt = <<<PROMPT
+Kamu adalah copywriter profesional Indonesia yang ahli dalam membuat caption promosi yang menghasilkan penjualan.
+
+Buat 3 variasi caption promosi untuk:
+- Produk: {$productName}
+- Deskripsi: {$productDesc}
+- {$priceInfo}
+- Target Audience: {$targetAudience}
+- {$promoInfo}
+- {$waInfo}
+
+Buat TEPAT 3 variasi dengan gaya berbeda:
+
+1. **HARD SELL** — Langsung to the point, urgency tinggi, CTA kuat, angka/harga menonjol, cocok untuk flash sale
+2. **SOFT SELL** — Pendekatan halus, fokus manfaat & value, bangun kepercayaan, tidak terkesan memaksa
+3. **STORYTELLING** — Cerita singkat yang relatable, emotional hook, buat pembaca merasa "ini gue banget"
+
+Berikan output dalam format JSON:
+
+```json
+{
+  "product_name": "{$productName}",
+  "captions": [
+    {
+      "style": "Hard Sell",
+      "emoji": "🔥",
+      "tone": "Agresif & Urgent",
+      "best_for": "Flash sale, limited offer, diskon besar",
+      "caption": "teks caption hard sell lengkap dengan emoji dan hashtag",
+      "hook": "kalimat pembuka yang menarik perhatian",
+      "cta": "call-to-action yang digunakan",
+      "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3", "#hashtag4", "#hashtag5"]
+    },
+    {
+      "style": "Soft Sell",
+      "emoji": "✨",
+      "tone": "Hangat & Persuasif",
+      "best_for": "Brand building, edukasi produk, audience baru",
+      "caption": "teks caption soft sell lengkap dengan emoji dan hashtag",
+      "hook": "kalimat pembuka yang menarik perhatian",
+      "cta": "call-to-action yang digunakan",
+      "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3", "#hashtag4", "#hashtag5"]
+    },
+    {
+      "style": "Storytelling",
+      "emoji": "💬",
+      "tone": "Relatable & Emosional",
+      "best_for": "Engagement tinggi, viral content, membangun koneksi",
+      "caption": "teks caption storytelling lengkap dengan emoji dan hashtag",
+      "hook": "kalimat pembuka yang menarik perhatian",
+      "cta": "call-to-action yang digunakan",
+      "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3", "#hashtag4", "#hashtag5"]
+    }
+  ],
+  "tips": {
+    "hard_sell": "tips kapan dan bagaimana menggunakan gaya hard sell",
+    "soft_sell": "tips kapan dan bagaimana menggunakan gaya soft sell",
+    "storytelling": "tips kapan dan bagaimana menggunakan gaya storytelling"
+  }
+}
+```
+
+ATURAN:
+- Setiap caption harus LENGKAP, siap pakai, tidak perlu diedit lagi
+- Gunakan Bahasa Indonesia yang natural dan sesuai target audience
+- Sertakan emoji yang relevan di dalam caption
+- Hashtag harus relevan dan populer di Indonesia
+- Caption minimal 3 paragraf, maksimal 5 paragraf
+- Berikan HANYA JSON valid, tanpa teks tambahan
+PROMPT;
+
+        $rawResponse = $this->generateText($prompt, 4000, 0.8);
+
+        $json = $rawResponse;
+        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $rawResponse, $m)) {
+            $json = $m[1];
+        } elseif (preg_match('/\{[\s\S]+\}/', $rawResponse, $m)) {
+            $json = $m[0];
+        }
+
+        $decoded = json_decode($json, true);
+
+        if (!$decoded) {
+            return ['raw' => $rawResponse, 'parse_error' => true];
+        }
+
+        return $decoded;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // FEATURES 3-10
+    // ═══════════════════════════════════════════════════════════════
+
+    /** 3. SEO Metadata Auto-Fill */
+    public function generateSeoMetadata(array $p): array
+    {
+        $category = $p['category'] ?? 'umum';
+        $keyword  = $p['keywords'] ?? $p['target_keyword'] ?? $p['product_name'];
+        $urlSlug  = $p['url'] ?? $p['url_slug'] ?? '';
+
+        $prompt = <<<PROMPT
+Kamu adalah SEO specialist Indonesia. Generate meta title dan meta description yang optimal untuk Google.
+
+Produk/Aset: {$p['product_name']}
+Deskripsi: {$p['product_desc']}
+Kategori: {$category}
+Target Keyword: {$keyword}
+URL Slug: {$urlSlug}
+
+Berikan output JSON:
+```json
+{
+  "meta_title": "judul SEO maks 60 karakter, sertakan keyword utama di depan",
+  "meta_description": "deskripsi SEO 150-160 karakter, persuasif, sertakan keyword dan CTA",
+  "og_title": "Open Graph title untuk social share",
+  "og_description": "OG description 200 karakter",
+  "focus_keyword": "keyword utama yang dioptimasi",
+  "secondary_keywords": ["keyword sekunder 1", "keyword sekunder 2", "keyword sekunder 3"],
+  "slug_suggestion": "url-slug-yang-disarankan",
+  "schema_type": "tipe schema.org yang cocok (Product/Service/Article/dll)",
+  "seo_score": 85,
+  "tips": ["tips SEO spesifik 1", "tips SEO spesifik 2", "tips SEO spesifik 3"],
+  "char_counts": {"meta_title": 0, "meta_description": 0}
+}
+```
+Berikan HANYA JSON valid.
+PROMPT;
+        return $this->_parseJson($this->generateText($prompt, 1500, 0.5));
+    }
+
+    /** 4. Smart Comparison Tool */
+    public function generateComparison(array $p): array
+    {
+        $priceA   = $p['product_a_price'] ?? 'tidak disebutkan';
+        $priceB   = $p['product_b_price'] ?? 'tidak disebutkan';
+        $context  = $p['buyer_persona'] ?? $p['buyer_context'] ?? 'pembeli umum';
+
+        $prompt = <<<PROMPT
+Kamu adalah konsultan produk profesional Indonesia. Bandingkan dua produk/aset secara objektif dan bantu calon pembeli memutuskan.
+
+Produk A: {$p['product_a_name']}
+Deskripsi A: {$p['product_a_desc']}
+Harga A: {$priceA}
+
+Produk B: {$p['product_b_name']}
+Deskripsi B: {$p['product_b_desc']}
+Harga B: {$priceB}
+
+Konteks Pembeli: {$context}
+
+Berikan output JSON:
+```json
+{
+  "summary": "ringkasan perbandingan 2-3 kalimat yang netral dan informatif",
+  "product_a": {
+    "name": "{$p['product_a_name']}",
+    "strengths": ["keunggulan 1", "keunggulan 2", "keunggulan 3"],
+    "weaknesses": ["kelemahan 1", "kelemahan 2"],
+    "best_for": "cocok untuk siapa/kondisi apa",
+    "score": 80
+  },
+  "product_b": {
+    "name": "{$p['product_b_name']}",
+    "strengths": ["keunggulan 1", "keunggulan 2", "keunggulan 3"],
+    "weaknesses": ["kelemahan 1", "kelemahan 2"],
+    "best_for": "cocok untuk siapa/kondisi apa",
+    "score": 75
+  },
+  "verdict": "rekomendasi akhir yang jelas: pilih A jika... pilih B jika...",
+  "comparison_table": [
+    {"aspect": "Harga", "product_a": "nilai", "product_b": "nilai", "winner": "A atau B atau Seri"},
+    {"aspect": "Fitur Utama", "product_a": "nilai", "product_b": "nilai", "winner": "A"},
+    {"aspect": "Kemudahan Penggunaan", "product_a": "nilai", "product_b": "nilai", "winner": "B"},
+    {"aspect": "Value for Money", "product_a": "nilai", "product_b": "nilai", "winner": "A"},
+    {"aspect": "Dukungan/Garansi", "product_a": "nilai", "product_b": "nilai", "winner": "Seri"}
+  ],
+  "share_message": "pesan ringkas untuk dikirim ke calon klien via WA/chat, max 300 karakter, berisi poin utama perbandingan dan rekomendasi"
+}
+```
+Berikan HANYA JSON valid.
+PROMPT;
+        return $this->_parseJson($this->generateText($prompt, 2000, 0.6));
+    }
+
+    /** 5. Automated FAQ Generator */
+    public function generateFaq(array $p): array
+    {
+        $price    = $p['price'] ?? 'tidak disebutkan';
+        $category = $p['category'] ?? 'umum';
+
+        $prompt = <<<PROMPT
+Kamu adalah customer service expert Indonesia. Buat FAQ berdasarkan deskripsi produk/aset.
+
+Produk: {$p['product_name']}
+Deskripsi: {$p['product_desc']}
+Harga: {$price}
+Kategori: {$category}
+
+Buat 7 FAQ yang paling sering ditanyakan calon pembeli. Jawaban harus meyakinkan dan meningkatkan trust.
+
+```json
+{
+  "product_name": "{$p['product_name']}",
+  "faqs": [
+    {"question": "pertanyaan 1 yang paling sering ditanya", "answer": "jawaban lengkap dan meyakinkan, 2-4 kalimat"},
+    {"question": "pertanyaan 2", "answer": "jawaban"},
+    {"question": "pertanyaan 3", "answer": "jawaban"},
+    {"question": "pertanyaan 4", "answer": "jawaban"},
+    {"question": "pertanyaan 5", "answer": "jawaban"},
+    {"question": "pertanyaan 6", "answer": "jawaban"},
+    {"question": "pertanyaan 7", "answer": "jawaban"}
+  ],
+  "schema_faq": "JSON-LD schema.org/FAQPage siap paste ke HTML",
+  "tips": "tips cara menampilkan FAQ di halaman produk untuk maksimalkan konversi"
+}
+```
+Berikan HANYA JSON valid.
+PROMPT;
+        return $this->_parseJson($this->generateText($prompt, 2000, 0.6));
+    }
+
+    /** 6. AI Hook Generator for Reels/TikTok */
+    public function generateReelsHook(array $p): array
+    {
+        $audience  = $p['target_audience'] ?? 'umum';
+        $goal      = $p['video_goal'] ?? $p['tone'] ?? 'promosi produk dan drive traffic ke halaman produk';
+
+        $prompt = <<<PROMPT
+Kamu adalah content creator viral Indonesia yang ahli TikTok dan Reels. Buat hook dan naskah pendek yang viral.
+
+Produk: {$p['product_name']}
+Deskripsi: {$p['product_desc']}
+Target Audience: {$audience}
+Tujuan Video: {$goal}
+
+```json
+{
+  "hooks": [
+    {"hook": "kalimat pembuka hook 1 yang viral, max 10 kata", "style": "gaya (Shock/Question/Story/Trend/Pain Point)", "why_works": "alasan hook ini efektif"},
+    {"hook": "hook 2", "style": "gaya", "why_works": "alasan"},
+    {"hook": "hook 3", "style": "gaya", "why_works": "alasan"},
+    {"hook": "hook 4", "style": "gaya", "why_works": "alasan"},
+    {"hook": "hook 5", "style": "gaya", "why_works": "alasan"}
+  ],
+  "scripts": [
+    {
+      "hook": "hook terbaik dari list di atas",
+      "duration": "15 detik",
+      "script": "naskah lengkap 15 detik: [0-3s] hook, [3-10s] isi/demo, [10-15s] CTA. Format dengan timestamp.",
+      "caption": "caption untuk postingan dengan hashtag",
+      "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3", "#hashtag4", "#hashtag5"]
+    },
+    {
+      "hook": "hook kedua terbaik",
+      "duration": "30 detik",
+      "script": "naskah 30 detik lebih detail",
+      "caption": "caption alternatif",
+      "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3"]
+    }
+  ],
+  "bio_cta": "teks CTA untuk bio/kolom komentar yang mengarahkan ke produk",
+  "posting_tips": ["tips waktu posting terbaik", "tips thumbnail", "tips engagement"]
+}
+```
+Berikan HANYA JSON valid.
+PROMPT;
+        return $this->_parseJson($this->generateText($prompt, 2500, 0.85));
+    }
+
+    /** 7. Digital Asset Quality Scanner */
+    public function generateQualityBadge(array $p): array
+    {
+        $snippet   = mb_substr($p['code_or_doc'] ?? '', 0, 2000);
+        $assetType = $p['asset_type'] ?? 'digital asset';
+        $prompt = <<<PROMPT
+Kamu adalah senior software engineer dan technical reviewer Indonesia. Review kualitas aset digital berikut.
+
+Tipe Aset: {$assetType}
+Nama: {$p['product_name']}
+Deskripsi: {$p['product_desc']}
+Cuplikan Kode/Dokumentasi:
+---
+{$snippet}
+---
+
+Lakukan review dan berikan output JSON:
+```json
+{
+  "overall_score": 85,
+  "badge": "AI-Verified Quality",
+  "badge_level": "Gold/Silver/Bronze/Not Verified",
+  "verdict": "ringkasan verdict 1-2 kalimat",
+  "criteria": [
+    {"name": "Keterbacaan Kode", "score": 80, "status": "Pass/Fail/Warning", "note": "catatan singkat"},
+    {"name": "Dokumentasi", "score": 75, "status": "Pass", "note": "catatan"},
+    {"name": "Struktur & Organisasi", "score": 90, "status": "Pass", "note": "catatan"},
+    {"name": "Best Practices", "score": 85, "status": "Pass", "note": "catatan"},
+    {"name": "Keamanan (Security)", "score": 70, "status": "Warning", "note": "catatan"},
+    {"name": "Performa", "score": 80, "status": "Pass", "note": "catatan"}
+  ],
+  "strengths": ["kelebihan 1", "kelebihan 2", "kelebihan 3"],
+  "improvements": ["saran perbaikan 1", "saran perbaikan 2"],
+  "badge_text": "teks badge marketing yang bisa ditampilkan di halaman produk",
+  "verified": true
+}
+```
+Berikan HANYA JSON valid.
+PROMPT;
+        return $this->_parseJson($this->generateText($prompt, 1500, 0.4));
+    }
+
+    /** 8. Custom Discount Campaign Copywriter */
+    public function generateDiscountCampaign(array $p): array
+    {
+        $origPrice   = $p['original_price'] ?? 'tidak disebutkan';
+        $discPrice   = $p['discount_price'] ?? 'tidak disebutkan';
+        $discPct     = $p['discount_pct'] ?? '0';
+        $duration    = $p['duration'] ?? 'terbatas';
+        $platform    = $p['platform'] ?? 'semua platform';
+        $waNumber    = $p['wa_number'] ?? '';
+
+        $prompt = <<<PROMPT
+Kamu adalah copywriter kampanye promosi Indonesia yang ahli membuat copy diskon yang persuasif dan menghasilkan penjualan.
+
+Nama Promo: {$p['promo_name']}
+Produk: {$p['product_name']}
+Deskripsi Produk: {$p['product_desc']}
+Harga Normal: {$origPrice}
+Harga Diskon: {$discPrice}
+Persentase Diskon: {$discPct}%
+Durasi Promo: {$duration}
+Platform: {$platform}
+Nomor WA: {$waNumber}
+
+```json
+{
+  "promo_name": "{$p['promo_name']}",
+  "copies": [
+    {
+      "platform": "Instagram/TikTok",
+      "copy": "copy promosi lengkap dengan emoji, urgency, harga coret, dan CTA",
+      "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3", "#hashtag4", "#hashtag5"]
+    },
+    {
+      "platform": "WhatsApp Broadcast",
+      "copy": "copy WA broadcast yang personal dan langsung to the point"
+    },
+    {
+      "platform": "Facebook/LinkedIn",
+      "copy": "copy lebih formal dan informatif"
+    },
+    {
+      "platform": "SMS/WA Status",
+      "copy": "copy super singkat max 160 karakter"
+    }
+  ],
+  "countdown_text": "teks countdown urgency yang bisa dipakai di story/banner",
+  "wa_broadcast_link": "link wa.me dengan pesan promo pre-filled",
+  "banner_headline": "headline untuk banner/flyer max 8 kata",
+  "banner_subtext": "subtext banner max 15 kata"
+}
+```
+Berikan HANYA JSON valid.
+PROMPT;
+        $result = $this->_parseJson($this->generateText($prompt, 2000, 0.8));
+        // Build actual WA link
+        $waNum = preg_replace('/\D/', '', $waNumber);
+        if ($waNum && isset($result['copies'][1]['copy'])) {
+            $result['wa_broadcast_link'] = "https://wa.me/{$waNum}?text=" . rawurlencode($result['copies'][1]['copy']);
+        }
+        return $result;
+    }
+
+    /** 9. Trend-Based Product Tagging */
+    public function generateTrendTags(array $p): array
+    {
+        $category    = $p['category'] ?? 'teknologi';
+        $currentTags = $p['current_tags'] ?? 'belum ada tag';
+
+        $prompt = <<<PROMPT
+Kamu adalah digital marketing strategist Indonesia yang paham tren teknologi dan pasar saat ini (2026).
+
+Produk: {$p['product_name']}
+Deskripsi: {$p['product_desc']}
+Kategori: {$category}
+Tag Saat Ini: {$currentTags}
+
+Analisis relevansi produk dengan tren terkini dan sarankan tag yang akan meningkatkan visibilitas.
+
+```json
+{
+  "trending_tags": [
+    {"tag": "nama tag trending", "trend_score": 95, "relevance": "High/Medium/Low", "reason": "alasan relevan dengan produk ini", "search_volume": "estimasi volume pencarian"},
+    {"tag": "tag 2", "trend_score": 88, "relevance": "High", "reason": "alasan", "search_volume": "estimasi"},
+    {"tag": "tag 3", "trend_score": 82, "relevance": "Medium", "reason": "alasan", "search_volume": "estimasi"},
+    {"tag": "tag 4", "trend_score": 78, "relevance": "High", "reason": "alasan", "search_volume": "estimasi"},
+    {"tag": "tag 5", "trend_score": 72, "relevance": "Medium", "reason": "alasan", "search_volume": "estimasi"}
+  ],
+  "recommended_tags": ["tag yang paling direkomendasikan untuk ditambahkan sekarang"],
+  "remove_tags": ["tag lama yang sudah tidak relevan jika ada"],
+  "trend_alert": "peringatan tren yang sedang naik dan sangat relevan dengan produk ini",
+  "action_urgency": "High/Medium/Low",
+  "seo_impact": "estimasi dampak ke SEO jika tag diterapkan",
+  "best_time_to_post": "waktu terbaik posting konten dengan tag ini"
+}
+```
+Berikan HANYA JSON valid.
+PROMPT;
+        return $this->_parseJson($this->generateText($prompt, 1500, 0.7));
+    }
+
+    /** 10. AI Lead Magnet Creator */
+    public function generateLeadMagnet(array $p): array
+    {
+        $price    = $p['price'] ?? 'tidak disebutkan';
+        $audience = $p['target_audience'] ?? 'umum';
+        $goal     = $p['goal'] ?? 'kumpulkan email';
+        $waNumber = $p['wa_number'] ?? '';
+
+        $prompt = <<<PROMPT
+Kamu adalah growth hacker dan lead generation expert Indonesia. Bantu seller membuat lead magnet yang efektif.
+
+Produk/Jasa: {$p['product_name']}
+Deskripsi: {$p['product_desc']}
+Harga Produk: {$price}
+Target Audience: {$audience}
+Tujuan Lead: {$goal}
+
+Balas HANYA dengan JSON valid berikut:
+```json
+{
+  "magnet_title": "judul lead magnet terbaik yang direkomendasikan",
+  "magnet_desc": "deskripsi singkat apa yang didapat calon pembeli",
+  "format": "PDF Guide / Checklist / Template / Mini Course / Free Sample / Webinar",
+  "effort_level": "Low / Medium / High",
+  "conversion_potential": "High / Medium / Low",
+  "summary": "satu kalimat kenapa lead magnet ini efektif untuk produk ini",
+  "include_items": [
+    {"item": "konten/bagian yang dimasukkan ke lead magnet", "reason": "kenapa bagian ini menarik"},
+    {"item": "konten 2", "reason": "alasan"},
+    {"item": "konten 3", "reason": "alasan"}
+  ],
+  "landing_copy": {
+    "headline": "headline halaman opt-in",
+    "subheadline": "subheadline yang memperkuat",
+    "bullets": ["benefit 1", "benefit 2", "benefit 3"],
+    "cta_button": "teks tombol CTA"
+  },
+  "followup_sequence": [
+    {"timing": "Langsung setelah opt-in", "subject": "judul pesan", "preview": "preview isi pesan"},
+    {"timing": "Hari ke-1", "subject": "judul", "preview": "preview"},
+    {"timing": "Hari ke-3", "subject": "judul soft sell", "preview": "preview"},
+    {"timing": "Hari ke-7", "subject": "judul penawaran", "preview": "preview"}
+  ],
+  "wa_link": "https://wa.me/NOMOR?text=pesan+optin+yang+sudah+di-encode"
+}
+```
+PROMPT;
+        $result = $this->_parseJson($this->generateText($prompt, 2500, 0.75));
+
+        // Build WA link if wa_number provided and not already set
+        if ($waNumber && empty($result['wa_link'])) {
+            $num = preg_replace('/\D/', '', $waNumber);
+            $msg = $result['landing_copy']['cta_button'] ?? 'Saya mau dapat free resource';
+            $result['wa_link'] = "https://wa.me/{$num}?text=" . rawurlencode($msg);
+        }
+
+        return $result;
+    }
+    /** Shared JSON parser helper */
+    private function _parseJson(string $raw): array
+    {
+        $json = $raw;
+        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $raw, $m)) {
+            $json = $m[1];
+        } elseif (preg_match('/\{[\s\S]+\}/', $raw, $m)) {
+            $json = $m[0];
+        }
+        $decoded = json_decode($json, true);
+        return $decoded ?: ['raw' => $raw, 'parse_error' => true];
     }
 }

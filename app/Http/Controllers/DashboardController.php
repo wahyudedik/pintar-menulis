@@ -163,8 +163,9 @@ class DashboardController extends Controller
             ->orderBy('deadline', 'asc')
             ->get();
 
-        // Get pending orders (not yet taken by any operator)
+        // Get pending orders (not yet taken by any operator, payment held in escrow)
         $pendingOrders = Order::where('status', 'pending')
+            ->where('payment_status', 'held')
             ->whereNull('operator_id')
             ->with('user')
             ->orderBy('created_at', 'desc')
@@ -180,6 +181,7 @@ class DashboardController extends Controller
 
         $stats = [
             'available_orders' => Order::where('status', 'pending')
+                ->where('payment_status', 'held')
                 ->whereNull('operator_id')
                 ->count(),
             'my_orders' => $myOrders->count(),
@@ -193,6 +195,7 @@ class DashboardController extends Controller
                 ->whereDate('completed_at', today())
                 ->count(),
             'pending_queue' => Order::where('status', 'pending')
+                ->where('payment_status', 'held')
                 ->whereNull('operator_id')
                 ->count(),
             'average_rating' => $profile?->average_rating ?? 0,
