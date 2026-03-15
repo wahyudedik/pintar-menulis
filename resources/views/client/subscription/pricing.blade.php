@@ -35,7 +35,7 @@
     @endif
 
     {{-- Paket cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
         @foreach($packages as $package)
         @php
             $isCurrent = $current && $current->package_id === $package->id && $current->isValid();
@@ -45,7 +45,7 @@
             $savings = ($package->price * 12) - ($package->yearly_price ?? $package->price * 10);
         @endphp
         <div class="relative bg-white rounded-2xl border-2 flex flex-col
-            {{ $package->is_featured ? 'border-red-500 shadow-xl scale-105' : 'border-gray-200' }}">
+            {{ $package->is_featured ? 'border-red-500 shadow-xl sm:scale-105' : 'border-gray-200' }}">
 
             {{-- Badge --}}
             @if($package->badge_text)

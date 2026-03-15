@@ -89,7 +89,7 @@ class SubscriptionController extends Controller
         $request->validate([
             'billing_cycle'  => 'required|in:monthly,yearly',
             'payment_method' => 'required|string',
-            'payment_proof'  => 'required_if:gateway,manual_transfer|nullable|image|max:2048',
+            'payment_proof'  => 'required_if:gateway,manual_transfer|nullable|image|mimes:jpeg,jpg,png|max:2048',
             'gateway'        => 'required|in:manual_transfer,midtrans,xendit',
         ]);
 

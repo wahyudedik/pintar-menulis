@@ -60,7 +60,7 @@ class WhatsAppSubscriptionService
             $message .= "🔥 Trending topics (Selasa & Jumat)\n\n";
             $message .= "💡 *Atur Preferensi:*\n";
             $message .= "Ketik `pengaturan` untuk customize notifikasi\n\n";
-            $message .= "_Powered by Pintar Menulis AI_ ✨";
+            $message .= "_Powered by Noteds AI_ ✨";
 
             return $this->whatsappService->sendMessage($phoneNumber, $message);
 
@@ -95,7 +95,7 @@ class WhatsAppSubscriptionService
             $message .= "• Kirim foto untuk analisis\n";
             $message .= "• Minta ide konten manual\n\n";
             $message .= "🔄 Ketik `langganan` untuk berlangganan lagi\n\n";
-            $message .= "_Terima kasih sudah menggunakan Pintar Menulis AI_ 💙";
+            $message .= "_Terima kasih sudah menggunakan Noteds AI_ 💙";
 
             return $this->whatsappService->sendMessage($phoneNumber, $message);
 

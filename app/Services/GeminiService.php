@@ -374,7 +374,7 @@ class GeminiService
                 ]
             ];
 
-            $response = Http::timeout(60) // Reduced from 120 to 60 seconds
+            $response = Http::timeout(90)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'x-goog-api-key' => $this->apiKey
@@ -411,6 +411,82 @@ class GeminiService
         }
     }
 
+
+    /**
+     * Generate text with Google Search Grounding — for features that need real-time web data.
+     * Adds "tools": [{"google_search": {}}] to the request so Gemini searches before answering.
+     * Returns [text, sources] where sources is an array of cited web URLs.
+     */
+    public function generateTextWithSearch(string $prompt, int $maxTokens = 2000, float $temperature = 1.0): array
+    {
+        if (empty($this->apiKey)) {
+            throw new \Exception('API Key tidak dikonfigurasi.');
+        }
+
+        $processedPrompt = DynamicDateService::replaceDatePlaceholders($prompt);
+
+        $requestData = [
+            'contents' => [
+                ['parts' => [['text' => $processedPrompt]]]
+            ],
+            'tools' => [
+                ['google_search' => (object)[]]
+            ],
+            'generationConfig' => [
+                'temperature'     => $temperature,
+                'topK'            => 40,
+                'topP'            => 0.95,
+                'maxOutputTokens' => $maxTokens,
+            ],
+        ];
+
+        try {
+            $response = Http::timeout(90)
+                ->withHeaders([
+                    'Content-Type'   => 'application/json',
+                    'x-goog-api-key' => $this->apiKey,
+                ])
+                ->post($this->apiUrl, $requestData);
+
+            if (!$response->successful()) {
+                Log::warning('Gemini Search Grounding failed, falling back to plain generateText', [
+                    'status' => $response->status(),
+                    'body'   => $response->body(),
+                ]);
+                // Graceful fallback — still return useful result without search
+                return ['text' => $this->generateText($prompt, $maxTokens, $temperature), 'sources' => []];
+            }
+
+            $data      = $response->json();
+            $candidate = $data['candidates'][0] ?? null;
+
+            $text = '';
+            foreach (($candidate['content']['parts'] ?? []) as $part) {
+                if (!empty($part['text'])) {
+                    $text .= $part['text'];
+                }
+            }
+
+            // Extract cited sources from groundingMetadata
+            $sources = [];
+            $chunks  = $data['candidates'][0]['groundingMetadata']['groundingChunks'] ?? [];
+            foreach ($chunks as $chunk) {
+                if (!empty($chunk['web']['uri']) && !empty($chunk['web']['title'])) {
+                    $sources[] = [
+                        'title' => $chunk['web']['title'],
+                        'url'   => $chunk['web']['uri'],
+                    ];
+                }
+            }
+
+            return ['text' => trim($text), 'sources' => $sources];
+
+        } catch (\Exception $e) {
+            Log::error('generateTextWithSearch error: ' . $e->getMessage());
+            // Fallback to plain text generation
+            return ['text' => $this->generateText($prompt, $maxTokens, $temperature), 'sources' => []];
+        }
+    }
 
     /**
      * Get few-shot examples from guru-reviewed training data to improve AI output quality.
@@ -3030,22 +3106,7 @@ PROMPT;
 
         $rawResponse = $this->generateText($prompt, 8000, 0.7);
 
-        // Extract JSON from response
-        $json = $rawResponse;
-        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $rawResponse, $m)) {
-            $json = $m[1];
-        } elseif (preg_match('/\{[\s\S]+\}/', $rawResponse, $m)) {
-            $json = $m[0];
-        }
-
-        $decoded = json_decode($json, true);
-
-        if (!$decoded) {
-            // Return raw if JSON parse fails
-            return ['raw' => $rawResponse, 'parse_error' => true];
-        }
-
-        return $decoded;
+        return $this->_parseJson($rawResponse);
     }
 
     /**
@@ -3131,21 +3192,12 @@ PROMPT;
 
         $rawResponse = $this->generateText($prompt, 3000, 0.75);
 
-        $json = $rawResponse;
-        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $rawResponse, $m)) {
-            $json = $m[1];
-        } elseif (preg_match('/\{[\s\S]+\}/', $rawResponse, $m)) {
-            $json = $m[0];
-        }
-
-        $decoded = json_decode($json, true);
-
-        if (!$decoded) {
-            return ['raw' => $rawResponse, 'parse_error' => true];
-        }
+        $decoded = $this->_parseJson($rawResponse);
 
         // Attach wa_number for deep link generation on frontend
-        $decoded['wa_number'] = $waNumber;
+        if (!isset($decoded['parse_error'])) {
+            $decoded['wa_number'] = $waNumber;
+        }
 
         return $decoded;
     }
@@ -3240,20 +3292,7 @@ PROMPT;
 
         $rawResponse = $this->generateText($prompt, 4000, 0.8);
 
-        $json = $rawResponse;
-        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $rawResponse, $m)) {
-            $json = $m[1];
-        } elseif (preg_match('/\{[\s\S]+\}/', $rawResponse, $m)) {
-            $json = $m[0];
-        }
-
-        $decoded = json_decode($json, true);
-
-        if (!$decoded) {
-            return ['raw' => $rawResponse, 'parse_error' => true];
-        }
-
-        return $decoded;
+        return $this->_parseJson($rawResponse);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -3294,7 +3333,11 @@ Berikan output JSON:
 ```
 Berikan HANYA JSON valid.
 PROMPT;
-        return $this->_parseJson($this->generateText($prompt, 1500, 0.5));
+        ['text' => $raw, 'sources' => $sources] = $this->generateTextWithSearch($prompt, 1500, 1.0);
+        $result = $this->_parseJson($raw);
+        if (!empty($result['parse_error'])) throw new \Exception('AI gagal menghasilkan SEO metadata. Coba lagi.');
+        if (!empty($sources)) $result['search_sources'] = $sources;
+        return $result;
     }
 
     /** 4. Smart Comparison Tool */
@@ -3348,7 +3391,11 @@ Berikan output JSON:
 ```
 Berikan HANYA JSON valid.
 PROMPT;
-        return $this->_parseJson($this->generateText($prompt, 2000, 0.6));
+        ['text' => $raw, 'sources' => $sources] = $this->generateTextWithSearch($prompt, 2000, 0.8);
+        $result = $this->_parseJson($raw);
+        if (!empty($result['parse_error'])) throw new \Exception('AI gagal menghasilkan perbandingan. Coba lagi.');
+        if (!empty($sources)) $result['search_sources'] = $sources;
+        return $result;
     }
 
     /** 5. Automated FAQ Generator */
@@ -3385,7 +3432,9 @@ Buat 7 FAQ yang paling sering ditanyakan calon pembeli. Jawaban harus meyakinkan
 ```
 Berikan HANYA JSON valid.
 PROMPT;
-        return $this->_parseJson($this->generateText($prompt, 2000, 0.6));
+        $result = $this->_parseJson($this->generateText($prompt, 2000, 0.7));
+        if (!empty($result['parse_error'])) throw new \Exception('AI gagal menghasilkan FAQ. Coba lagi.');
+        return $result;
     }
 
     /** 6. AI Hook Generator for Reels/TikTok */
@@ -3433,7 +3482,11 @@ Tujuan Video: {$goal}
 ```
 Berikan HANYA JSON valid.
 PROMPT;
-        return $this->_parseJson($this->generateText($prompt, 2500, 0.85));
+        ['text' => $raw, 'sources' => $sources] = $this->generateTextWithSearch($prompt, 2500, 1.0);
+        $result = $this->_parseJson($raw);
+        if (!empty($result['parse_error'])) throw new \Exception('AI gagal menghasilkan hook. Coba lagi.');
+        if (!empty($sources)) $result['search_sources'] = $sources;
+        return $result;
     }
 
     /** 7. Digital Asset Quality Scanner */
@@ -3475,7 +3528,9 @@ Lakukan review dan berikan output JSON:
 ```
 Berikan HANYA JSON valid.
 PROMPT;
-        return $this->_parseJson($this->generateText($prompt, 1500, 0.4));
+        $result = $this->_parseJson($this->generateText($prompt, 1500, 0.4));
+        if (!empty($result['parse_error'])) throw new \Exception('AI gagal menganalisis kualitas aset. Coba lagi.');
+        return $result;
     }
 
     /** 8. Custom Discount Campaign Copywriter */
@@ -3531,12 +3586,15 @@ Nomor WA: {$waNumber}
 ```
 Berikan HANYA JSON valid.
 PROMPT;
-        $result = $this->_parseJson($this->generateText($prompt, 2000, 0.8));
+        ['text' => $raw, 'sources' => $sources] = $this->generateTextWithSearch($prompt, 2000, 1.0);
+        $result = $this->_parseJson($raw);
+        if (!empty($result['parse_error'])) throw new \Exception('AI gagal menghasilkan kampanye diskon. Coba lagi.');
         // Build actual WA link
         $waNum = preg_replace('/\D/', '', $waNumber);
         if ($waNum && isset($result['copies'][1]['copy'])) {
             $result['wa_broadcast_link'] = "https://wa.me/{$waNum}?text=" . rawurlencode($result['copies'][1]['copy']);
         }
+        if (!empty($sources)) $result['search_sources'] = $sources;
         return $result;
     }
 
@@ -3575,7 +3633,11 @@ Analisis relevansi produk dengan tren terkini dan sarankan tag yang akan meningk
 ```
 Berikan HANYA JSON valid.
 PROMPT;
-        return $this->_parseJson($this->generateText($prompt, 1500, 0.7));
+        ['text' => $raw, 'sources' => $sources] = $this->generateTextWithSearch($prompt, 1500, 1.0);
+        $result = $this->_parseJson($raw);
+        if (!empty($result['parse_error'])) throw new \Exception('AI gagal menghasilkan trend tags. Coba lagi.');
+        if (!empty($sources)) $result['search_sources'] = $sources;
+        return $result;
     }
 
     /** 10. AI Lead Magnet Creator */
@@ -3625,7 +3687,12 @@ Balas HANYA dengan JSON valid berikut:
 }
 ```
 PROMPT;
-        $result = $this->_parseJson($this->generateText($prompt, 2500, 0.75));
+        ['text' => $raw, 'sources' => $sources] = $this->generateTextWithSearch($prompt, 2500, 0.8);
+        $result = $this->_parseJson($raw);
+
+        if (!empty($result['parse_error'])) {
+            throw new \Exception('AI tidak dapat menghasilkan format yang valid. Coba lagi.');
+        }
 
         // Build WA link if wa_number provided and not already set
         if ($waNumber && empty($result['wa_link'])) {
@@ -3634,18 +3701,35 @@ PROMPT;
             $result['wa_link'] = "https://wa.me/{$num}?text=" . rawurlencode($msg);
         }
 
+        if (!empty($sources)) $result['search_sources'] = $sources;
+
         return $result;
     }
     /** Shared JSON parser helper */
     private function _parseJson(string $raw): array
     {
-        $json = $raw;
-        if (preg_match('/```json\s*([\s\S]+?)\s*```/', $raw, $m)) {
-            $json = $m[1];
-        } elseif (preg_match('/\{[\s\S]+\}/', $raw, $m)) {
-            $json = $m[0];
+        // 1. Try JSON code fence first
+        if (preg_match('/```(?:json)?\s*([\s\S]+?)\s*```/', $raw, $m)) {
+            $decoded = json_decode(trim($m[1]), true);
+            if (is_array($decoded)) return $decoded;
         }
-        $decoded = json_decode($json, true);
-        return $decoded ?: ['raw' => $raw, 'parse_error' => true];
+
+        // 2. Try to find outermost JSON object
+        if (preg_match('/\{[\s\S]+\}/u', $raw, $m)) {
+            $decoded = json_decode($m[0], true);
+            if (is_array($decoded)) return $decoded;
+        }
+
+        // 3. Try to find outermost JSON array (fallback)
+        if (preg_match('/\[[\s\S]+\]/u', $raw, $m)) {
+            $decoded = json_decode($m[0], true);
+            if (is_array($decoded)) return ['items' => $decoded];
+        }
+
+        // 4. Try the raw string directly
+        $decoded = json_decode(trim($raw), true);
+        if (is_array($decoded)) return $decoded;
+
+        return ['raw' => $raw, 'parse_error' => true];
     }
 }

@@ -79,6 +79,33 @@
     </svg>
 </a>
 
+<!-- AI Health Monitor -->
+<a href="{{ route('admin.ai-health.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.ai-health*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="AI Health Monitor">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+    </svg>
+</a>
+
+<!-- AI Models -->
+<a href="{{ route('admin.ai-models.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.ai-models*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="AI Models">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"></path>
+    </svg>
+</a>
+
+<!-- ML Data Manager -->
+<a href="{{ route('admin.ml-data.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.ml-data*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="ML Data Manager">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+    </svg>
+</a>
+
 <!-- Settings -->
 <a href="{{ route('admin.payment-settings') }}" 
    class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('admin.payment-settings*') ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100' }}"

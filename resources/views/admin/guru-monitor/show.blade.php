@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Guru: {{ $guru->name }} - Pintar Menulis')
+@section('title', 'Detail Guru: ' . $guru->name . ' - ' . config('app.name'))
 
 @section('content')
 <div class="p-6">

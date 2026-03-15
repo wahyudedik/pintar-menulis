@@ -83,7 +83,7 @@ class PaymentController extends Controller
 
             $this->notificationService->sendEmail(
                 $order->operator,
-                'Order Baru Tersedia - Pintar Menulis',
+                'Order Baru Tersedia - Noteds',
                 "Ada order baru dengan budget Rp " . number_format($order->budget, 0, ',', '.') . " untuk kategori {$order->category}. Pembayaran sudah diterima dan di-hold platform.",
                 route('operator.queue'),
                 'Lihat Order Queue'
@@ -104,7 +104,7 @@ class PaymentController extends Controller
 
         $this->notificationService->sendEmail(
             $payment->user,
-            'Pembayaran Diverifikasi - Pintar Menulis',
+            'Pembayaran Diverifikasi - Noteds',
             "Pembayaran untuk order #{$order->id} telah diverifikasi. Uang Anda di-hold platform dan akan diteruskan ke operator setelah order selesai dan Anda approve.",
             route('orders.show', $order),
             'Lihat Order'
@@ -136,7 +136,7 @@ class PaymentController extends Controller
 
         $this->notificationService->sendEmail(
             $payment->user,
-            'Pembayaran Ditolak - Pintar Menulis',
+            'Pembayaran Ditolak - Noteds',
             "Pembayaran untuk order #{$payment->order_id} ditolak. Silakan upload bukti pembayaran yang valid.",
             route('payment.show', $payment->order),
             'Upload Ulang Bukti'

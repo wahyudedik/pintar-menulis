@@ -17,7 +17,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">📝 Pintar Menulis</div>
+            <div class="logo">📝 {{ config('app.name') }}</div>
         </div>
 
         <h2 style="color:#1f2937; margin-top:0;">{{ $notifSubject }}</h2>
@@ -31,9 +31,9 @@
         @endif
 
         <div class="footer">
-            <p>Email ini dikirim otomatis dari sistem Pintar Menulis.<br>
+            <p>Email ini dikirim otomatis dari sistem {{ config('app.name') }}.<br>
             Jangan balas email ini.</p>
-            <p>© {{ date('Y') }} Pintar Menulis. Semua hak dilindungi.</p>
+            <p>© {{ date('Y') }} {{ config('app.name') }}. Semua hak dilindungi.</p>
         </div>
     </div>
 </body>

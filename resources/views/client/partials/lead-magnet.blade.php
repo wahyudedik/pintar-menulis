@@ -74,6 +74,7 @@
                 <p class="text-xs opacity-80 mb-1">Ide Lead Magnet Terbaik</p>
                 <h3 class="text-xl font-black mb-2" x-text="magnetResult.magnet_title"></h3>
                 <p class="text-sm opacity-90" x-text="magnetResult.magnet_desc"></p>
+                <p class="text-xs mt-2 opacity-80 italic" x-show="magnetResult.summary" x-text="magnetResult.summary"></p>
                 <div class="mt-3 flex flex-wrap gap-2">
                     <span class="px-3 py-1 bg-white/20 rounded-full text-xs" x-text="'Format: ' + magnetResult.format"></span>
                     <span class="px-3 py-1 bg-white/20 rounded-full text-xs" x-text="'Effort: ' + magnetResult.effort_level"></span>
@@ -158,3 +159,18 @@
         </template>
     </div>
 </div>
+
+    {{-- Google Search Sources --}}
+    <div x-show="magnetResult && (magnetResult.search_sources || []).length > 0" x-cloak
+         class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+        <p class="text-xs font-bold text-blue-800 mb-2">🔍 Berdasarkan pencarian web terkini</p>
+        <div class="flex flex-wrap gap-2">
+            <template x-for="src in (magnetResult.search_sources || [])" :key="src.url">
+                <a :href="src.url" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-blue-200 rounded-lg text-xs text-blue-700 hover:bg-blue-100 transition">
+                    <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    <span x-text="src.title"></span>
+                </a>
+            </template>
+        </div>
+    </div>

@@ -14,20 +14,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
-    <title>Aplikasi Pembuat Caption Jualan Otomatis untuk UMKM Indonesia | Smart Copy SMK</title>
+    <title>Aplikasi Pembuat Caption Jualan Otomatis untuk UMKM Indonesia | Noteds</title>
     <meta name="description" content="Bikin caption jualan yang bikin closing dalam 10 detik. Khusus UMKM Indonesia. Gratis 5 variasi caption per hari. Auto hashtag Indonesia.">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/95" x-data="{ mobileOpen: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
                     <img src="{{ asset('logo.png') }}" alt="Logo" class="w-10 h-10 rounded-lg object-cover">
-                    <span class="text-lg font-semibold text-gray-900">Smart Copy SMK</span>
+                    <span class="text-lg font-semibold text-gray-900">Noteds</span>
                 </div>
-                <div class="flex items-center space-x-3">
+                <!-- Desktop Nav -->
+                <div class="hidden sm:flex items-center space-x-3">
                     @auth
                         <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Dashboard</a>
                         <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
@@ -39,7 +42,34 @@
                         </a>
                     @endauth
                 </div>
+                <!-- Mobile Hamburger -->
+                <button @click="mobileOpen = !mobileOpen" class="sm:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition" aria-label="Toggle menu">
+                    <svg x-show="!mobileOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg x-show="mobileOpen" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div x-show="mobileOpen" x-cloak
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             class="sm:hidden border-t border-gray-200 bg-white px-4 py-3 space-y-1">
+            @auth
+                <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Dashboard</a>
+                <a href="{{ route('articles.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Artikel</a>
+            @else
+                <a href="{{ route('articles.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Artikel</a>
+                <a href="{{ route('login') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Login</a>
+                <a href="{{ route('register') }}" class="block px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center">Register</a>
+            @endauth
         </div>
     </nav>
 
@@ -95,7 +125,7 @@
         </div>
         
         <!-- Content -->
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24">
             <div class="text-center">
                 <!-- Pain Point Hook -->
                 <div class="mb-10 space-y-3">
@@ -115,11 +145,11 @@
                     </div>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
+                <h1 class="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
                     AI Caption Generator<br>
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400 animate-gradient-x">Khusus UMKM Indonesia</span>
                 </h1>
-                <p class="text-xl md:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+                <p class="text-base sm:text-xl md:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
                     Bikin caption jualan yang bikin customer langsung action dalam hitungan detik. Gak perlu pusing mikir kata-kata, AI kami yang kerja buat kamu!
                 </p>
                 <div class="flex justify-center gap-4 flex-wrap">
@@ -593,7 +623,7 @@
                     <span class="text-3xl">🤖</span>
                     <span class="text-cyan-100 font-semibold">ENTERPRISE SOLUTION</span>
                 </div>
-                <h2 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+                <h2 class="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
                     Open Clow Agent
                     <br>
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">AI Assistant Khusus Bisnis Kamu</span>
@@ -895,12 +925,12 @@
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                 <!-- Company Info -->
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
                         <img src="{{ asset('logo.png') }}" alt="Logo" class="w-8 h-8 rounded-lg">
-                        <span class="text-white font-semibold">Smart Copy SMK</span>
+                        <span class="text-white font-semibold">Noteds</span>
                     </div>
                     <p class="text-sm text-gray-400 mb-4">
                         Platform AI Caption Generator khusus UMKM Indonesia. Bikin caption jualan yang bikin closing!
@@ -965,7 +995,7 @@
             <div class="border-t border-gray-800 pt-8 mt-8">
                 <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                     <p class="text-sm text-gray-400">
-                        &copy; {{ date('Y') }} Smart Copy SMK. All rights reserved.
+                        &copy; {{ date('Y') }} Noteds. All rights reserved.
                     </p>
                     <p class="text-sm text-gray-400">
                         Made with ❤️ for UMKM Indonesia
@@ -982,3 +1012,4 @@
     @include('partials.ai-assistant-widget')
 </body>
 </html>
+

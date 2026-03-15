@@ -2021,7 +2021,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
      */
     public function generateGoogleAds(Request $request)
     {
-        set_time_limit(300);
+        set_time_limit(120);
 
         $user = auth()->user();
         $sub  = $user->currentSubscription();
@@ -2058,6 +2058,13 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
             ]);
 
             $result = $this->geminiService->generateGoogleAdsCampaign($validated);
+
+            if (!empty($result['parse_error'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'AI gagal menghasilkan kampanye. Silakan coba lagi.',
+                ], 500);
+            }
 
             $sub->consumeQuota(1);
 
@@ -2120,6 +2127,10 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             $result = $this->geminiService->generateProductExplainer($validated);
 
+            if (!empty($result['parse_error'])) {
+                return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan pesan. Silakan coba lagi.'], 500);
+            }
+
             $sub->consumeQuota(1);
 
             return response()->json([
@@ -2181,6 +2192,10 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             $result = $this->geminiService->generateMagicPromoLink($validated);
 
+            if (!empty($result['parse_error'])) {
+                return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan caption. Silakan coba lagi.'], 500);
+            }
+
             $sub->consumeQuota(1);
 
             return response()->json([
@@ -2226,13 +2241,14 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     {
         $sub = auth()->user()->currentSubscription();
         $sub->consumeQuota(1);
-        return $sub->fresh()->remaining_quota;
+        $sub->refresh();
+        return $sub->remaining_quota;
     }
 
     /** 3. SEO Metadata */
     public function generateSeoMetadata(Request $request)
     {
-        set_time_limit(60);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([
@@ -2255,7 +2271,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     /** 4. Smart Comparison */
     public function generateComparison(Request $request)
     {
-        set_time_limit(90);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([
@@ -2280,7 +2296,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     /** 5. FAQ Generator */
     public function generateFaq(Request $request)
     {
-        set_time_limit(60);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([
@@ -2302,7 +2318,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     /** 6. Reels/TikTok Hook */
     public function generateReelsHook(Request $request)
     {
-        set_time_limit(90);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([
@@ -2326,7 +2342,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     /** 7. Quality Badge Scanner */
     public function generateQualityBadge(Request $request)
     {
-        set_time_limit(90);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([
@@ -2348,7 +2364,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     /** 8. Discount Campaign Copywriter */
     public function generateDiscountCampaign(Request $request)
     {
-        set_time_limit(90);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([
@@ -2375,7 +2391,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     /** 9. Trend-Based Product Tagging */
     public function generateTrendTags(Request $request)
     {
-        set_time_limit(60);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([
@@ -2397,7 +2413,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     /** 10. Lead Magnet Creator */
     public function generateLeadMagnet(Request $request)
     {
-        set_time_limit(90);
+        set_time_limit(120);
         if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
         try {
             $v = $request->validate([

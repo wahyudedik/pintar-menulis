@@ -374,7 +374,7 @@ Schedule::call(function () {
     $message .= "• Mix antara edukasi, hiburan, dan promosi\n";
     $message .= "• Gunakan trending hashtag terbaru\n\n";
     $message .= "🤖 Ketik `daily` untuk ide konten hari ini!\n\n";
-    $message .= "_Powered by Pintar Menulis AI_ ✨";
+    $message .= "_Powered by Noteds AI_ ✨";
     
     $successCount = 0;
     foreach ($activeNumbers as $number) {
@@ -436,7 +436,7 @@ Schedule::call(function () {
     $message .= "4️⃣ Tren fashion sustainable 2026\n\n";
     $message .= "💬 Balas dengan nomor untuk generate caption!\n";
     $message .= "Contoh: ketik \"1\" untuk topik pertama\n\n";
-    $message .= "_Powered by Pintar Menulis AI_ ✨";
+    $message .= "_Powered by Noteds AI_ ✨";
     
     $successCount = 0;
     foreach ($subscribedNumbers as $number) {
@@ -498,7 +498,7 @@ Schedule::call(function () {
     $message .= "4️⃣ Tren fashion sustainable 2026\n\n";
     $message .= "💬 Balas dengan nomor untuk generate caption!\n";
     $message .= "Contoh: ketik \"1\" untuk topik pertama\n\n";
-    $message .= "_Powered by Pintar Menulis AI_ ✨";
+    $message .= "_Powered by Noteds AI_ ✨";
     
     $successCount = 0;
     foreach ($subscribedNumbers as $number) {

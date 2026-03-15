@@ -383,7 +383,7 @@ class WhatsAppService
                 $message .= $result['caption'] . "\n\n";
                 $message .= "📊 *Performance Score:* " . ($result['performance_score'] ?? 'N/A') . "\n";
                 $message .= "⏱️ *Generated in:* " . ($result['generation_time'] ?? 'N/A') . "s\n\n";
-                $message .= "_Powered by Pintar Menulis AI_ ✨";
+                $message .= "_Powered by Noteds AI_ ✨";
 
                 return $this->sendMessage($target, $message);
             }
@@ -439,7 +439,7 @@ class WhatsAppService
             
             $message .= "💬 *Balas dengan nomor untuk generate caption:*\n";
             $message .= "Contoh: \"1\" untuk ide pertama\n\n";
-            $message .= "_Powered by Pintar Menulis AI_ ✨";
+            $message .= "_Powered by Noteds AI_ ✨";
 
             return $this->sendMessage($target, $message);
 

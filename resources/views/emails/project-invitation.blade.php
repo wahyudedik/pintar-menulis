@@ -107,7 +107,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">📝 Pintar Menulis</div>
+            <div class="logo">📝 {{ config('app.name') }}</div>
             <h1 style="color: #1f2937; margin: 0;">Undangan Bergabung di Proyek</h1>
         </div>
 
@@ -175,11 +175,11 @@
         </p>
 
         <div class="footer">
-            <p>Email ini dikirim secara otomatis dari sistem Pintar Menulis.<br>
+            <p>Email ini dikirim secara otomatis dari sistem {{ config('app.name') }}.<br>
             Jika Anda memiliki pertanyaan, silakan hubungi {{ $invitedBy->name }} atau tim support kami.</p>
             
             <p style="margin-top: 15px;">
-                © {{ date('Y') }} Pintar Menulis. Semua hak dilindungi.
+                © {{ date('Y') }} {{ config('app.name') }}. Semua hak dilindungi.
             </p>
         </div>
     </div>

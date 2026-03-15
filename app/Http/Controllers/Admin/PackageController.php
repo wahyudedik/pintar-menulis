@@ -17,6 +17,43 @@ class PackageController extends Controller
         return view('admin.packages', compact('packages', 'totalSubs', 'pendingSubs'));
     }
 
+    public function create()
+    {
+        return view('admin.package-create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name'                       => 'required|string|max:255',
+            'description'                => 'required|string',
+            'price'                      => 'required|integer|min:0',
+            'yearly_price'               => 'nullable|integer|min:0',
+            'ai_quota_monthly'           => 'required|integer|min:0',
+            'caption_quota'              => 'nullable|integer|min:0',
+            'product_description_quota'  => 'nullable|integer|min:0',
+            'trial_days'                 => 'nullable|integer|min:0',
+            'badge_text'                 => 'nullable|string|max:50',
+            'badge_color'                => 'nullable|in:green,blue,red,purple,yellow,gray',
+            'sort_order'                 => 'nullable|integer|min:0',
+        ]);
+
+        if ($request->filled('features_text')) {
+            $validated['features'] = array_values(array_filter(
+                array_map('trim', explode("\n", $request->features_text))
+            ));
+        }
+
+        $validated['is_active']   = $request->boolean('is_active');
+        $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['has_trial']   = $request->boolean('has_trial');
+
+        Package::create($validated);
+
+        return redirect()->route('admin.packages')
+            ->with('success', 'Paket baru berhasil dibuat.');
+    }
+
     public function edit(Package $package)
     {
         return view('admin.package-edit', compact('package'));

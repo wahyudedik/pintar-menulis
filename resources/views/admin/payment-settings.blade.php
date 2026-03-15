@@ -330,7 +330,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Atas Nama</label>
-                    <input type="text" name="account_name" required placeholder="PT Pintar Menulis Indonesia"
+                    <input type="text" name="account_name" required placeholder="PT Noteds Indonesia"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent">
                 </div>
                 <div>

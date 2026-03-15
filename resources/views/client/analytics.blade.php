@@ -1141,8 +1141,7 @@
         
         // Auto-refresh analytics every 5 minutes
         setInterval(() => {
-            console.log('Auto-refreshing analytics data...');
-            // In production, this would silently update data without page reload
+            // Silent refresh placeholder - update data without page reload
         }, 300000); // 5 minutes
     });
 </script>

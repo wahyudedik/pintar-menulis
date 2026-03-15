@@ -56,9 +56,14 @@ function bannerPopup(type) {
         storageKey: `banner_closed_${type}`,
 
         init() {
-            // Check if banner was already closed
-            if (localStorage.getItem(this.storageKey)) {
-                return;
+            // Check if banner was closed within the last 24 hours
+            const stored = localStorage.getItem(this.storageKey);
+            if (stored) {
+                const { permanent, timestamp } = JSON.parse(stored);
+                if (permanent) return;
+                if (timestamp && (Date.now() - timestamp) < 24 * 60 * 60 * 1000) return;
+                // 24 hours passed — clear and show again
+                localStorage.removeItem(this.storageKey);
             }
 
             // Fetch banner data
@@ -78,13 +83,16 @@ function bannerPopup(type) {
                     }, 500);
                 }
             } catch (error) {
-                console.log('No banner to display');
+                // No banner to display - silent fail
             }
         },
 
         closeBanner() {
             if (this.dontShowAgain) {
-                localStorage.setItem(this.storageKey, 'true');
+                localStorage.setItem(this.storageKey, JSON.stringify({ permanent: true }));
+            } else {
+                // Hide for 24 hours
+                localStorage.setItem(this.storageKey, JSON.stringify({ permanent: false, timestamp: Date.now() }));
             }
             this.showBanner = false;
         }

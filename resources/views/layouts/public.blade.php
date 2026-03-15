@@ -13,15 +13,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
-    <title>{{ config('app.name', 'Smart Copy SMK') }}</title>
+    <title>{{ config('app.name', 'Noteds') }}</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Smart Copy SMK - AI Caption Generator untuk UMKM Indonesia">
+    <meta name="description" content="{{ config('app.name', 'Noteds') }} - AI Caption Generator untuk UMKM Indonesia">
     <meta name="keywords" content="caption generator, AI, UMKM, digital marketing">
     
     <!-- Open Graph Tags -->
-    <meta property="og:title" content="{{ config('app.name', 'Smart Copy SMK') }}">
-    <meta property="og:description" content="Smart Copy SMK - AI Caption Generator untuk UMKM Indonesia">
+    <meta property="og:title" content="{{ config('app.name', 'Noteds') }}">
+    <meta property="og:description" content="{{ config('app.name', 'Noteds') }} - AI Caption Generator untuk UMKM Indonesia">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
     
@@ -41,7 +41,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
                     <img src="{{ asset('logo.png') }}" alt="Logo" class="w-10 h-10 rounded-lg object-cover">
-                    <a href="/" class="text-lg font-semibold text-gray-900">Smart Copy SMK</a>
+                    <a href="/" class="text-lg font-semibold text-gray-900">{{ config('app.name', 'Noteds') }}</a>
                 </div>
                 <div class="flex items-center space-x-3">
                     <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
@@ -70,7 +70,7 @@
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
                         <img src="{{ asset('logo.png') }}" alt="Logo" class="w-8 h-8 rounded-lg object-cover">
-                        <span class="font-semibold text-white">Smart Copy SMK</span>
+                        <span class="font-semibold text-white">{{ config('app.name', 'Noteds') }}</span>
                     </div>
                     <p class="text-sm text-gray-400">Platform AI Caption Generator khusus UMKM Indonesia. Buat caption jualan yang bikin closing!</p>
                     <div class="flex space-x-4 mt-4">
@@ -121,7 +121,7 @@
 
             <!-- Bottom Footer -->
             <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
-                <p>&copy; {{ date('Y') }} Smart Copy SMK. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'Noteds') }}. All rights reserved.</p>
                 <p class="mt-2">Made with ❤️ for UMKM Indonesia</p>
             </div>
         </div>

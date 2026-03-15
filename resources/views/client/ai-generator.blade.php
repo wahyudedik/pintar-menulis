@@ -2645,7 +2645,7 @@
     // Clipboard helper — works on HTTP (non-secure) and HTTPS
     function copyToClipboard(text) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            return copyToClipboard(text);
+            return navigator.clipboard.writeText(text);
         }
         // Fallback for non-secure contexts (HTTP)
         return new Promise((resolve, reject) => {
@@ -2860,20 +2860,20 @@
             compCopied: false,
 
             // ❓ FAQ Generator state
-            faqForm: { product_name: '', product_desc: '', category: '', target_buyer: '' },
+            faqForm: { product_name: '', product_desc: '', category: '', price: '' },
             faqLoading: false,
             faqResult: null,
             faqError: null,
-            faqCopied: {},
+            faqCopied: false,
             faqSchemaCopied: false,
 
             // 🎬 Reels Hook state
-            reelsForm: { product_name: '', product_desc: '', target_audience: '', platform: 'reels', tone: 'energetic' },
+            reelsForm: { product_name: '', product_desc: '', target_audience: '', video_goal: '', platform: 'reels', tone: 'energetic' },
             reelsLoading: false,
             reelsResult: null,
             reelsError: null,
             reelsCopied: {},
-            reelsScriptCopied: false,
+            reelsScriptCopied: {},
             reelsSelectedHook: null,
             reelsBioCopied: false,
 
@@ -2885,7 +2885,7 @@
             badgeCopied: false,
 
             // 🏷️ Discount Campaign state
-            discForm: { promo_name: '', product_name: '', product_desc: '', original_price: '', discount_price: '', discount_pct: '', duration: '', wa_number: '' },
+            discForm: { promo_name: '', product_name: '', product_desc: '', original_price: '', discount_price: '', discount_pct: '', duration: '', platform: '', wa_number: '' },
             discLoading: false,
             discResult: null,
             discError: null,
@@ -3118,7 +3118,6 @@
                         }
                     }
 
-                    console.log('✅ Dynamic dates loaded successfully');
                 } catch (error) {
                     console.warn('⚠️ Failed to load dynamic dates, using fallback data:', error);
                     // Keep the existing hardcoded data as fallback
@@ -4054,8 +4053,6 @@
                 this.result = '';
                 
                 try {
-                    console.log('Sending request with data:', this.form);
-                    
                     // 🤖 Add ML data to request
                     const industry = this.getIndustryFromForm();
                     const requestData = {
@@ -4074,19 +4071,14 @@
                         body: JSON.stringify(requestData)
                     });
                     
-                    console.log('Response status:', response.status);
-                    console.log('Response content-type:', response.headers.get('content-type'));
-                    
                     // Check if response is JSON
                     const contentType = response.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const text = await response.text();
-                        console.error('Non-JSON response:', text.substring(0, 500));
                         throw new Error('Server returned non-JSON response. Please check server logs.');
                     }
                     
                     const data = await response.json();
-                    console.log('Response data:', data);
                     
                     if (data.success) {
                         this.result = data.result;
@@ -4114,7 +4106,6 @@
                         this.ratingFeedback = '';
                     } else {
                         const errorMessage = data.message || 'Terjadi kesalahan saat generate konten';
-                        console.error('API returned error:', errorMessage);
                         
                         // Quota / subscription error — show inline banner
                         if (data.quota_error) {
@@ -4130,27 +4121,15 @@
                             banner.classList.remove('hidden');
                             banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         } else if (errorMessage.includes('API key') || errorMessage.includes('tidak valid') || errorMessage.includes('expired')) {
-                            alert('⚠️ API Key Gemini Tidak Valid\n\nAPI key sudah expired atau tidak valid.\n\nSolusi:\n1. Generate API key baru di:\n   https://aistudio.google.com/app/apikey\n\n2. Update di file .env:\n   GEMINI_API_KEY=your_new_key\n\n3. Clear cache: php artisan config:clear');
+                            this.error = '⚠️ Layanan AI sedang tidak tersedia. Silakan coba beberapa saat lagi atau hubungi admin.';
                         } else {
-                            alert('Error: ' + errorMessage);
+                            this.error = errorMessage;
                         }
-                        
-                        console.error('API Error:', data);
                     }
                 } catch (error) {
-                    console.error('Generate Error:', error);
-                    console.error('Error stack:', error.stack);
-                    
-                    let errorMsg = 'Terjadi kesalahan: ';
-                    if (error.message.includes('JSON')) {
-                        errorMsg += 'Server error. Please check:\n' +
-                                   '1. Category and Subcategory are selected\n' +
-                                   '2. Brief is filled\n' +
-                                   '3. Server logs for details';
-                    } else {
-                        errorMsg += (error.message || 'Tidak dapat terhubung ke server');
-                    }
-                    alert(errorMsg);
+                    this.error = error.message && !error.message.includes('JSON')
+                        ? error.message
+                        : 'Tidak dapat terhubung ke server. Silakan coba lagi.';
                 } finally {
                     this.loading = false;
                 }
@@ -4199,20 +4178,15 @@
                     textToCopy = textToCopy.replace(/^#{1,6}\s+/gm, '');
                     
                     // Modern method
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        copyToClipboard(textToCopy)
-                            .then(() => {
-                                this.copied = true;
-                                setTimeout(() => this.copied = false, 2000);
-                            })
-                            .catch(err => {
-                                console.error('Clipboard error:', err);
-                                this.fallbackCopy(textToCopy);
-                            });
-                    } else {
-                        // Fallback method
-                        this.fallbackCopy(textToCopy);
-                    }
+                    copyToClipboard(textToCopy)
+                        .then(() => {
+                            this.copied = true;
+                            setTimeout(() => this.copied = false, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Clipboard error:', err);
+                            this.fallbackCopy(textToCopy);
+                        });
                 } catch (err) {
                     console.error('Copy error:', err);
                     this.fallbackCopy(this.result);
@@ -4782,7 +4756,6 @@
 
                     // If authentication fails, try demo endpoint (GET)
                     if (response.status === 401 || response.status === 419 || response.status === 500) {
-                        console.log('Using demo endpoint for unauthenticated user');
                         const encodedCaption = encodeURIComponent(this.predictorForm.caption);
                         endpoint = `/demo-predict/${encodedCaption}`;
                         response = await fetch(endpoint, { method: 'GET' });
@@ -4792,7 +4765,6 @@
 
                     if (data.success) {
                         this.predictionResults = data;
-                        console.log('Prediction results:', data);
                     } else {
                         throw new Error(data.message || 'Gagal memprediksi performa caption');
                     }
@@ -4836,7 +4808,6 @@
 
                     // If authentication fails, try demo endpoint (GET)
                     if (response.status === 401 || response.status === 419 || response.status === 500) {
-                        console.log('Using demo endpoint for A/B variants');
                         const encodedCaption = encodeURIComponent(this.predictorForm.caption);
                         endpoint = `/demo-variants/${encodedCaption}`;
                         response = await fetch(endpoint, { method: 'GET' });
@@ -6286,6 +6257,20 @@ ${trend.hashtags?.join(' ') || ''}`
                     setTimeout(() => { this.seoCopied = { ...this.seoCopied, [key]: false }; }, 2000);
                 });
             },
+            seoCopyAll() {
+                const r = this.seoResult || {};
+                const text = [
+                    'Meta Title: ' + (r.meta_title || ''),
+                    'Meta Description: ' + (r.meta_description || ''),
+                    'Focus Keyword: ' + (r.focus_keyword || ''),
+                    'OG Title: ' + (r.og_title || ''),
+                    'Slug: ' + (r.slug_suggestion || ''),
+                ].join('\n');
+                copyToClipboard(text).then(() => {
+                    this.seoCopied = { ...this.seoCopied, all: true };
+                    setTimeout(() => { this.seoCopied = { ...this.seoCopied, all: false }; }, 2000);
+                });
+            },
 
             // ─── Smart Comparison ────────────────────────────────────────────
             async generateComparison() {
@@ -6303,14 +6288,14 @@ ${trend.hashtags?.join(' ') || ''}`
                 finally { this.compLoading = false; }
             },
             compCopyShare() {
-                const text = this.compResult?.share_text || '';
+                const text = this.compResult?.share_message || this.compResult?.share_text || '';
                 copyToClipboard(text).then(() => {
                     this.compCopied = true;
                     setTimeout(() => { this.compCopied = false; }, 2000);
                 });
             },
             compShareWA() {
-                const text = encodeURIComponent(this.compResult?.share_text || '');
+                const text = encodeURIComponent(this.compResult?.share_message || this.compResult?.share_text || '');
                 window.open(`https://wa.me/?text=${text}`, '_blank');
             },
 
@@ -6336,10 +6321,17 @@ ${trend.hashtags?.join(' ') || ''}`
                 });
             },
             faqCopySchema() {
-                const schema = JSON.stringify(this.faqResult?.schema_markup || {}, null, 2);
+                const schema = this.faqResult?.schema_faq || JSON.stringify(this.faqResult?.schema_markup || {}, null, 2);
                 copyToClipboard(schema).then(() => {
                     this.faqSchemaCopied = true;
                     setTimeout(() => { this.faqSchemaCopied = false; }, 2000);
+                });
+            },
+            faqCopyAll() {
+                const faqs = (this.faqResult?.faqs || []).map((f, i) => `Q${i+1}. ${f.question}\nA: ${f.answer}`).join('\n\n');
+                copyToClipboard(faqs).then(() => {
+                    this.faqCopied = true;
+                    setTimeout(() => { this.faqCopied = false; }, 2000);
                 });
             },
 
@@ -6364,15 +6356,17 @@ ${trend.hashtags?.join(' ') || ''}`
                     setTimeout(() => { this.reelsCopied = { ...this.reelsCopied, [idx]: false }; }, 2000);
                 });
             },
-            reelsCopyScript() {
-                const script = this.reelsResult?.full_script || '';
-                copyToClipboard(script).then(() => {
-                    this.reelsScriptCopied = true;
-                    setTimeout(() => { this.reelsScriptCopied = false; }, 2000);
+            reelsCopyScript(script, idx) {
+                const text = (script && script.script) ? script.script : (this.reelsResult?.full_script || '');
+                copyToClipboard(text).then(() => {
+                    this.reelsScriptCopied = typeof idx !== 'undefined' ? { ...this.reelsScriptCopied, [idx]: true } : true;
+                    setTimeout(() => {
+                        this.reelsScriptCopied = typeof idx !== 'undefined' ? { ...this.reelsScriptCopied, [idx]: false } : false;
+                    }, 2000);
                 });
             },
             reelsCopyBio() {
-                const bio = this.reelsResult?.bio_link_text || '';
+                const bio = this.reelsResult?.bio_cta || this.reelsResult?.bio_link_text || '';
                 copyToClipboard(bio).then(() => {
                     this.reelsBioCopied = true;
                     setTimeout(() => { this.reelsBioCopied = false; }, 2000);
@@ -6508,3 +6502,4 @@ ${trend.hashtags?.join(' ') || ''}`
     [x-cloak] { display: none !important; }
 </style>
 @endsection
+

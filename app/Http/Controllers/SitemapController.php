@@ -12,7 +12,10 @@ class SitemapController extends Controller
      */
     public function index()
     {
-        $articles = Article::orderBy('updated_at', 'desc')->get();
+        $articles = Article::select('slug', 'updated_at')
+            ->orderBy('updated_at', 'desc')
+            ->limit(1000)
+            ->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";

@@ -1,6 +1,6 @@
 @extends('layouts.client')
 
-@section('title', 'Tarik Komisi Referral - Pintar Menulis')
+@section('title', 'Tarik Komisi Referral - ' . config('app.name'))
 
 @section('content')
 <div class="p-6 max-w-lg mx-auto">

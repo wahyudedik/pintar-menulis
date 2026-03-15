@@ -7,10 +7,10 @@
 
         <div class="grid md:grid-cols-3 gap-6">
             @foreach($packages as $package)
-            <div class="bg-white rounded-lg border-2 overflow-hidden transition {{ $package->name === 'Professional' ? 'border-blue-600' : 'border-gray-200 hover:border-gray-300' }}">
-                @if($package->name === 'Professional')
-                <div class="bg-blue-600 text-white text-center py-2 text-sm font-semibold">
-                    PALING POPULER
+            <div class="bg-white rounded-lg border-2 overflow-hidden transition {{ $package->badge_text ? 'border-blue-600' : 'border-gray-200 hover:border-gray-300' }}">
+                @if($package->badge_text)
+                <div class="text-white text-center py-2 text-sm font-semibold" style="background-color: {{ $package->badge_color ?? '#2563eb' }}">
+                    {{ strtoupper($package->badge_text) }}
                 </div>
                 @endif
                 

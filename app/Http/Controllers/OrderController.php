@@ -206,7 +206,7 @@ class OrderController extends Controller
                     // Send email to operator
                     $this->notificationService->sendEmail(
                         $order->operator,
-                        'Pembayaran Diterima - Pintar Menulis',
+                        'Pembayaran Diterima - Noteds',
                         "Client telah approve order #{$order->id}. Penghasilan Rp " . number_format($operatorEarnings, 0, ',', '.') . " (setelah komisi 10%) telah masuk ke saldo Anda.",
                         route('operator.earnings'),
                         'Lihat Penghasilan'
@@ -252,7 +252,7 @@ class OrderController extends Controller
 
             $this->notificationService->sendEmail(
                 $admin,
-                'Order Disputed - Pintar Menulis',
+                'Order Disputed - Noteds',
                 "Order #{$order->id} di-dispute oleh client. Alasan: {$validated['dispute_reason']}. Silakan mediasi segera.",
                 route('admin.payments'),
                 'Lihat Pembayaran'
@@ -272,7 +272,7 @@ class OrderController extends Controller
 
             $this->notificationService->sendEmail(
                 $order->operator,
-                'Order Disputed - Pintar Menulis',
+                'Order Disputed - Noteds',
                 "Client dispute order #{$order->id}. Admin akan mediasi. Alasan: {$validated['dispute_reason']}.",
                 route('operator.workspace', $order),
                 'Lihat Workspace'

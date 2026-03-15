@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Referral Monitor - Pintar Menulis')
+@section('title', 'Referral Monitor - ' . config('app.name'))
 
 @section('content')
 <div class="p-6">

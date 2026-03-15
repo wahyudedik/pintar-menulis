@@ -53,7 +53,7 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'payment_method' => 'required|string',
-            'proof_image' => 'required|image|max:2048', // 2MB max
+            'proof_image' => 'required|image|mimes:jpeg,jpg,png|max:2048', // 2MB max
         ]);
 
         // Upload proof image

@@ -314,6 +314,8 @@ Route::middleware(['auth'])->group(function () {
         
         // Package Management
         Route::get('/packages', [\App\Http\Controllers\Admin\PackageController::class, 'index'])->name('packages');
+        Route::get('/packages/create', [\App\Http\Controllers\Admin\PackageController::class, 'create'])->name('packages.create');
+        Route::post('/packages', [\App\Http\Controllers\Admin\PackageController::class, 'store'])->name('packages.store');
         Route::get('/packages/{package}/edit', [\App\Http\Controllers\Admin\PackageController::class, 'edit'])->name('packages.edit');
         Route::put('/packages/{package}', [\App\Http\Controllers\Admin\PackageController::class, 'update'])->name('packages.update');
 
@@ -392,6 +394,9 @@ Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
     
     // 🔔 Trend Alert API
     Route::post('/ai/generate-trend-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendContent'])->name('api.ai.generate-trend-content');
+
+    // 🎯 Analytics-Optimized Content
+    Route::post('/ai/generate-optimal-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateOptimalContent'])->name('api.ai.generate-optimal-content');
 
     // 🎯 Google Ads Campaign Generator API
     Route::post('/ai/generate-google-ads', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateGoogleAds'])->name('api.ai.generate-google-ads');
@@ -516,9 +521,6 @@ Route::prefix('api/articles')->group(function () {
 Route::prefix('api')->middleware(['auth'])->group(function () {
     // Dashboard Analytics
     Route::post('/dashboard/analytics-refresh', [DashboardController::class, 'refreshAnalytics'])->name('api.dashboard.analytics-refresh');
-    
-    // AI Generator - Optimal Content
-    Route::post('/ai/generate-optimal-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateOptimalContent'])->name('api.ai.generate-optimal-content');
     
     // Analytics API
     Route::get('/analytics/insights', [\App\Http\Controllers\Client\AnalyticsController::class, 'insights'])->name('api.analytics.insights');

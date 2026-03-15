@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Guru Monitor - Pintar Menulis')
+@section('title', 'Guru Monitor - ' . config('app.name'))
 
 @section('content')
 <div class="p-6">

@@ -103,7 +103,7 @@ class FeedbackController extends Controller
 
             $this->notificationService->sendEmail(
                 $admin,
-                $title . ' - Pintar Menulis',
+                $title . ' - Noteds',
                 $message,
                 route('admin.feedback.show', $feedback->id),
                 'Lihat Feedback'

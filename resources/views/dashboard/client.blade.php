@@ -10,7 +10,7 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-lg border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -665,7 +665,6 @@
 
     // Auto-refresh dashboard data every 10 minutes
     setInterval(() => {
-        console.log('Auto-refreshing dashboard analytics...');
         // Silent refresh without showing loading state
         fetch('/api/dashboard/analytics-refresh', {
             method: 'POST',
@@ -681,13 +680,12 @@
             }
         })
         .catch(error => {
-            console.log('Silent refresh failed:', error);
+            // Silent fail - non-critical refresh
         });
     }, 600000); // 10 minutes
 
     // Initialize dashboard on page load
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Dashboard analytics initialized');
         
         // Add smooth animations to cards
         const cards = document.querySelectorAll('.bg-white, .bg-gradient-to-br');

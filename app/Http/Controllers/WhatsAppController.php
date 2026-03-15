@@ -192,7 +192,7 @@ class WhatsAppController extends Controller
                     $message .= "\n";
                 }
                 
-                $message .= "_Powered by Pintar Menulis AI_ ✨";
+                $message .= "_Powered by Noteds AI_ ✨";
                 
                 $this->whatsappService->sendMessage($from, $message);
             } else {
@@ -231,7 +231,7 @@ class WhatsAppController extends Controller
      */
     private function sendHelpMessage(string $from): void
     {
-        $message = "🤖 *Pintar Menulis AI - WhatsApp Bot*\n\n";
+        $message = "🤖 *Noteds AI - WhatsApp Bot*\n\n";
         $message .= "📝 *Cara Pakai:*\n";
         $message .= "• Ketik pesan → Dapet caption AI\n";
         $message .= "• Kirim foto → Dapet caption + hashtag\n";
@@ -249,7 +249,7 @@ class WhatsAppController extends Controller
         $message .= "\"caption produk kecantikan untuk remaja\"\n";
         $message .= "\"video tutorial masak nasi goreng\"\n\n";
         
-        $message .= "_Powered by Pintar Menulis AI_ ✨";
+        $message .= "_Powered by Noteds AI_ ✨";
 
         $this->whatsappService->sendMessage($from, $message);
     }
@@ -259,7 +259,7 @@ class WhatsAppController extends Controller
      */
     private function sendMenuMessage(string $from): void
     {
-        $message = "📱 *Menu Pintar Menulis AI*\n\n";
+        $message = "📱 *Menu Noteds AI*\n\n";
         
         $message .= "🎯 *Generator Content:*\n";
         $message .= "1️⃣ Caption Instagram/Facebook\n";
@@ -346,7 +346,7 @@ class WhatsAppController extends Controller
             if ($result && isset($result['content'])) {
                 $message = "🎬 *AI Video Ideas*\n\n";
                 $message .= $result['content'] . "\n\n";
-                $message .= "_Powered by Pintar Menulis AI_ ✨";
+                $message .= "_Powered by Noteds AI_ ✨";
                 
                 $this->whatsappService->sendMessage($from, $message);
             } else {

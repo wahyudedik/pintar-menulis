@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
-    <title>@yield('title') | Smart Copy SMK</title>
-    <meta name="description" content="@yield('description', 'Smart Copy SMK - AI Caption Generator untuk UMKM Indonesia')">
+    <title>@yield('title') | Noteds</title>
+    <meta name="description" content="@yield('description', 'Noteds - AI Caption Generator untuk UMKM Indonesia')">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50">
@@ -16,7 +16,7 @@
                 <div class="flex items-center space-x-3">
                     <a href="{{ route('welcome') }}" class="flex items-center space-x-3">
                         <img src="{{ asset('logo.png') }}" alt="Logo" class="w-10 h-10 rounded-lg object-cover">
-                        <span class="text-lg font-semibold text-gray-900">Smart Copy SMK</span>
+                        <span class="text-lg font-semibold text-gray-900">Noteds</span>
                     </a>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -51,10 +51,11 @@
                     <a href="{{ route('contact') }}" class="hover:text-white transition">Contact</a>
                 </div>
                 <p class="text-sm text-gray-400">
-                    &copy; {{ date('Y') }} Smart Copy SMK. All rights reserved.
+                    &copy; {{ date('Y') }} Noteds. All rights reserved.
                 </p>
             </div>
         </div>
     </footer>
 </body>
 </html>
+

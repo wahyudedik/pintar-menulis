@@ -19,13 +19,13 @@ class WithdrawalController extends Controller
     {
         $withdrawals = WithdrawalRequest::with('user')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(50);
 
         $stats = [
-            'pending' => $withdrawals->where('status', 'pending')->count(),
-            'approved' => $withdrawals->where('status', 'approved')->count(),
-            'completed' => $withdrawals->where('status', 'completed')->count(),
-            'total_amount' => $withdrawals->where('status', 'completed')->sum('amount'),
+            'pending'      => WithdrawalRequest::where('status', 'pending')->count(),
+            'approved'     => WithdrawalRequest::where('status', 'approved')->count(),
+            'completed'    => WithdrawalRequest::where('status', 'completed')->count(),
+            'total_amount' => WithdrawalRequest::where('status', 'completed')->sum('amount'),
         ];
 
         return view('admin.withdrawals', compact('withdrawals', 'stats'));

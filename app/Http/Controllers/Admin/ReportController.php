@@ -15,8 +15,7 @@ class ReportController extends Controller
     public function index()
     {
         // Revenue Stats (from verified payments only)
-        $verifiedPayments = Payment::where('status', 'success')->get();
-        $totalRevenue = $verifiedPayments->sum('amount');
+        $totalRevenue = Payment::where('status', 'success')->sum('amount');
         $monthlyRevenue = Payment::where('status', 'success')
             ->whereMonth('verified_at', now()->month)
             ->sum('amount');

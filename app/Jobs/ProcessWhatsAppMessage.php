@@ -169,7 +169,7 @@ class ProcessWhatsAppMessage implements ShouldQueue
                     $responseMessage .= implode(' ', array_slice($result['hashtags'], 0, 10)) . "\n\n";
                 }
                 
-                $responseMessage .= "_Powered by Pintar Menulis AI_ ✨";
+                $responseMessage .= "_Powered by Noteds AI_ ✨";
                 
                 $whatsappService->sendMessage($from, $responseMessage);
 
@@ -244,7 +244,7 @@ class ProcessWhatsAppMessage implements ShouldQueue
             if ($result && isset($result['content'])) {
                 $message = "🎬 *AI Video Ideas*\n\n";
                 $message .= $result['content'] . "\n\n";
-                $message .= "_Powered by Pintar Menulis AI_ ✨";
+                $message .= "_Powered by Noteds AI_ ✨";
                 
                 $whatsappService->sendMessage($from, $message);
             } else {
@@ -263,7 +263,7 @@ class ProcessWhatsAppMessage implements ShouldQueue
 
     private function sendHelpMessage(WhatsAppService $whatsappService, string $from, WhatsAppMessage $whatsappMessage): void
     {
-        $message = "🤖 *Pintar Menulis AI - WhatsApp Bot*\n\n";
+        $message = "🤖 *Noteds AI - WhatsApp Bot*\n\n";
         $message .= "📝 *Cara Pakai:*\n";
         $message .= "• Ketik pesan → Dapet caption AI\n";
         $message .= "• Kirim foto → Dapet caption + hashtag\n";
@@ -272,14 +272,14 @@ class ProcessWhatsAppMessage implements ShouldQueue
         $message .= "• `menu` - Lihat semua fitur\n";
         $message .= "• `daily` - Ide konten harian\n";
         $message .= "• `help` - Bantuan ini\n\n";
-        $message .= "_Powered by Pintar Menulis AI_ ✨";
+        $message .= "_Powered by Noteds AI_ ✨";
 
         $whatsappService->sendMessage($from, $message);
     }
 
     private function sendMenuMessage(WhatsAppService $whatsappService, string $from, WhatsAppMessage $whatsappMessage): void
     {
-        $message = "📱 *Menu Pintar Menulis AI*\n\n";
+        $message = "📱 *Menu Noteds AI*\n\n";
         $message .= "🎯 *Generator Content:*\n";
         $message .= "1️⃣ Caption Instagram/Facebook\n";
         $message .= "2️⃣ Caption TikTok/Reels\n";

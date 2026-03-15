@@ -7,13 +7,19 @@
             <h1 class="text-2xl font-bold text-gray-900">Package Management</h1>
             <p class="text-sm text-gray-600 mt-1">Kelola paket langganan platform</p>
         </div>
-        <a href="{{ route('admin.subscriptions') }}"
-           class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition">
-            Kelola Subscription
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.packages.create') }}"
+               class="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition">
+                + Tambah Paket
+            </a>
+            <a href="{{ route('admin.subscriptions') }}"
+               class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition">
+                Kelola Subscription
+            </a>
+        </div>
     </div>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         @foreach($packages as $package)
         @php
             $activeCount = $package->subscriptions()->whereIn('status', ['active', 'trial'])->count();

@@ -26,12 +26,12 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Target Keyword Utama</label>
-                <input type="text" x-model="seoForm.target_keyword" placeholder="Contoh: template invoice gratis"
+                <input type="text" x-model="seoForm.keywords" placeholder="Contoh: template invoice gratis"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">URL Slug</label>
-                <input type="text" x-model="seoForm.url_slug" placeholder="Contoh: template-invoice-otomatis-excel"
+                <input type="text" x-model="seoForm.url" placeholder="Contoh: template-invoice-otomatis-excel"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
         </div>
@@ -65,7 +65,7 @@
                     <span class="text-xs font-bold text-blue-800 uppercase tracking-wide">Meta Title</span>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-gray-500" x-text="(seoResult.meta_title || '').length + '/60 karakter'"></span>
-                        <button @click="seoClipboard(seoResult.meta_title, 'title')" class="text-xs px-2 py-0.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                        <button @click="seoCopy(seoResult.meta_title, 'title')" class="text-xs px-2 py-0.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                             <span x-text="seoCopied.title ? '✓' : 'Copy'"></span>
                         </button>
                     </div>
@@ -80,7 +80,7 @@
                     <span class="text-xs font-bold text-green-800 uppercase tracking-wide">Meta Description</span>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-gray-500" x-text="(seoResult.meta_description || '').length + '/160 karakter'"></span>
-                        <button @click="seoClipboard(seoResult.meta_description, 'desc')" class="text-xs px-2 py-0.5 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                        <button @click="seoCopy(seoResult.meta_description, 'desc')" class="text-xs px-2 py-0.5 bg-green-600 text-white rounded hover:bg-green-700 transition">
                             <span x-text="seoCopied.desc ? '✓' : 'Copy'"></span>
                         </button>
                     </div>
@@ -129,4 +129,20 @@
         </div>
         </template>
     </div>
+
+    {{-- Google Search Sources --}}
+    <div x-show="seoResult && (seoResult.search_sources || []).length > 0" x-cloak
+         class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+        <p class="text-xs font-bold text-blue-800 mb-2">🔍 Berdasarkan pencarian web terkini</p>
+        <div class="flex flex-wrap gap-2">
+            <template x-for="src in (seoResult.search_sources || [])" :key="src.url">
+                <a :href="src.url" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-blue-200 rounded-lg text-xs text-blue-700 hover:bg-blue-100 transition">
+                    <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    <span x-text="src.title"></span>
+                </a>
+            </template>
+        </div>
+    </div>
 </div>
+

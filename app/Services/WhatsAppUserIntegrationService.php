@@ -53,7 +53,7 @@ class WhatsAppUserIntegrationService
             $message .= "**{$verificationCode}**\n\n";
             $message .= "Masukkan kode ini di website untuk menyelesaikan verifikasi.\n\n";
             $message .= "Kode berlaku selama 10 menit.\n\n";
-            $message .= "_Powered by Pintar Menulis AI_ ✨";
+            $message .= "_Powered by Noteds AI_ ✨";
 
             $result = $this->whatsappService->sendMessage($phoneNumber, $message);
 
@@ -138,7 +138,7 @@ class WhatsAppUserIntegrationService
 
         $welcomeMessage = "🎉 *Selamat! Akun WhatsApp Terverifikasi*\n\n";
         $welcomeMessage .= "Halo {$user->name}! 👋\n\n";
-        $welcomeMessage .= "Akun WhatsApp kamu sudah terhubung dengan Pintar Menulis AI.\n\n";
+        $welcomeMessage .= "Akun WhatsApp kamu sudah terhubung dengan Noteds AI.\n\n";
         
         $welcomeMessage .= "🎯 *Fitur yang bisa kamu gunakan:*\n";
         $welcomeMessage .= "• Generate caption AI langsung via WhatsApp\n";

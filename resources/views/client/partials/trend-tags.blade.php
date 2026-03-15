@@ -62,19 +62,24 @@
     <div x-show="tagsResult" x-cloak class="mt-5 space-y-4">
         <template x-if="tagsResult">
         <div class="space-y-4">
-            {{-- Trend Score --}}
+            {{-- Trend Alert Banner --}}
             <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-5 text-white">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <p class="text-sm opacity-80">Trend Relevance Score</p>
-                        <p class="text-4xl font-black" x-text="tagsResult.trend_score + '/100'"></p>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wide opacity-80">Trend Alert</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/20"
+                          x-text="'Urgensi: ' + (tagsResult.action_urgency || 'Medium')"></span>
+                </div>
+                <p class="text-sm font-medium" x-text="tagsResult.trend_alert"></p>
+                <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+                    <div class="bg-white/10 rounded-lg p-2">
+                        <p class="opacity-70 mb-0.5">Dampak SEO</p>
+                        <p class="font-semibold" x-text="tagsResult.seo_impact"></p>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm opacity-80">Potensi Kenaikan Traffic</p>
-                        <p class="text-2xl font-bold" x-text="tagsResult.traffic_potential"></p>
+                    <div class="bg-white/10 rounded-lg p-2">
+                        <p class="opacity-70 mb-0.5">Waktu Terbaik Posting</p>
+                        <p class="font-semibold" x-text="tagsResult.best_time_to_post"></p>
                     </div>
                 </div>
-                <p class="text-sm opacity-90" x-text="tagsResult.summary"></p>
             </div>
 
             {{-- Trending Tags --}}
@@ -85,56 +90,63 @@
                         <span x-text="tagsCopied ? '✓ Tersalin!' : 'Copy Semua Tag'"></span>
                     </button>
                 </div>
-                <div class="flex flex-wrap gap-2">
+                <div class="space-y-2">
                     <template x-for="tag in (tagsResult.trending_tags || [])" :key="tag.tag">
-                        <div class="group relative">
-                            <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition"
-                                  :class="tag.heat === 'hot' ? 'bg-red-100 text-red-700 hover:bg-red-200' : tag.heat === 'warm' ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'">
-                                <span x-text="tag.heat === 'hot' ? '🔥' : tag.heat === 'warm' ? '⚡' : '📌'"></span>
-                                <span x-text="tag.tag"></span>
-                                <span class="text-xs opacity-60" x-text="tag.volume"></span>
-                            </span>
-                            <div class="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap z-10" x-text="tag.reason"></div>
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-medium text-sm text-gray-900" x-text="tag.tag"></span>
+                                    <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                                          :class="tag.relevance === 'High' ? 'bg-green-100 text-green-700' : tag.relevance === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'"
+                                          x-text="tag.relevance"></span>
+                                </div>
+                                <p class="text-xs text-gray-500" x-text="tag.reason"></p>
+                                <p class="text-xs text-purple-600 mt-0.5" x-text="'Volume: ' + (tag.search_volume || '-')"></p>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <div class="text-lg font-black text-purple-600" x-text="tag.trend_score"></div>
+                                <div class="text-xs text-gray-400">score</div>
+                            </div>
                         </div>
                     </template>
                 </div>
             </div>
 
-            {{-- Trend Insights --}}
+            {{-- Recommended + Remove --}}
             <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-bold text-gray-700 mb-3">📊 Tren Sedang Naik</p>
-                    <ul class="space-y-2">
-                        <template x-for="t in (tagsResult.rising_trends || [])" :key="t.trend">
-                            <li class="flex items-start gap-2">
-                                <span class="text-green-500 text-xs mt-0.5">↑</span>
-                                <div>
-                                    <p class="text-xs font-medium text-gray-800" x-text="t.trend"></p>
-                                    <p class="text-xs text-gray-500" x-text="t.relevance"></p>
-                                </div>
-                            </li>
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <p class="text-xs font-bold text-green-800 mb-2">✅ Tag yang Direkomendasikan Sekarang</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <template x-for="tag in (tagsResult.recommended_tags || [])" :key="tag">
+                            <span class="px-2 py-1 bg-green-600 text-white text-xs rounded-full font-medium" x-text="tag"></span>
                         </template>
-                    </ul>
+                    </div>
                 </div>
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-bold text-gray-700 mb-3">💡 Saran Optimasi</p>
-                    <ul class="space-y-2">
-                        <template x-for="tip in (tagsResult.optimization_tips || [])" :key="tip">
-                            <li class="flex items-start gap-2">
-                                <span class="text-purple-500 text-xs mt-0.5">→</span>
-                                <p class="text-xs text-gray-700" x-text="tip"></p>
-                            </li>
+                <div x-show="(tagsResult.remove_tags || []).length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p class="text-xs font-bold text-red-800 mb-2">🗑️ Tag Lama yang Perlu Dihapus</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <template x-for="tag in (tagsResult.remove_tags || [])" :key="tag">
+                            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full line-through" x-text="tag"></span>
                         </template>
-                    </ul>
+                    </div>
                 </div>
-            </div>
-
-            {{-- Tag String to Copy --}}
-            <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
-                <p class="text-xs font-bold text-purple-800 mb-2">📋 String Tag Siap Pakai</p>
-                <p class="text-sm text-gray-700 font-mono break-all" x-text="tagsResult.tag_string"></p>
             </div>
         </div>
         </template>
+    </div>
+
+    {{-- Google Search Sources --}}
+    <div x-show="tagsResult && (tagsResult.search_sources || []).length > 0" x-cloak
+         class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+        <p class="text-xs font-bold text-blue-800 mb-2">🔍 Berdasarkan pencarian web terkini</p>
+        <div class="flex flex-wrap gap-2">
+            <template x-for="src in (tagsResult.search_sources || [])" :key="src.url">
+                <a :href="src.url" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-blue-200 rounded-lg text-xs text-blue-700 hover:bg-blue-100 transition">
+                    <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    <span x-text="src.title"></span>
+                </a>
+            </template>
+        </div>
     </div>
 </div>

@@ -116,7 +116,7 @@ class FeedbackController extends Controller
         $emailMessage = $message . ($feedback->admin_response ? "\n\nRespons admin: " . $feedback->admin_response : '');
         $this->notificationService->sendEmail(
             $feedback->user,
-            $title . ' - Pintar Menulis',
+            $title . ' - Noteds',
             $emailMessage,
             route('feedback.show', $feedback->id),
             'Lihat Feedback'

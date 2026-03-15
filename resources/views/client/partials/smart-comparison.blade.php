@@ -32,7 +32,7 @@
         </div>
         <div class="mb-5">
             <label class="block text-sm font-medium text-gray-700 mb-1">Konteks Pembeli (opsional)</label>
-            <input type="text" x-model="compForm.buyer_context" placeholder="Contoh: Pembeli butuh untuk bisnis kecil dengan budget terbatas"
+            <input type="text" x-model="compForm.buyer_persona" placeholder="Contoh: Pembeli butuh untuk bisnis kecil dengan budget terbatas"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
         </div>
         <button @click="generateComparison()" :disabled="compLoading || !compForm.product_a_name || !compForm.product_b_name"
@@ -133,7 +133,7 @@
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 mb-3" x-text="compResult.share_message"></div>
                 <div class="flex gap-2">
-                    <button @click="compCopyMsg()" class="flex items-center gap-1.5 px-3 py-2 bg-gray-800 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition">
+                    <button @click="compCopyShare()" class="flex items-center gap-1.5 px-3 py-2 bg-gray-800 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition">
                         <span x-text="compCopied ? '✓ Tersalin!' : '📋 Copy Pesan'"></span>
                     </button>
                     <button @click="compShareWA()" class="flex items-center gap-1.5 px-3 py-2 bg-green-500 text-white text-xs font-medium rounded-lg hover:bg-green-600 transition">
@@ -146,3 +146,19 @@
         </template>
     </div>
 </div>
+
+
+    {{-- Google Search Sources --}}
+    <div x-show="compResult && (compResult.search_sources || []).length > 0" x-cloak
+         class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+        <p class="text-xs font-bold text-blue-800 mb-2">🔍 Berdasarkan pencarian web terkini</p>
+        <div class="flex flex-wrap gap-2">
+            <template x-for="src in (compResult.search_sources || [])" :key="src.url">
+                <a :href="src.url" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-blue-200 rounded-lg text-xs text-blue-700 hover:bg-blue-100 transition">
+                    <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    <span x-text="src.title"></span>
+                </a>
+            </template>
+        </div>
+    </div>

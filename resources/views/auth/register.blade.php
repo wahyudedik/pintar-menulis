@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Smart Copy SMK</title>
+    <title>Register - Noteds</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50">
@@ -11,7 +11,7 @@
         <div class="max-w-md w-full">
             <!-- Logo -->
             <div class="text-center mb-8">
-                <img src="{{ asset('logo.png') }}" alt="Smart Copy SMK" class="w-16 h-16 rounded-lg object-cover mx-auto mb-4">
+                <img src="{{ asset('logo.png') }}" alt="Noteds" class="w-16 h-16 rounded-lg object-cover mx-auto mb-4">
                 <h2 class="text-2xl font-bold text-gray-900">Create Account</h2>
                 <p class="text-sm text-gray-600 mt-2">Daftar untuk memulai</p>
             </div>
@@ -120,3 +120,4 @@
     </div>
 </body>
 </html>
+

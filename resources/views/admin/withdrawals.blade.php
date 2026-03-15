@@ -159,6 +159,9 @@
             </div>
             @endforeach
         </div>
+        <div class="px-4 py-3 border-t border-gray-200">
+            {{ $withdrawals->links() }}
+        </div>
         @else
         <div class="p-12 text-center">
             <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

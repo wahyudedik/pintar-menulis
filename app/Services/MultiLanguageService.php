@@ -12,70 +12,70 @@ class MultiLanguageService
             'name' => 'Bahasa Indonesia',
             'code' => 'id',
             'flag' => '🇮🇩',
-            'greeting' => 'Halo! Selamat datang di Pintar Menulis AI',
+            'greeting' => 'Halo! Selamat datang di Noteds AI',
             'help_command' => 'bantuan'
         ],
         'bahasa_jawa' => [
             'name' => 'Bahasa Jawa',
             'code' => 'jv',
             'flag' => '🏛️',
-            'greeting' => 'Sugeng rawuh ing Pintar Menulis AI',
+            'greeting' => 'Sugeng rawuh ing Noteds AI',
             'help_command' => 'tulung'
         ],
         'bahasa_sunda' => [
             'name' => 'Bahasa Sunda',
             'code' => 'su',
             'flag' => '🏔️',
-            'greeting' => 'Wilujeng sumping ka Pintar Menulis AI',
+            'greeting' => 'Wilujeng sumping ka Noteds AI',
             'help_command' => 'pitulung'
         ],
         'bahasa_bali' => [
             'name' => 'Bahasa Bali',
             'code' => 'ban',
             'flag' => '🏝️',
-            'greeting' => 'Om Swastiastu, rahayu ring Pintar Menulis AI',
+            'greeting' => 'Om Swastiastu, rahayu ring Noteds AI',
             'help_command' => 'tulung'
         ],
         'bahasa_betawi' => [
             'name' => 'Bahasa Betawi',
             'code' => 'bew',
             'flag' => '🏙️',
-            'greeting' => 'Halo bro! Selamat dateng di Pintar Menulis AI',
+            'greeting' => 'Halo bro! Selamat dateng di Noteds AI',
             'help_command' => 'bantuin'
         ],
         'bahasa_madura' => [
             'name' => 'Bahasa Madura',
             'code' => 'mad',
             'flag' => '⛵',
-            'greeting' => 'Salamat dateng ka Pintar Menulis AI',
+            'greeting' => 'Salamat dateng ka Noteds AI',
             'help_command' => 'tolong'
         ],
         'bahasa_bugis' => [
             'name' => 'Bahasa Bugis',
             'code' => 'bug',
             'flag' => '🚢',
-            'greeting' => 'Selamat datang di Pintar Menulis AI',
+            'greeting' => 'Selamat datang di Noteds AI',
             'help_command' => 'bantuan'
         ],
         'bahasa_banjar' => [
             'name' => 'Bahasa Banjar',
             'code' => 'bjn',
             'flag' => '🌊',
-            'greeting' => 'Selamat datang di Pintar Menulis AI',
+            'greeting' => 'Selamat datang di Noteds AI',
             'help_command' => 'tulung'
         ],
         'english' => [
             'name' => 'English',
             'code' => 'en',
             'flag' => '🇺🇸',
-            'greeting' => 'Hello! Welcome to Pintar Menulis AI',
+            'greeting' => 'Hello! Welcome to Noteds AI',
             'help_command' => 'help'
         ],
         'mix_bahasa' => [
             'name' => 'Mix Bahasa',
             'code' => 'mix',
             'flag' => '🌈',
-            'greeting' => 'Halo! Welcome to Pintar Menulis AI - Campur bahasa oke!',
+            'greeting' => 'Halo! Welcome to Noteds AI - Campur bahasa oke!',
             'help_command' => 'help'
         ]
     ];
@@ -134,12 +134,12 @@ class MultiLanguageService
     {
         $messages = [
             'bahasa_indonesia' => [
-                'welcome' => 'Selamat datang di Pintar Menulis AI! 🤖✨',
-                'help_title' => '📱 *Panduan Pintar Menulis AI*',
+                'welcome' => 'Selamat datang di Noteds AI! 🤖✨',
+                'help_title' => '📱 *Panduan Noteds AI*',
                 'help_usage' => '📝 *Cara Pakai:*',
                 'help_commands' => '🎯 *Perintah Khusus:*',
                 'help_examples' => '💡 *Contoh:*',
-                'menu_title' => '📱 *Menu Pintar Menulis AI*',
+                'menu_title' => '📱 *Menu Noteds AI*',
                 'daily_ideas' => '🌅 *Ide Konten Harian*',
                 'error_message' => '❌ Terjadi kesalahan. Coba lagi nanti ya!',
                 'processing' => '🤖 Sedang memproses... Tunggu sebentar ya!',
@@ -149,15 +149,15 @@ class MultiLanguageService
                 'unsubscribe_success' => '😢 Berhasil berhenti berlangganan',
                 'voice_processing' => '🎵 Sedang memproses voice note...',
                 'image_processing' => '🔄 Sedang menganalisis gambar...',
-                'powered_by' => '_Powered by Pintar Menulis AI_ ✨'
+                'powered_by' => '_Powered by Noteds AI_ ✨'
             ],
             'bahasa_jawa' => [
-                'welcome' => 'Sugeng rawuh ing Pintar Menulis AI! 🤖✨',
-                'help_title' => '📱 *Pandhuan Pintar Menulis AI*',
+                'welcome' => 'Sugeng rawuh ing Noteds AI! 🤖✨',
+                'help_title' => '📱 *Pandhuan Noteds AI*',
                 'help_usage' => '📝 *Cara Nggunakake:*',
                 'help_commands' => '🎯 *Printah Khusus:*',
                 'help_examples' => '💡 *Tuladha:*',
-                'menu_title' => '📱 *Menu Pintar Menulis AI*',
+                'menu_title' => '📱 *Menu Noteds AI*',
                 'daily_ideas' => '🌅 *Ide Konten Saben Dina*',
                 'error_message' => '❌ Ana masalah. Coba maneh ya!',
                 'processing' => '🤖 Lagi diproses... Sabar ya!',
@@ -167,15 +167,15 @@ class MultiLanguageService
                 'unsubscribe_success' => '😢 Sukses mandheg langganan',
                 'voice_processing' => '🎵 Lagi ngolah voice note...',
                 'image_processing' => '🔄 Lagi nganalisis gambar...',
-                'powered_by' => '_Powered by Pintar Menulis AI_ ✨'
+                'powered_by' => '_Powered by Noteds AI_ ✨'
             ],
             'bahasa_sunda' => [
-                'welcome' => 'Wilujeng sumping ka Pintar Menulis AI! 🤖✨',
-                'help_title' => '📱 *Panuntun Pintar Menulis AI*',
+                'welcome' => 'Wilujeng sumping ka Noteds AI! 🤖✨',
+                'help_title' => '📱 *Panuntun Noteds AI*',
                 'help_usage' => '📝 *Cara Maké:*',
                 'help_commands' => '🎯 *Paréntah Husus:*',
                 'help_examples' => '💡 *Conto:*',
-                'menu_title' => '📱 *Menu Pintar Menulis AI*',
+                'menu_title' => '📱 *Menu Noteds AI*',
                 'daily_ideas' => '🌅 *Ide Eusi Poéan*',
                 'error_message' => '❌ Aya masalah. Cobian deui!',
                 'processing' => '🤖 Keur diprosés... Sabar heula!',
@@ -185,15 +185,15 @@ class MultiLanguageService
                 'unsubscribe_success' => '😢 Suksés eureun ngalanggan',
                 'voice_processing' => '🎵 Keur ngolah voice note...',
                 'image_processing' => '🔄 Keur nganalisis gambar...',
-                'powered_by' => '_Powered by Pintar Menulis AI_ ✨'
+                'powered_by' => '_Powered by Noteds AI_ ✨'
             ],
             'english' => [
-                'welcome' => 'Welcome to Pintar Menulis AI! 🤖✨',
-                'help_title' => '📱 *Pintar Menulis AI Guide*',
+                'welcome' => 'Welcome to Noteds AI! 🤖✨',
+                'help_title' => '📱 *Noteds AI Guide*',
                 'help_usage' => '📝 *How to Use:*',
                 'help_commands' => '🎯 *Special Commands:*',
                 'help_examples' => '💡 *Examples:*',
-                'menu_title' => '📱 *Pintar Menulis AI Menu*',
+                'menu_title' => '📱 *Noteds AI Menu*',
                 'daily_ideas' => '🌅 *Daily Content Ideas*',
                 'error_message' => '❌ An error occurred. Please try again later!',
                 'processing' => '🤖 Processing... Please wait!',
@@ -203,15 +203,15 @@ class MultiLanguageService
                 'unsubscribe_success' => '😢 Successfully unsubscribed',
                 'voice_processing' => '🎵 Processing voice note...',
                 'image_processing' => '🔄 Analyzing image...',
-                'powered_by' => '_Powered by Pintar Menulis AI_ ✨'
+                'powered_by' => '_Powered by Noteds AI_ ✨'
             ],
             'mix_bahasa' => [
-                'welcome' => 'Welcome! Selamat datang di Pintar Menulis AI! 🤖✨',
-                'help_title' => '📱 *Guide Pintar Menulis AI*',
+                'welcome' => 'Welcome! Selamat datang di Noteds AI! 🤖✨',
+                'help_title' => '📱 *Guide Noteds AI*',
                 'help_usage' => '📝 *How to Use / Cara Pakai:*',
                 'help_commands' => '🎯 *Special Commands / Perintah Khusus:*',
                 'help_examples' => '💡 *Examples / Contoh:*',
-                'menu_title' => '📱 *Menu Pintar Menulis AI*',
+                'menu_title' => '📱 *Menu Noteds AI*',
                 'daily_ideas' => '🌅 *Daily Content Ideas / Ide Konten Harian*',
                 'error_message' => '❌ Error occurred / Terjadi kesalahan. Try again / Coba lagi!',
                 'processing' => '🤖 Processing / Sedang diproses... Please wait / Tunggu ya!',
@@ -221,7 +221,7 @@ class MultiLanguageService
                 'unsubscribe_success' => '😢 Successfully unsubscribed / Berhasil berhenti langganan',
                 'voice_processing' => '🎵 Processing voice note / Memproses voice note...',
                 'image_processing' => '🔄 Analyzing image / Menganalisis gambar...',
-                'powered_by' => '_Powered by Pintar Menulis AI_ ✨'
+                'powered_by' => '_Powered by Noteds AI_ ✨'
             ]
         ];
 

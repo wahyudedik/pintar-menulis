@@ -63,7 +63,7 @@ class NotificationService
             // Send email to operator
             $this->sendEmail(
                 $operator,
-                'Order Baru Tersedia - Pintar Menulis',
+                'Order Baru Tersedia - Noteds',
                 "Ada order baru dengan budget Rp " . number_format($order->budget, 0, ',', '.') . " untuk kategori {$order->category}. Segera cek queue untuk mengambil order ini.",
                 route('operator.queue'),
                 'Lihat Order Queue'
@@ -89,7 +89,7 @@ class NotificationService
 
         $this->sendEmail(
             $order->user,
-            'Order Diterima - Pintar Menulis',
+            'Order Diterima - Noteds',
             "Order Anda telah diterima oleh {$operatorName}. Operator sedang mengerjakan pesanan Anda.",
             route('orders.show', $order),
             'Lihat Order'
@@ -113,7 +113,7 @@ class NotificationService
         // Send email
         $this->sendEmail(
             $order->user,
-            'Order Ditolak - Pintar Menulis',
+            'Order Ditolak - Noteds',
             "Order Anda telah ditolak oleh operator. Order kembali ke queue dan akan diproses oleh operator lain.",
             route('orders.show', $order),
             'Lihat Order'
@@ -138,7 +138,7 @@ class NotificationService
 
         $this->sendEmail(
             $order->user,
-            'Order Selesai - Pintar Menulis',
+            'Order Selesai - Noteds',
             "Order Anda telah selesai dikerjakan oleh {$operatorName}. Silakan review hasilnya.",
             route('orders.show', $order),
             'Review Hasil'
@@ -165,7 +165,7 @@ class NotificationService
 
         $this->sendEmail(
             $order->operator,
-            'Request Revisi - Pintar Menulis',
+            'Request Revisi - Noteds',
             "Client meminta revisi untuk order #{$order->id}. Silakan cek catatan revisi dan segera kerjakan.",
             route('operator.workspace', $order),
             'Buka Workspace'
@@ -191,7 +191,7 @@ class NotificationService
             // Send email to operator
             $this->sendEmail(
                 $order->operator,
-                'Pembayaran Diterima - Pintar Menulis',
+                'Pembayaran Diterima - Noteds',
                 "Pembayaran untuk order #{$order->id} sebesar Rp " . number_format($payment->amount, 0, ',', '.') . " telah diterima dan di-hold platform. Dana akan diteruskan setelah client approve.",
                 route('operator.earnings'),
                 'Lihat Penghasilan'
@@ -216,7 +216,7 @@ class NotificationService
         // Send email
         $this->sendEmail(
             $withdrawal->user,
-            'Withdrawal Disetujui - Pintar Menulis',
+            'Withdrawal Disetujui - Noteds',
             "Request withdrawal Anda sebesar Rp " . number_format($withdrawal->amount, 0, ',', '.') . " telah disetujui. Dana akan segera ditransfer.",
             route('operator.withdrawal.history'),
             'Lihat Riwayat'
@@ -242,7 +242,7 @@ class NotificationService
 
         $this->sendEmail(
             $withdrawal->user,
-            'Withdrawal Ditolak - Pintar Menulis',
+            'Withdrawal Ditolak - Noteds',
             $message,
             route('operator.withdrawal.history'),
             'Lihat Riwayat'
@@ -266,7 +266,7 @@ class NotificationService
         // Send email
         $this->sendEmail(
             $withdrawal->user,
-            'Withdrawal Selesai - Pintar Menulis',
+            'Withdrawal Selesai - Noteds',
             "Dana withdrawal sebesar Rp " . number_format($withdrawal->amount, 0, ',', '.') . " telah ditransfer ke rekening Anda.",
             route('operator.withdrawal.history'),
             'Lihat Riwayat'
@@ -300,7 +300,7 @@ class NotificationService
 
         $this->sendEmail(
             $subscription->user,
-            "{$title} - Pintar Menulis",
+            "{$title} - Noteds",
             $message,
             route('subscription.index'),
             'Lihat Langganan'
@@ -326,7 +326,7 @@ class NotificationService
         // Send email confirmation
         $this->sendEmail(
             $subscription->user,
-            'Pembayaran Diterima, Sedang Diverifikasi - Pintar Menulis',
+            'Pembayaran Diterima, Sedang Diverifikasi - Noteds',
             "Bukti pembayaran langganan {$package->name} Anda telah kami terima dan sedang diverifikasi admin. Proses verifikasi maksimal 1×24 jam.",
             route('subscription.index'),
             'Lihat Status Langganan'
@@ -350,7 +350,7 @@ class NotificationService
 
         $this->sendEmail(
             $subscription->user,
-            "Pembayaran Langganan Ditolak - Pintar Menulis",
+            "Pembayaran Langganan Ditolak - Noteds",
             "Pembayaran langganan {$package->name} Anda ditolak. Silakan lakukan pembayaran ulang atau hubungi admin.",
             route('subscription.checkout', $package),
             'Bayar Ulang'
@@ -379,7 +379,7 @@ class NotificationService
 
         $this->sendEmail(
             $owner,
-            'Undangan Diterima - Pintar Menulis',
+            'Undangan Diterima - Noteds',
             "{$member->name} telah menerima undangan untuk bergabung di proyek \"{$project->business_name}\" sebagai {$invitation->role}.",
             route('projects.collaboration.index', $project),
             'Lihat Tim Proyek'
@@ -406,7 +406,7 @@ class NotificationService
 
         $this->sendEmail(
             $owner,
-            'Undangan Ditolak - Pintar Menulis',
+            'Undangan Ditolak - Noteds',
             "{$member->name} menolak undangan untuk bergabung di proyek \"{$project->business_name}\".",
             route('projects.collaboration.index', $project),
             'Lihat Tim Proyek'
@@ -446,7 +446,7 @@ class NotificationService
 
             $this->sendEmail(
                 $approver,
-                'Konten Menunggu Review - Pintar Menulis',
+                'Konten Menunggu Review - Noteds',
                 "{$submitter->name} mengirim konten \"{$content->title}\" untuk direview di proyek \"{$project->business_name}\". Silakan review dan berikan keputusan.",
                 route('projects.content.show', [$project, $content]),
                 'Review Konten'
@@ -473,7 +473,7 @@ class NotificationService
 
         $this->sendEmail(
             $content->creator,
-            'Konten Disetujui - Pintar Menulis',
+            'Konten Disetujui - Noteds',
             "Konten \"{$content->title}\" Anda di proyek \"{$project->business_name}\" telah disetujui" . ($reviewer ? " oleh {$reviewer->name}" : '') . ". Selamat!",
             route('projects.content.show', [$project, $content]),
             'Lihat Konten'
@@ -500,7 +500,7 @@ class NotificationService
 
         $this->sendEmail(
             $content->creator,
-            'Konten Perlu Revisi - Pintar Menulis',
+            'Konten Perlu Revisi - Noteds',
             "Konten \"{$content->title}\" Anda di proyek \"{$project->business_name}\" perlu direvisi" . ($reviewer ? " oleh {$reviewer->name}" : '') . ".{$notes}",
             route('projects.content.show', [$project, $content]),
             'Lihat Konten'
@@ -524,7 +524,7 @@ class NotificationService
 
         $this->sendEmail(
             $operator,
-            'Akun Operator Terverifikasi - Pintar Menulis',
+            'Akun Operator Terverifikasi - Noteds',
             'Selamat! Akun operator Anda telah diverifikasi oleh admin. Anda sekarang dapat menerima order dari client.',
             route('operator.queue'),
             'Lihat Order Queue'
@@ -546,7 +546,7 @@ class NotificationService
 
         $this->sendEmail(
             $operator,
-            'Verifikasi Operator Dicabut - Pintar Menulis',
+            'Verifikasi Operator Dicabut - Noteds',
             'Verifikasi akun operator Anda telah dicabut oleh admin. Hubungi admin untuk informasi lebih lanjut.',
         );
     }
@@ -567,7 +567,7 @@ class NotificationService
 
         $this->sendEmail(
             $operator,
-            'Request Withdrawal Diterima - Pintar Menulis',
+            'Request Withdrawal Diterima - Noteds',
             "Request withdrawal sebesar Rp " . number_format($withdrawal->amount, 0, ',', '.') . " berhasil disubmit dan sedang menunggu approval admin. Proses maksimal 1×24 jam.",
             route('operator.withdrawal.history'),
             'Lihat Riwayat Withdrawal'
@@ -590,7 +590,7 @@ class NotificationService
 
         $this->sendEmail(
             $client,
-            'Bukti Pembayaran Diterima - Pintar Menulis',
+            'Bukti Pembayaran Diterima - Noteds',
             "Bukti pembayaran untuk order #{$order->id} berhasil kami terima dan sedang menunggu verifikasi admin. Proses verifikasi maksimal 1×24 jam.",
             route('orders.show', $order),
             'Lihat Status Order'
