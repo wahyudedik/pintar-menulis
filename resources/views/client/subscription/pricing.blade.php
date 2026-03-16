@@ -95,7 +95,14 @@
 
                 {{-- Fitur --}}
                 <ul class="space-y-2 mb-6 flex-1">
-                    @foreach($package->features ?? [] as $feature)
+                    @php
+                        $features = $package->features;
+                        if (is_string($features)) {
+                            $features = json_decode($features, true) ?? [];
+                        }
+                        $features = is_array($features) ? $features : [];
+                    @endphp
+                    @foreach($features as $feature)
                     <li class="flex items-start gap-2 text-sm text-gray-700">
                         <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
