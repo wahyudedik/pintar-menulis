@@ -73,6 +73,7 @@ function bannerPopup(type) {
         async fetchBanner(type) {
             try {
                 const response = await fetch(`/api/banner/${type}`);
+                if (!response.ok) return; // No active banner — silent fail
                 const data = await response.json();
 
                 if (data.success && data.banner) {

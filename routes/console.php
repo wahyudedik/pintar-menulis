@@ -103,16 +103,12 @@ Schedule::command('ml:train-daily')
 
 // 📰 Generate 1 article daily at midnight (00:00)
 // Rotation pattern: Day 1 = Industry, Day 2 = Tips, Day 3 = Quote (repeats every 3 days)
-Schedule::call(function () {
-    $service = app(\App\Services\ArticleGeneratorService::class);
-    $result = $service->generateDailyArticles();
-    
-    if ($result['success'] > 0) {
-        \Illuminate\Support\Facades\Log::info('✅ Daily article generated successfully', $result);
-    } else {
-        \Illuminate\Support\Facades\Log::error('❌ Failed to generate daily article', $result);
-    }
-})->dailyAt('00:00')->name('articles-generate-daily')->withoutOverlapping()->onOneServer();
+Schedule::command('articles:generate-daily')
+    ->dailyAt('00:00')
+    ->name('articles-generate-daily')
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/articles-generate.log'));
 
 // ============================================
 // TRENDING HASHTAGS SCHEDULE

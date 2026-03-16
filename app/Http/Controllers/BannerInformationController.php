@@ -18,7 +18,7 @@ class BannerInformationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'No active banner found'
-            ], 404);
+            ]);
         }
 
         return response()->json([

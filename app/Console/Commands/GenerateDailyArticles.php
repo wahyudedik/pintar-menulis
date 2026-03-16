@@ -19,7 +19,7 @@ class GenerateDailyArticles extends Command
      *
      * @var string
      */
-    protected $description = 'Generate 7 daily articles (2 captions, 2 quotes, 2 tips, 1 mixed)';
+    protected $description = 'Generate 1 daily article (rotation: industry → tips → quote every 3 days)';
 
     /**
      * Execute the console command.

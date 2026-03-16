@@ -46,7 +46,7 @@
                 <div class="px-5 py-3 flex items-center justify-between bg-teal-50 rounded-t-xl">
                     <h3 class="font-bold text-teal-800">❓ FAQ — <span x-text="faqResult.product_name"></span></h3>
                     <button @click="faqCopyAll()" class="text-xs px-3 py-1 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
-                        <span x-text="faqCopied ? '✓ Tersalin!' : '📋 Copy Semua'"></span>
+                        <span x-text="faqAllCopied ? '✓ Tersalin!' : '📋 Copy Semua'"></span>
                     </button>
                 </div>
                 <template x-for="(faq, idx) in (faqResult.faqs || [])" :key="idx">

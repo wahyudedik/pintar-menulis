@@ -2864,7 +2864,8 @@
             faqLoading: false,
             faqResult: null,
             faqError: null,
-            faqCopied: false,
+            faqCopied: {},
+            faqAllCopied: false,
             faqSchemaCopied: false,
 
             // 🎬 Reels Hook state
@@ -3119,7 +3120,7 @@
                     }
 
                 } catch (error) {
-                    console.warn('⚠️ Failed to load dynamic dates, using fallback data:', error);
+                    console.warn('⚠️ Failed to load dynamic dates, using fallback data');
                     // Keep the existing hardcoded data as fallback
                 }
             },
@@ -3139,7 +3140,6 @@
                         this.isFirstTimeUser = data.is_first_time || false;
                     }
                 } catch (error) {
-                    console.error('Check first time error:', error);
                     // Default to true if error
                     this.isFirstTimeUser = true;
                 }
@@ -6033,7 +6033,6 @@ ${trend.hashtags?.join(' ') || ''}`
                         alert('❌ ' + (data.message || 'Gagal generate kampanye'));
                     }
                 } catch (e) {
-                    console.error(e);
                     alert('Terjadi kesalahan. Coba lagi.');
                 } finally {
                     this.adsLoading = false;
@@ -6330,8 +6329,8 @@ ${trend.hashtags?.join(' ') || ''}`
             faqCopyAll() {
                 const faqs = (this.faqResult?.faqs || []).map((f, i) => `Q${i+1}. ${f.question}\nA: ${f.answer}`).join('\n\n');
                 copyToClipboard(faqs).then(() => {
-                    this.faqCopied = true;
-                    setTimeout(() => { this.faqCopied = false; }, 2000);
+                    this.faqAllCopied = true;
+                    setTimeout(() => { this.faqAllCopied = false; }, 2000);
                 });
             },
 

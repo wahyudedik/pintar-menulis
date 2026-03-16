@@ -9,9 +9,110 @@ use Exception;
 class ArticleGeneratorService
 {
     protected $geminiService;
-    protected $industries = ['fashion', 'food', 'beauty', 'tech', 'lifestyle', 'health'];
-    
-    // Rotation pattern: Day 1 = Industry, Day 2 = Tips, Day 3 = Quote (repeats every 3 days)
+
+    // ── 30 industri/niche bisnis — tidak akan habis dalam sebulan ──────────
+    protected $industries = [
+        'fashion'         => 'Fashion & Pakaian',
+        'food'            => 'Kuliner & F&B',
+        'beauty'          => 'Kecantikan & Skincare',
+        'tech'            => 'Teknologi & Software',
+        'lifestyle'       => 'Lifestyle & Wellness',
+        'health'          => 'Kesehatan & Medis',
+        'education'       => 'Pendidikan & Kursus Online',
+        'finance'         => 'Keuangan & Investasi',
+        'property'        => 'Properti & Real Estate',
+        'automotive'      => 'Otomotif & Kendaraan',
+        'travel'          => 'Travel & Pariwisata',
+        'photography'     => 'Fotografi & Videografi',
+        'handicraft'      => 'Kerajinan Tangan & Handmade',
+        'pet'             => 'Hewan Peliharaan & Pet Care',
+        'sports'          => 'Olahraga & Fitness',
+        'gaming'          => 'Gaming & Esports',
+        'music'           => 'Musik & Entertainment',
+        'agriculture'     => 'Pertanian & Agribisnis',
+        'logistics'       => 'Logistik & Ekspedisi',
+        'printing'        => 'Percetakan & Desain Grafis',
+        'wedding'         => 'Wedding & Event Organizer',
+        'childcare'       => 'Parenting & Produk Anak',
+        'homecare'        => 'Perawatan Rumah & Cleaning',
+        'legal'           => 'Jasa Hukum & Konsultasi',
+        'hr'              => 'HR & Rekrutmen',
+        'ecommerce'       => 'E-commerce & Marketplace',
+        'saas'            => 'SaaS & Aplikasi Bisnis',
+        'freelance'       => 'Freelance & Jasa Digital',
+        'nonprofit'       => 'Sosial & Nirlaba',
+        'media'           => 'Media & Jurnalisme',
+    ];
+
+    // ── 30 topik tips marketing — tidak akan habis dalam sebulan ──────────
+    protected $tipsTopics = [
+        'instagram_growth'    => 'strategi organik menumbuhkan followers Instagram dari 0',
+        'tiktok_algorithm'    => 'cara kerja algoritma TikTok dan cara memanfaatkannya',
+        'copywriting_formula' => 'formula copywriting AIDA, PAS, dan BAB untuk caption produk',
+        'content_calendar'    => 'membuat content calendar 30 hari yang konsisten',
+        'hashtag_strategy'    => 'riset dan strategi hashtag yang tepat untuk setiap platform',
+        'reels_viral'         => 'membuat Reels dan TikTok yang berpotensi viral',
+        'whatsapp_broadcast'  => 'WhatsApp marketing dan broadcast yang tidak dianggap spam',
+        'email_marketing'     => 'email marketing untuk UMKM dengan open rate tinggi',
+        'seo_marketplace'     => 'SEO produk di Shopee, Tokopedia, dan marketplace lain',
+        'google_ads_umkm'     => 'Google Ads dengan budget kecil untuk UMKM',
+        'facebook_ads'        => 'Facebook & Instagram Ads untuk pemula',
+        'personal_branding'   => 'membangun personal branding sebagai content creator',
+        'storytelling'        => 'teknik storytelling untuk konten bisnis yang engaging',
+        'video_marketing'     => 'video marketing pendek yang efektif untuk social media',
+        'customer_retention'  => 'strategi mempertahankan pelanggan dan meningkatkan repeat order',
+        'pricing_strategy'    => 'strategi penetapan harga produk yang kompetitif',
+        'collab_marketing'    => 'kolaborasi dengan influencer dan brand lain',
+        'ugc_strategy'        => 'mendorong user-generated content dari pelanggan',
+        'live_selling'        => 'tips live selling di TikTok Shop dan Instagram',
+        'affiliate_marketing' => 'membangun program afiliasi untuk produk digital',
+        'landing_page'        => 'membuat landing page yang mengkonversi',
+        'funnel_marketing'    => 'membangun sales funnel dari awareness sampai purchase',
+        'analytics_insight'   => 'membaca dan memanfaatkan data analytics social media',
+        'crisis_management'   => 'menangani krisis reputasi brand di media sosial',
+        'community_building'  => 'membangun komunitas loyal di sekitar brand',
+        'podcast_marketing'   => 'podcast sebagai strategi content marketing',
+        'pinterest_marketing' => 'Pinterest marketing untuk produk visual',
+        'linkedin_b2b'        => 'LinkedIn marketing untuk bisnis B2B',
+        'chatbot_automation'  => 'otomasi pemasaran dengan chatbot dan AI',
+        'seasonal_campaign'   => 'membuat kampanye musiman yang efektif (Ramadan, Lebaran, dll)',
+    ];
+
+    // ── 30 tema quote inspirasi bisnis ─────────────────────────────────────
+    protected $quoteThemes = [
+        'kegigihan'       => 'kegigihan dan pantang menyerah dalam berbisnis',
+        'inovasi'         => 'inovasi dan kreativitas sebagai kunci pertumbuhan bisnis',
+        'kepemimpinan'    => 'kepemimpinan yang menginspirasi dan memimpin dengan hati',
+        'kesuksesan'      => 'definisi sukses yang sesungguhnya bagi entrepreneur',
+        'kegagalan'       => 'belajar dari kegagalan dan bangkit lebih kuat',
+        'kerja_keras'     => 'kerja keras, disiplin, dan konsistensi',
+        'mimpi'           => 'mengejar mimpi besar dan berani bermimpi',
+        'perubahan'       => 'menghadapi perubahan dan beradaptasi dengan cepat',
+        'kesempatan'      => 'memanfaatkan setiap kesempatan dalam bisnis',
+        'kolaborasi'      => 'kolaborasi, teamwork, dan kekuatan bersama',
+        'fokus'           => 'fokus, prioritas, dan menghindari distraksi',
+        'pelanggan'       => 'pelayanan pelanggan sebagai pondasi bisnis',
+        'nilai'           => 'membangun bisnis berbasis nilai dan integritas',
+        'waktu'           => 'manajemen waktu dan produktivitas entrepreneur',
+        'risiko'          => 'keberanian mengambil risiko yang terukur',
+        'belajar'         => 'belajar terus-menerus dan growth mindset',
+        'networking'      => 'kekuatan jaringan dan relasi dalam bisnis',
+        'kreativitas'     => 'kreativitas sebagai senjata utama bisnis modern',
+        'resiliensi'      => 'ketangguhan mental menghadapi tekanan bisnis',
+        'visi'            => 'memiliki visi jangka panjang yang jelas',
+        'action'          => 'mengambil tindakan nyata, bukan sekadar rencana',
+        'gratitude'       => 'rasa syukur dan mindset kelimpahan dalam bisnis',
+        'simplicity'      => 'kesederhanaan sebagai kekuatan dalam bisnis',
+        'passion'         => 'passion dan purpose sebagai bahan bakar bisnis',
+        'digital'         => 'transformasi digital dan peluang era baru',
+        'umkm'            => 'semangat UMKM Indonesia yang tangguh dan berdaya',
+        'generasi'        => 'generasi muda dan wirausaha masa depan Indonesia',
+        'dampak'          => 'bisnis yang memberi dampak positif bagi masyarakat',
+        'autentik'        => 'menjadi autentik dan jujur dalam berbisnis',
+        'momentum'        => 'menangkap momentum dan bergerak di waktu yang tepat',
+    ];
+
+    // ── Rotation: 3-day cycle ──────────────────────────────────────────────
     protected $rotationPattern = [
         1 => 'industry',
         2 => 'tips',
@@ -23,41 +124,28 @@ class ArticleGeneratorService
         $this->geminiService = $geminiService;
     }
 
-    /**
-     * Generate 1 article per day with rotation pattern
-     * Day 1: Industry article (random industry)
-     * Day 2: Tips article (digital marketing tips)
-     * Day 3: Quote article (inspirational quote)
-     * Pattern repeats every 3 days
-     */
-    public function generateDailyArticles()
+    // ── Main entry point ───────────────────────────────────────────────────
+    public function generateDailyArticles(): array
     {
-        $results = [
-            'success' => 0,
-            'failed' => 0,
-            'articles' => [],
-            'errors' => [],
-        ];
+        $results = ['success' => 0, 'failed' => 0, 'articles' => [], 'errors' => []];
 
         try {
-            $dayInCycle = $this->getDayInCycle();
+            $dayInCycle  = $this->getDayInCycle();
             $articleType = $this->rotationPattern[$dayInCycle];
-            
-            $article = $this->generateArticleByType($articleType);
+            $article     = $this->generateArticleByType($articleType);
 
             if ($article) {
                 $results['success']++;
                 $results['articles'][] = [
-                    'id' => $article->id,
-                    'title' => $article->title,
-                    'type' => $articleType,
+                    'id'       => $article->id,
+                    'title'    => $article->title,
+                    'type'     => $articleType,
                     'industry' => $article->industry,
                 ];
-                
-                \Log::info("✅ Daily article generated", [
-                    'type' => $articleType,
+                \Log::info('✅ Daily article generated', [
+                    'type'         => $articleType,
                     'day_in_cycle' => $dayInCycle,
-                    'article_id' => $article->id,
+                    'article_id'   => $article->id,
                 ]);
             } else {
                 $results['failed']++;
@@ -65,347 +153,213 @@ class ArticleGeneratorService
             }
         } catch (Exception $e) {
             $results['failed']++;
-            $results['errors'][] = "Error: {$e->getMessage()}";
-            \Log::error("❌ Daily article generation failed", ['error' => $e->getMessage()]);
+            $results['errors'][] = 'Error: ' . $e->getMessage();
+            \Log::error('❌ Daily article generation failed', ['error' => $e->getMessage()]);
         }
 
         return $results;
     }
 
-    /**
-     * Generate article based on type
-     */
-    protected function generateArticleByType($type)
+    protected function generateArticleByType(string $type): ?Article
     {
-        if ($type === 'industry') {
-            $industry = $this->getRandomIndustry();
-            return $this->generateIndustryArticle($industry);
-        } elseif ($type === 'tips') {
-            return $this->generateTipsArticle();
-        } elseif ($type === 'quote') {
-            return $this->generateQuoteArticle();
-        }
-
-        return null;
+        return match ($type) {
+            'industry' => $this->generateIndustryArticle($this->pickUnusedIndustry()),
+            'tips'     => $this->generateTipsArticle($this->pickUnusedTipsTopic()),
+            'quote'    => $this->generateQuoteArticle($this->pickUnusedQuoteTheme()),
+            default    => null,
+        };
     }
 
-    /**
-     * Generate industry article
-     */
-    protected function generateIndustryArticle($industry)
+    // ── Smart pickers — avoid repeats within 30 days ───────────────────────
+
+    protected function pickUnusedIndustry(): string
     {
-        $industryIndo = $this->translateIndustry($industry);
-        
-        // Strategy: Generate article in one go with very explicit instructions
-        $content = $this->generateContent(
-            "Kamu adalah penulis artikel profesional. Tugas kamu adalah menulis artikel LENGKAP tentang tren terbaru di industri {$industryIndo}.
+        $used = Article::where('category', 'industry')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->pluck('industry')
+            ->toArray();
 
-PENTING: Artikel harus LENGKAP dan TIDAK BOLEH TERPOTONG!
+        $available = array_diff(array_keys($this->industries), $used);
+        if (empty($available)) $available = array_keys($this->industries);
 
-Tulis artikel dengan struktur berikut (WAJIB LENGKAP):
+        return $available[array_rand($available)];
+    }
 
-**Judul: Tren Terbaru di Industri {$industryIndo} 2026**
+    protected function pickUnusedTipsTopic(): string
+    {
+        $used = Article::where('category', 'tips')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->pluck('industry') // we store topic key in industry column
+            ->toArray();
 
-**Paragraf 1 - Pembukaan (100-150 kata):**
-Mulai dengan hook menarik tentang perkembangan industri {$industryIndo} di Indonesia. Jelaskan mengapa UMKM perlu memperhatikan tren ini.
+        $available = array_diff(array_keys($this->tipsTopics), $used);
+        if (empty($available)) $available = array_keys($this->tipsTopics);
 
-**Paragraf 2 - Tren Pertama (150-200 kata):**
-Jelaskan tren pertama yang sedang berkembang di industri {$industryIndo}. Berikan contoh konkret dan bagaimana UMKM bisa memanfaatkannya.
+        return $available[array_rand($available)];
+    }
 
-**Paragraf 3 - Tren Kedua (150-200 kata):**
-Jelaskan tren kedua yang penting untuk diperhatikan. Sertakan data atau insight yang relevan untuk UMKM Indonesia.
+    protected function pickUnusedQuoteTheme(): string
+    {
+        $used = Article::where('category', 'quote')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->pluck('industry') // we store theme key in industry column
+            ->toArray();
 
-**Paragraf 4 - Tips Praktis (100-150 kata):**
-Berikan 3-5 tips praktis yang bisa langsung diterapkan oleh UMKM untuk mengikuti tren ini.
+        $available = array_diff(array_keys($this->quoteThemes), $used);
+        if (empty($available)) $available = array_keys($this->quoteThemes);
 
-**Paragraf 5 - Penutup (50-100 kata):**
-Kesimpulan yang memotivasi dan call-to-action yang jelas untuk UMKM.
+        return $available[array_rand($available)];
+    }
 
-ATURAN PENULISAN:
-- Gunakan Bahasa Indonesia yang mudah dipahami
-- Fokus pada UMKM Indonesia
-- Berikan contoh konkret dan actionable
-- Total minimal 500 kata
-- TULIS SAMPAI SELESAI, jangan berhenti di tengah
+    // ── Article generators ─────────────────────────────────────────────────
 
-Sekarang tulis artikel LENGKAP:"
-        );
+    protected function generateIndustryArticle(string $industryKey): ?Article
+    {
+        $industryLabel = $this->industries[$industryKey];
 
-        if (!$content || str_word_count($content) < 300) {
-            // If content too short or failed, try fallback with simpler prompt
-            \Log::warning("Article too short, trying fallback", ['words' => str_word_count($content ?? '')]);
-            
-            $content = $this->generateContent(
-                "Tulis artikel lengkap 500 kata dalam Bahasa Indonesia tentang tren industri {$industryIndo} untuk UMKM. 
-                
-                Struktur:
-                1. Pembukaan menarik
-                2. 2-3 tren utama dengan penjelasan detail
-                3. Tips praktis untuk UMKM
-                4. Kesimpulan dan motivasi
-                
-                Tulis artikel lengkap sekarang, jangan berhenti sampai selesai:"
-            );
-        }
+        $prompt = "Kamu adalah penulis artikel profesional bisnis Indonesia. Tulis artikel LENGKAP minimal 600 kata tentang tren terbaru di industri {$industryLabel} untuk UMKM dan pelaku bisnis Indonesia tahun 2026.
 
-        if (!$content) {
-            return null;
-        }
+Struktur WAJIB:
+1. Pembukaan menarik (100-150 kata) — hook tentang kondisi industri {$industryLabel} saat ini
+2. Tren Pertama (150-200 kata) — tren paling signifikan, contoh konkret, cara UMKM memanfaatkannya
+3. Tren Kedua (150-200 kata) — tren kedua yang penting, data/insight relevan
+4. Tips Praktis (100-150 kata) — 3-5 langkah actionable yang bisa langsung diterapkan
+5. Penutup & CTA (50-100 kata) — motivasi dan ajakan bertindak
 
-        $title = "Tren Terbaru di Industri " . ucfirst($industryIndo) . " 2026";
-        $slug = $this->generateUniqueSlug($title);
+Aturan: Bahasa Indonesia natural, fokus UMKM, contoh konkret, TULIS SAMPAI SELESAI.";
+
+        $content = $this->generateContent($prompt);
+        if (!$content) return null;
+
+        $title       = "Tren Industri {$industryLabel} 2026: Peluang dan Strategi untuk UMKM";
+        $slug        = $this->generateUniqueSlug($title);
         $description = Str::limit(strip_tags($content), 160);
-        $keywords = "{$industryIndo}, tren {$industryIndo}, bisnis {$industryIndo}, tips {$industryIndo}";
+        $keywords    = "{$industryLabel}, tren {$industryLabel} 2026, bisnis {$industryLabel}, UMKM {$industryLabel}";
 
         $article = Article::create([
-            'title' => $title,
-            'slug' => $slug,
-            'content' => $content,
+            'title'       => $title,
+            'slug'        => $slug,
+            'content'     => $content,
             'description' => $description,
-            'keywords' => $keywords,
-            'category' => 'industry',
-            'industry' => $industry,
-            'day_number' => $this->getDayInCycle(),
+            'keywords'    => $keywords,
+            'category'    => 'industry',
+            'industry'    => $industryKey,
+            'day_number'  => $this->getDayInCycle(),
         ]);
-        
-        // Feed to ML system for learning
+
         $this->feedToMLSystem($article);
-        
         return $article;
     }
 
-    /**
-     * Generate tips article (digital marketing tips)
-     */
-    protected function generateTipsArticle()
+    protected function generateTipsArticle(string $topicKey): ?Article
     {
-        // Variasi topik tips agar tidak monoton
-        $tipsTopics = [
-            'Digital Marketing' => 'digital marketing untuk meningkatkan penjualan online',
-            'Social Media' => 'social media marketing untuk UMKM',
-            'Content Creation' => 'membuat konten yang engaging dan viral',
-            'Instagram Marketing' => 'Instagram marketing untuk bisnis kecil',
-            'TikTok Marketing' => 'TikTok marketing untuk UMKM',
-            'Copywriting' => 'copywriting yang menjual untuk caption produk',
-            'Branding' => 'membangun brand awareness untuk UMKM',
-            'Customer Engagement' => 'meningkatkan engagement dengan pelanggan',
-            'Video Marketing' => 'video marketing untuk social media',
-            'Email Marketing' => 'email marketing untuk UMKM',
-        ];
-        
-        // Pilih topik secara random tapi track agar tidak berulang dalam 30 hari
-        $recentTopics = \App\Models\Article::where('category', 'tips')
-            ->where('created_at', '>=', now()->subDays(30))
-            ->pluck('title')
-            ->toArray();
-        
-        // Filter topik yang belum digunakan
-        $availableTopics = array_filter($tipsTopics, function($topic, $key) use ($recentTopics) {
-            foreach ($recentTopics as $recentTitle) {
-                if (stripos($recentTitle, $key) !== false) {
-                    return false;
-                }
-            }
-            return true;
-        }, ARRAY_FILTER_USE_BOTH);
-        
-        // Jika semua topik sudah digunakan, reset
-        if (empty($availableTopics)) {
-            $availableTopics = $tipsTopics;
-        }
-        
-        $selectedTopic = array_rand($availableTopics);
-        $topicDescription = $availableTopics[$selectedTopic];
-        
-        $content = $this->generateContent(
-            "Tulis artikel tips praktis tentang {$topicDescription} dalam Bahasa Indonesia untuk UMKM dan content creator.
-            
-            WAJIB:
-            - MINIMAL 500 KATA
-            - Berisi 7-10 tips praktis dan actionable
-            - Setiap tip dijelaskan dengan detail dan contoh konkret
-            - Menggunakan bahasa yang mudah dipahami
-            - Relevan untuk bisnis kecil di Indonesia
-            - Format dengan numbering yang jelas
-            
-            Struktur:
-            **Paragraf 1 - Pembukaan (100 kata):**
-            Jelaskan pentingnya {$topicDescription} untuk UMKM di era digital.
-            
-            **Paragraf 2-4 - Tips Praktis (300-400 kata):**
-            Berikan 7-10 tips dengan penjelasan detail dan contoh. Format:
-            1. [Tip pertama] - Penjelasan dan contoh
-            2. [Tip kedua] - Penjelasan dan contoh
-            ... dst
-            
-            **Paragraf 5 - Penutup (100 kata):**
-            Kesimpulan dan motivasi untuk mulai menerapkan tips.
-            
-            Tulis artikel lengkap sekarang:"
-        );
+        $topicDesc = $this->tipsTopics[$topicKey];
 
-        if (!$content) {
-            return null;
-        }
+        $prompt = "Tulis artikel tips praktis tentang {$topicDesc} dalam Bahasa Indonesia untuk UMKM dan content creator Indonesia.
 
-        $title = "Tips {$selectedTopic} untuk UMKM 2026";
-        $slug = $this->generateUniqueSlug($title);
-        $description = "Temukan tips {$topicDescription} praktis untuk meningkatkan bisnis Anda.";
-        $keywords = "{$selectedTopic}, tips marketing, strategi konten, social media marketing, UMKM";
+WAJIB: minimal 600 kata, 7-10 tips actionable, setiap tip dijelaskan dengan contoh konkret.
+
+Struktur:
+1. Pembukaan (100 kata) — pentingnya {$topicDesc} di era digital
+2. Tips 1-10 (400-500 kata) — format bernomor, setiap tip ada penjelasan + contoh nyata
+3. Penutup (100 kata) — motivasi dan langkah pertama yang bisa dilakukan hari ini
+
+Bahasa: mudah dipahami, tidak terlalu teknis, relevan untuk bisnis kecil Indonesia. TULIS SAMPAI SELESAI.";
+
+        $content = $this->generateContent($prompt);
+        if (!$content) return null;
+
+        $topicLabel  = ucwords(str_replace('_', ' ', $topicKey));
+        $title       = "Tips {$topicLabel}: Panduan Praktis untuk UMKM 2026";
+        $slug        = $this->generateUniqueSlug($title);
+        $description = "Panduan lengkap {$topicDesc} — tips praktis yang bisa langsung diterapkan untuk bisnis kamu.";
+        $keywords    = "{$topicLabel}, tips marketing, strategi digital, UMKM, content creator";
 
         $article = Article::create([
-            'title' => $title,
-            'slug' => $slug,
-            'content' => $content,
+            'title'       => $title,
+            'slug'        => $slug,
+            'content'     => $content,
             'description' => $description,
-            'keywords' => $keywords,
-            'category' => 'tips',
-            'industry' => 'marketing',
-            'day_number' => $this->getDayInCycle(),
+            'keywords'    => $keywords,
+            'category'    => 'tips',
+            'industry'    => $topicKey, // store topic key for dedup tracking
+            'day_number'  => $this->getDayInCycle(),
         ]);
-        
-        // Feed to ML system for learning
+
         $this->feedToMLSystem($article);
-        
         return $article;
     }
 
-    /**
-     * Generate quote article
-     */
-    protected function generateQuoteArticle()
+    protected function generateQuoteArticle(string $themeKey): ?Article
     {
-        // Variasi tema quote agar tidak monoton
-        $quoteThemes = [
-            'Kegigihan' => 'kegigihan dan pantang menyerah dalam berbisnis',
-            'Inovasi' => 'inovasi dan kreativitas dalam bisnis',
-            'Kepemimpinan' => 'kepemimpinan dan memimpin tim',
-            'Kesuksesan' => 'meraih kesuksesan dalam bisnis',
-            'Kegagalan' => 'belajar dari kegagalan dan bangkit kembali',
-            'Kerja Keras' => 'kerja keras dan dedikasi',
-            'Mimpi' => 'mengejar mimpi dan passion',
-            'Perubahan' => 'menghadapi perubahan dan adaptasi',
-            'Kesempatan' => 'memanfaatkan kesempatan dalam bisnis',
-            'Kolaborasi' => 'kolaborasi dan teamwork',
-        ];
-        
-        // Pilih tema secara random tapi track agar tidak berulang dalam 30 hari
-        $recentThemes = \App\Models\Article::where('category', 'quote')
-            ->where('created_at', '>=', now()->subDays(30))
-            ->pluck('content')
-            ->toArray();
-        
-        $selectedTheme = array_rand($quoteThemes);
-        $themeDescription = $quoteThemes[$selectedTheme];
-        
-        $content = $this->generateContent(
-            "Tulis artikel inspirasi dengan quote motivasi tentang {$themeDescription} dalam Bahasa Indonesia untuk content creator dan entrepreneur.
-            
-            WAJIB:
-            - MINIMAL 400 KATA
-            - Berisi 1 quote inspiratif yang powerful dan memorable
-            - Penjelasan mendalam tentang makna quote tersebut
-            - Bagaimana menerapkan quote dalam bisnis/kehidupan
-            - Contoh konkret dan cerita inspiratif
-            - Menggunakan bahasa yang menyentuh dan memotivasi
-            
-            Struktur:
-            **Paragraf 1 - Quote (50 kata):**
-            Tampilkan quote yang powerful tentang {$themeDescription}. Format:
-            > \"[Quote yang inspiratif]\"
-            > — [Nama tokoh/penulis]
-            
-            **Paragraf 2 - Makna Quote (150 kata):**
-            Jelaskan makna mendalam dari quote tersebut dan relevansinya untuk entrepreneur Indonesia.
-            
-            **Paragraf 3 - Penerapan Praktis (150 kata):**
-            Bagaimana menerapkan wisdom dari quote ini dalam bisnis sehari-hari. Berikan contoh konkret.
-            
-            **Paragraf 4 - Penutup (50 kata):**
-            Motivasi dan call-to-action untuk mulai menerapkan.
-            
-            Tulis artikel lengkap sekarang:"
-        );
+        $themeDesc = $this->quoteThemes[$themeKey];
 
-        if (!$content) {
-            return null;
-        }
+        $prompt = "Tulis artikel inspirasi dengan quote motivasi tentang {$themeDesc} dalam Bahasa Indonesia untuk entrepreneur dan content creator Indonesia.
 
-        $title = "Inspirasi Harian: Quote tentang {$selectedTheme} untuk Creator";
-        $slug = $this->generateUniqueSlug($title);
-        $description = "Dapatkan inspirasi dengan quote motivasi tentang {$themeDescription} untuk entrepreneur Indonesia.";
-        $keywords = "inspirasi, motivasi, quote, {$selectedTheme}, entrepreneurship, content creator, UMKM";
+WAJIB: minimal 450 kata, 1 quote powerful, penjelasan mendalam, contoh nyata dari bisnis Indonesia.
+
+Struktur:
+1. Quote (50 kata) — format: > \"[quote inspiratif]\" — [Nama Tokoh]
+2. Makna Quote (150 kata) — penjelasan mendalam dan relevansi untuk entrepreneur Indonesia
+3. Penerapan Praktis (150 kata) — cara menerapkan wisdom ini dalam bisnis sehari-hari, contoh konkret
+4. Penutup (50-100 kata) — motivasi dan ajakan bertindak
+
+Bahasa: menyentuh, memotivasi, autentik. TULIS SAMPAI SELESAI.";
+
+        $content = $this->generateContent($prompt);
+        if (!$content) return null;
+
+        $themeLabel  = ucwords(str_replace('_', ' ', $themeKey));
+        $title       = "Inspirasi Bisnis: Quote tentang {$themeLabel} untuk Entrepreneur Indonesia";
+        $slug        = $this->generateUniqueSlug($title);
+        $description = "Quote inspiratif tentang {$themeDesc} — motivasi harian untuk entrepreneur dan content creator Indonesia.";
+        $keywords    = "inspirasi, motivasi, quote, {$themeLabel}, entrepreneur, UMKM, bisnis Indonesia";
 
         $article = Article::create([
-            'title' => $title,
-            'slug' => $slug,
-            'content' => $content,
+            'title'       => $title,
+            'slug'        => $slug,
+            'content'     => $content,
             'description' => $description,
-            'keywords' => $keywords,
-            'category' => 'quote',
-            'industry' => 'general',
-            'day_number' => $this->getDayInCycle(),
+            'keywords'    => $keywords,
+            'category'    => 'quote',
+            'industry'    => $themeKey, // store theme key for dedup tracking
+            'day_number'  => $this->getDayInCycle(),
         ]);
-        
-        // Feed to ML system for learning
+
         $this->feedToMLSystem($article);
-        
         return $article;
     }
 
-    /**
-     * Generate content using Gemini API with continuation support
-     */
-    protected function generateContent($prompt)
+    // ── Content generation with auto-continuation ──────────────────────────
+
+    protected function generateContent(string $prompt): ?string
     {
         try {
-            // First attempt - generate article
-            $response = $this->geminiService->generateText($prompt, 3000, 0.8);
-            
+            $response  = $this->geminiService->generateText($prompt, 3000, 0.8);
             $wordCount = str_word_count($response);
-            \Log::info("Article generated (first attempt)", ['word_count' => $wordCount]);
-            
-            // Check if article seems incomplete (ends abruptly)
-            $lastWords = substr($response, -100);
-            $endsAbruptly = !preg_match('/[.!?]\s*$/', trim($response)); // Doesn't end with punctuation
-            
-            // If article is too short OR ends abruptly, try to continue
+
+            // If too short or ends abruptly, continue
+            $endsAbruptly = !preg_match('/[.!?]\s*$/', trim($response));
             if ($wordCount < 400 || $endsAbruptly) {
-                \Log::warning("Article seems incomplete, attempting continuation", [
-                    'word_count' => $wordCount,
-                    'ends_abruptly' => $endsAbruptly,
-                    'last_100_chars' => $lastWords
-                ]);
-                
-                // Try to continue the article
-                $continuePrompt = "Lanjutkan artikel berikut sampai selesai dengan kesimpulan yang lengkap:\n\n" . $response . "\n\n(Lanjutkan dari kalimat terakhir dan selesaikan artikel dengan kesimpulan yang kuat)";
-                
-                $continuation = $this->geminiService->generateText($continuePrompt, 2000, 0.8);
-                
+                \Log::warning('Article incomplete, continuing', ['words' => $wordCount]);
+                $continuation = $this->geminiService->generateText(
+                    "Lanjutkan artikel berikut sampai selesai dengan kesimpulan yang kuat:\n\n{$response}\n\n(Lanjutkan dan selesaikan):",
+                    2000, 0.8
+                );
                 if ($continuation && str_word_count($continuation) > 50) {
-                    // Merge the continuation
                     $response = $response . "\n\n" . $continuation;
-                    $finalWordCount = str_word_count($response);
-                    \Log::info("Article continued successfully", ['final_word_count' => $finalWordCount]);
                 }
             }
-            
-            // Clean up the response - remove preamble and meta text
-            $response = $this->cleanArticleContent($response);
-            
-            return $response;
+
+            return $this->cleanArticleContent($response);
         } catch (Exception $e) {
-            \Log::error("Gemini API error: {$e->getMessage()}");
+            \Log::error('Gemini API error: ' . $e->getMessage());
             return null;
         }
     }
-    
-    /**
-     * Clean article content by removing preamble and meta text
-     */
-    protected function cleanArticleContent($content)
+
+    protected function cleanArticleContent(string $content): string
     {
-        // Remove common preambles
         $patterns = [
             '/^(Tentu|Baik|Oke|Ok),?\s+(berikut|ini)\s+(adalah|ialah)?\s+artikel.*?:\s*/is',
             '/^\*\*Judul:.*?\*\*\s*/is',
@@ -413,154 +367,81 @@ Sekarang tulis artikel LENGKAP:"
             '/^Artikel.*?:\s*/is',
             '/^Berikut.*?artikel.*?:\s*/is',
         ];
-        
         foreach ($patterns as $pattern) {
             $content = preg_replace($pattern, '', $content);
         }
-        
-        // Trim whitespace
-        $content = trim($content);
-        
-        return $content;
-    }
-    
-    /**
-     * Translate industry to Indonesian
-     */
-    protected function translateIndustry($industry)
-    {
-        $translations = [
-            'fashion' => 'Fashion',
-            'food' => 'Kuliner',
-            'beauty' => 'Kecantikan',
-            'tech' => 'Teknologi',
-            'lifestyle' => 'Lifestyle',
-            'health' => 'Kesehatan',
-        ];
-        
-        return $translations[$industry] ?? ucfirst($industry);
+        return trim($content);
     }
 
-    /**
-     * Generate unique slug
-     */
-    protected function generateUniqueSlug($title)
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    protected function generateUniqueSlug(string $title): string
     {
-        $baseSlug = Str::slug($title);
-        $slug = $baseSlug;
+        $base    = Str::slug($title);
+        $slug    = $base;
         $counter = 1;
-
         while (Article::where('slug', $slug)->exists()) {
-            $slug = "{$baseSlug}-{$counter}";
+            $slug = "{$base}-{$counter}";
             $counter++;
         }
-
         return $slug;
     }
 
-    /**
-     * Get current day in 3-day cycle (1, 2, or 3)
-     */
-    protected function getDayInCycle()
+    protected function getDayInCycle(): int
     {
-        $dayOfYear = now()->dayOfYear;
-        $dayInCycle = (($dayOfYear - 1) % 3) + 1;
-        return $dayInCycle;
+        return (((int) now()->dayOfYear - 1) % 3) + 1;
     }
 
-    /**
-     * Get random industry
-     */
-    protected function getRandomIndustry()
-    {
-        return $this->industries[array_rand($this->industries)];
-    }
-
-    /**
-     * Get all industries
-     */
-    public function getIndustries()
+    public function getIndustries(): array
     {
         return $this->industries;
     }
-    
-    /**
-     * Feed article to ML system for learning
-     */
-    protected function feedToMLSystem($article)
+
+    // ── ML feed ────────────────────────────────────────────────────────────
+
+    protected function feedToMLSystem(Article $article): void
     {
         try {
-            // Extract keywords and patterns from article
-            $content = $article->content;
-            $category = $article->category;
-            $industry = $article->industry;
-            
-            // Analyze article for ML patterns
-            $patterns = $this->extractMLPatterns($content);
-            
-            // Store in ML optimized data for future use
+            $patterns = $this->extractMLPatterns($article->content);
+
             \App\Models\MLOptimizedData::create([
-                'industry' => $industry,
-                'platform' => 'article', // Special platform for articles
-                'data_type' => $category, // industry, tips, or quote
-                'content' => json_encode([
+                'type'              => 'article',
+                'industry'          => $article->industry,
+                'platform'          => 'article',
+                'data'              => json_encode([
                     'article_id' => $article->id,
-                    'title' => $article->title,
-                    'keywords' => $article->keywords,
-                    'word_count' => str_word_count($content),
-                    'patterns' => $patterns,
-                    'excerpt' => Str::limit($content, 200),
+                    'title'      => $article->title,
+                    'keywords'   => $article->keywords,
+                    'word_count' => str_word_count($article->content),
+                    'patterns'   => $patterns,
+                    'excerpt'    => Str::limit($article->content, 200),
                 ]),
-                'performance_score' => 0, // Will be updated based on views/engagement
-                'last_trained_at' => now(),
+                'performance_score' => 0,
+                'last_trained_at'   => now(),
             ]);
-            
-            \Log::info("Article fed to ML system", [
-                'article_id' => $article->id,
-                'category' => $category,
-                'industry' => $industry,
-                'patterns_count' => count($patterns)
-            ]);
-            
         } catch (\Exception $e) {
-            \Log::error("Failed to feed article to ML system", [
+            \Log::error('Failed to feed article to ML system', [
                 'article_id' => $article->id ?? null,
-                'error' => $e->getMessage()
+                'error'      => $e->getMessage(),
             ]);
         }
     }
-    
-    /**
-     * Extract ML patterns from article content
-     */
-    protected function extractMLPatterns($content)
+
+    protected function extractMLPatterns(string $content): array
     {
-        $patterns = [];
-        
-        // Extract common phrases (3-5 words)
         preg_match_all('/\b(\w+\s+\w+\s+\w+)\b/u', $content, $matches);
         $phrases = array_count_values($matches[1]);
         arsort($phrases);
-        $patterns['top_phrases'] = array_slice(array_keys($phrases), 0, 10);
-        
-        // Extract sentence structures
+
         $sentences = preg_split('/[.!?]+/', $content);
-        $patterns['avg_sentence_length'] = count($sentences) > 0 ? str_word_count($content) / count($sentences) : 0;
-        $patterns['total_sentences'] = count($sentences);
-        
-        // Extract writing style indicators
-        $patterns['has_questions'] = substr_count($content, '?') > 0;
-        $patterns['has_lists'] = preg_match('/\d+\.\s/', $content) > 0;
-        $patterns['has_quotes'] = substr_count($content, '"') > 0 || substr_count($content, '«') > 0;
-        
-        // Extract emotional tone indicators
-        $motivationalWords = ['sukses', 'hebat', 'luar biasa', 'mantap', 'keren', 'wow', 'amazing'];
-        $motivationalCount = 0;
-        foreach ($motivationalWords as $word) {
-            $motivationalCount += substr_count(strtolower($content), $word);
-        }
-        $patterns['motivational_score'] = min(10, $motivationalCount);
-        
-        return $patterns;
+
+        return [
+            'top_phrases'         => array_slice(array_keys($phrases), 0, 10),
+            'avg_sentence_length' => count($sentences) > 0 ? round(str_word_count($content) / count($sentences), 1) : 0,
+            'total_sentences'     => count($sentences),
+            'has_questions'       => substr_count($content, '?') > 0,
+            'has_lists'           => (bool) preg_match('/\d+\.\s/', $content),
+            'has_quotes'          => substr_count($content, '"') > 0,
+        ];
     }
 }

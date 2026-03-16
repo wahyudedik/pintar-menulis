@@ -2022,25 +2022,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     public function generateGoogleAds(Request $request)
     {
         set_time_limit(120);
-
-        $user = auth()->user();
-        $sub  = $user->currentSubscription();
-
-        if (!$sub || !$sub->isValid()) {
-            return response()->json([
-                'success'     => false,
-                'quota_error' => true,
-                'message'     => '⚡ Kamu belum memiliki langganan aktif.',
-            ], 403);
-        }
-
-        if ($sub->remaining_quota <= 0) {
-            return response()->json([
-                'success'     => false,
-                'quota_error' => true,
-                'message'     => '🚫 Kuota AI kamu sudah habis bulan ini.',
-            ], 403);
-        }
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2066,12 +2048,12 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 ], 500);
             }
 
-            $sub->consumeQuota(1);
+            $quota = $this->_consume();
 
             return response()->json([
                 'success'         => true,
                 'campaign'        => $result,
-                'quota_remaining' => $sub->fresh()->remaining_quota,
+                'quota_remaining' => $quota,
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -2094,25 +2076,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     public function generateProductExplainer(Request $request)
     {
         set_time_limit(120);
-
-        $user = auth()->user();
-        $sub  = $user->currentSubscription();
-
-        if (!$sub || !$sub->isValid()) {
-            return response()->json([
-                'success'     => false,
-                'quota_error' => true,
-                'message'     => '⚡ Kamu belum memiliki langganan aktif.',
-            ], 403);
-        }
-
-        if ($sub->remaining_quota <= 0) {
-            return response()->json([
-                'success'     => false,
-                'quota_error' => true,
-                'message'     => '🚫 Kuota AI kamu sudah habis bulan ini.',
-            ], 403);
-        }
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2131,12 +2095,12 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan pesan. Silakan coba lagi.'], 500);
             }
 
-            $sub->consumeQuota(1);
+            $quota = $this->_consume();
 
             return response()->json([
                 'success'         => true,
                 'data'            => $result,
-                'quota_remaining' => $sub->fresh()->remaining_quota,
+                'quota_remaining' => $quota,
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -2159,25 +2123,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
     public function generateMagicPromoLink(Request $request)
     {
         set_time_limit(120);
-
-        $user = auth()->user();
-        $sub  = $user->currentSubscription();
-
-        if (!$sub || !$sub->isValid()) {
-            return response()->json([
-                'success'     => false,
-                'quota_error' => true,
-                'message'     => '⚡ Kamu belum memiliki langganan aktif.',
-            ], 403);
-        }
-
-        if ($sub->remaining_quota <= 0) {
-            return response()->json([
-                'success'     => false,
-                'quota_error' => true,
-                'message'     => '🚫 Kuota AI kamu sudah habis bulan ini.',
-            ], 403);
-        }
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2196,12 +2142,12 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan caption. Silakan coba lagi.'], 500);
             }
 
-            $sub->consumeQuota(1);
+            $quota = $this->_consume();
 
             return response()->json([
                 'success'         => true,
                 'data'            => $result,
-                'quota_remaining' => $sub->fresh()->remaining_quota,
+                'quota_remaining' => $quota,
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
