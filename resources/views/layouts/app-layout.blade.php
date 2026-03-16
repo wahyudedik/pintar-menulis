@@ -95,6 +95,7 @@
 
             <!-- Bottom Items (Fixed) -->
             <div class="flex-shrink-0 flex flex-col space-y-1 w-full px-2 pt-2 border-t border-gray-200">
+                @auth
                 <!-- Notifications -->
                 <div x-data="notificationBell()" x-init="init()" class="relative">
                     <a href="{{ route('notifications.index') }}" 
@@ -134,6 +135,16 @@
                         </form>
                     </div>
                 </div>
+                @else
+                <!-- Login link for guests -->
+                <a href="{{ route('login') }}"
+                   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+                   data-tooltip="Login">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
+                </a>
+                @endauth
             </div>
         </aside>
 
@@ -168,14 +179,16 @@
             unreadCount: 0,
             
             init() {
+                @auth
                 this.fetchUnreadCount();
                 setInterval(() => this.fetchUnreadCount(), 30000);
+                @endauth
             },
             
             fetchUnreadCount() {
                 fetch('{{ route('notifications.unread-count') }}')
-                    .then(res => res.json())
-                    .then(data => this.unreadCount = data.count)
+                    .then(res => res.ok ? res.json() : {count: 0})
+                    .then(data => this.unreadCount = data.count ?? 0)
                     .catch(() => {});
             }
         }
