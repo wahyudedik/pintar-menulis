@@ -198,33 +198,52 @@ class MLSuggestionsController extends Controller
     }
 
     /**
-     * Force refresh ML suggestions (admin only)
+     * Force refresh ML suggestions
      */
     public function refreshSuggestions(Request $request)
     {
         try {
-            // Check if user is admin or has permission
-            if (!auth()->check() || !auth()->user()->is_admin) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Unauthorized',
-                ], 403);
+            if (!auth()->check()) {
+                return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
             }
 
+            $industry = $request->get('industry', 'fashion');
+            $platform = $request->get('platform', 'instagram');
+
+            // Clear user-specific cache and regenerate
             $this->mlSuggestionsService->clearCache();
-            
+
+            $suggestions = $this->mlSuggestionsService->getPersonalizedSuggestions(
+                auth()->id(),
+                $industry,
+                $platform
+            );
+
+            if (!$suggestions['success']) {
+                return response()->json(['success' => false, 'error' => 'Failed to refresh'], 500);
+            }
+
+            $data = $suggestions['data'];
+
             return response()->json([
                 'success' => true,
-                'message' => 'ML suggestions cache cleared successfully',
+                'trending_hashtags'     => $data['trending_hashtags'] ?? $data['personalized_hashtags'] ?? [],
+                'best_hooks'            => $data['best_hooks'] ?? $data['style_matched_hooks'] ?? [],
+                'best_ctas'             => $data['best_ctas'] ?? $data['brand_voice_ctas'] ?? [],
+                'trending_topics'       => $data['trending_topics'] ?? $data['trending_for_your_niche'] ?? [],
+                'engagement_tips'       => $data['engagement_tips'] ?? $data['content_improvement_tips'] ?? [],
+                'optimal_posting_times' => $data['optimal_posting_times'] ?? $data['optimal_times_for_audience'] ?? [],
+                'current_trends'        => $data['current_trends'] ?? [],
+                'content_ideas'         => $data['content_ideas'] ?? $data['next_content_ideas'] ?? [],
+                'generated_at'          => $suggestions['generated_at'],
+                'personalized'          => $suggestions['personalized'] ?? false,
+                'industry'              => $industry,
+                'platform'              => $platform,
             ]);
 
         } catch (\Exception $e) {
             Log::error("Refresh suggestions error: {$e->getMessage()}");
-            
-            return response()->json([
-                'success' => false,
-                'error' => 'Failed to refresh suggestions',
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Failed to refresh suggestions'], 500);
         }
     }
 

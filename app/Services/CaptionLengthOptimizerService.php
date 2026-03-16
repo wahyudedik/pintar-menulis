@@ -492,17 +492,19 @@ Berikan response dalam format JSON:
      */
     private function cleanJsonResponse(string $response): string
     {
-        $response = preg_replace('/```json\s*/', '', $response);
-        $response = preg_replace('/```\s*$/', '', $response);
+        // Strip all markdown code fences (```json ... ``` or ``` ... ```)
+        $response = preg_replace('/```(?:json)?\s*/i', '', $response);
+        $response = preg_replace('/```/', '', $response);
         $response = trim($response);
-        
+
+        // Extract JSON object or array
         $start = strpos($response, '{');
         $end = strrpos($response, '}');
-        
+
         if ($start !== false && $end !== false && $end > $start) {
             return substr($response, $start, $end - $start + 1);
         }
-        
+
         return $response;
     }
 

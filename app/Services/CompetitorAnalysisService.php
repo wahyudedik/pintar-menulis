@@ -476,7 +476,7 @@ Respond in JSON format:
 
         try {
             $aiResponse = $this->callGeminiAI($prompt);
-            $aiPosts = json_decode($aiResponse, true);
+            $aiPosts = $this->decodeAIJson($aiResponse);
             
             if (!isset($aiPosts['posts']) || empty($aiPosts['posts'])) {
                 throw new \Exception('AI failed to generate posts');
@@ -563,7 +563,7 @@ Respond in JSON format:
 }";
 
             $aiResponse = $this->callGeminiAI($prompt);
-            $aiGaps = json_decode($aiResponse, true);
+            $aiGaps = $this->decodeAIJson($aiResponse);
             
             if (!isset($aiGaps['content_gaps']) || empty($aiGaps['content_gaps'])) {
                 throw new \Exception('AI failed to identify content gaps');
@@ -652,7 +652,7 @@ Respond in JSON format:
 
         try {
             $aiResponse = $this->callGeminiAI($prompt);
-            $aiSummary = json_decode($aiResponse, true);
+            $aiSummary = $this->decodeAIJson($aiResponse);
             
             if (!isset($aiSummary['summary_metrics'])) {
                 throw new \Exception('AI summary generation failed - invalid response format');
@@ -727,7 +727,7 @@ Respond in JSON format:
 }";
 
             $aiResponse = $this->callGeminiAI($prompt);
-            $aiAlerts = json_decode($aiResponse, true);
+            $aiAlerts = $this->decodeAIJson($aiResponse);
             
             if (!isset($aiAlerts['alerts']) || empty($aiAlerts['alerts'])) {
                 // Fallback to basic alert if AI fails
@@ -814,6 +814,23 @@ Respond in JSON format:
                 'note' => 'Fallback data due to AI timeout'
             ]);
         }
+    }
+
+    /**
+     * Clean and decode JSON from AI response (handles markdown code fences)
+     */
+    private function decodeAIJson(string $response): ?array
+    {
+        $response = preg_replace('/```(?:json)?\s*/i', '', $response);
+        $response = preg_replace('/```/', '', $response);
+        $response = trim($response);
+
+        if (preg_match('/\{.*\}/s', $response, $matches)) {
+            $response = $matches[0];
+        }
+
+        $decoded = json_decode($response, true);
+        return json_last_error() === JSON_ERROR_NONE ? $decoded : null;
     }
 
     /**

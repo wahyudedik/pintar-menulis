@@ -241,25 +241,22 @@ Focus on:
     protected function parseJsonResponse($response)
     {
         try {
-            // Clean response
-            $response = preg_replace('/```json\n?|\n?```/i', '', $response);
+            $response = preg_replace('/```(?:json)?\s*/i', '', $response);
+            $response = preg_replace('/```/', '', $response);
             $response = trim($response);
-            
+
             if (preg_match('/\{.*\}/s', $response, $matches)) {
                 $response = $matches[0];
             }
-            
+
             $decoded = json_decode($response, true);
-            
+
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                return [
-                    'success' => true,
-                    'data' => $decoded,
-                ];
+                return ['success' => true, 'data' => $decoded];
             }
-            
+
             return ['success' => false, 'error' => 'Invalid JSON'];
-            
+
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }

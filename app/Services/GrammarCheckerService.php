@@ -297,21 +297,19 @@ Analisis dalam format JSON:
      */
     private function cleanJsonResponse(string $response): string
     {
-        // Remove markdown code blocks
-        $response = preg_replace('/```json\s*/', '', $response);
-        $response = preg_replace('/```\s*$/', '', $response);
-        
-        // Remove extra whitespace
+        // Strip all markdown code fences (```json ... ``` or ``` ... ```)
+        $response = preg_replace('/```(?:json)?\s*/i', '', $response);
+        $response = preg_replace('/```/', '', $response);
         $response = trim($response);
-        
-        // Find JSON object
+
+        // Extract JSON object or array
         $start = strpos($response, '{');
         $end = strrpos($response, '}');
-        
+
         if ($start !== false && $end !== false && $end > $start) {
             return substr($response, $start, $end - $start + 1);
         }
-        
+
         return $response;
     }
 

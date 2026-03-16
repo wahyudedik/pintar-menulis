@@ -50,7 +50,30 @@
 
             <!-- Content Area -->
             <div class="flex-1 overflow-y-auto p-6">
-                <!-- Personalization Badge -->
+
+                <!-- Loading Skeleton -->
+                <div x-show="mlLoading" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <template x-for="i in 4">
+                            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 space-y-3">
+                                <div class="h-5 bg-gray-200 rounded animate-pulse w-1/3"></div>
+                                <div class="h-4 bg-gray-100 rounded animate-pulse w-full"></div>
+                                <div class="h-4 bg-gray-100 rounded animate-pulse w-4/5"></div>
+                                <div class="h-4 bg-gray-100 rounded animate-pulse w-3/5"></div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="text-center text-sm text-gray-400 mt-4">
+                        <svg class="w-5 h-5 animate-spin inline mr-2 text-purple-400" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Memproses ML data...
+                    </div>
+                </div>
+
+                <!-- Actual Content (hidden while loading) -->
+                <div x-show="!mlLoading">
                 <div x-show="mlPreview?.personalized" class="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
                     <div class="flex items-center space-x-2">
                         <span class="text-2xl">🎯</span>
@@ -224,6 +247,7 @@
                         </div>
                     </div>
                 </div>
+                </div>{{-- end x-show="!mlLoading" --}}
             </div>
         </div>
     </div>

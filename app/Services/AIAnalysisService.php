@@ -222,29 +222,22 @@ Respond in JSON format:
     protected function parseJsonResponse($response, $retryCount = 0)
     {
         try {
-            // Remove markdown code blocks if present
-            $response = preg_replace('/```json\n?|\n?```/i', '', $response);
+            $response = preg_replace('/```(?:json)?\s*/i', '', $response);
+            $response = preg_replace('/```/', '', $response);
             $response = trim($response);
-            
-            // Try to extract JSON from mixed content
+
             if (preg_match('/\{.*\}/s', $response, $matches)) {
                 $response = $matches[0];
             }
-            
+
             $decoded = json_decode($response, true);
-            
+
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                return [
-                    'success' => true,
-                    'data' => $decoded,
-                ];
+                return ['success' => true, 'data' => $decoded];
             }
-            
-            Log::warning("Failed to parse JSON response", ['response' => substr($response, 0, 200), 'retry' => $retryCount]);
-            
-            // Return fallback response instead of error
+
             return $this->getFallbackResponse();
-            
+
         } catch (Exception $e) {
             Log::error("JSON parsing error: {$e->getMessage()}");
             return $this->getFallbackResponse();

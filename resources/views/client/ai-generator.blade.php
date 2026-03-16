@@ -12,6 +12,13 @@
 @section('content')
 <div class="p-6" x-data="aiGenerator()" x-init="init()">
 
+    {{-- ── Toast Notification ── --}}
+    <div x-show="notificationVisible" x-cloak x-transition
+         :class="notificationType === 'success' ? 'bg-green-600' : 'bg-red-600'"
+         class="fixed bottom-6 right-6 z-50 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium max-w-xs"
+         x-text="notificationMessage">
+    </div>
+
     {{-- ── Subscription / Quota Banner ── --}}
     @php
         $sub = auth()->user()->currentSubscription();
@@ -88,11 +95,18 @@
         </div>
         <!-- 🤖 ML Insights Button (Top Right) -->
         <button @click="toggleMLPreview()" 
-                class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition flex items-center space-x-2 text-sm font-medium">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                :disabled="mlLoading"
+                class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition flex items-center space-x-2 text-sm font-medium disabled:opacity-75">
+            <!-- Loading spinner -->
+            <svg x-show="mlLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <!-- Normal icon -->
+            <svg x-show="!mlLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
             </svg>
-            <span>ML Insights</span>
+            <span x-text="mlLoading ? 'Memuat...' : 'ML Insights'"></span>
         </button>
     </div>
 
@@ -2269,7 +2283,7 @@
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xs text-gray-500" x-text="result.content.length + ' chars'"></span>
-                                    <button @click="copyRepurposedContent(result.content)" 
+                                    <button @click="copyRepurposedContent(result.content, $event.target)" 
                                             class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">
                                         Copy
                                     </button>
@@ -2289,7 +2303,7 @@
                                             <div class="bg-white border border-gray-100 rounded p-2">
                                                 <div class="flex justify-between items-start">
                                                     <pre class="whitespace-pre-wrap text-xs text-gray-700 flex-1" x-text="variation"></pre>
-                                                    <button @click="copyRepurposedContent(variation)" 
+                                                    <button @click="copyRepurposedContent(variation, $event.target)" 
                                                             class="ml-2 text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600">
                                                         Copy
                                                     </button>
@@ -3087,6 +3101,20 @@
                 }
             ],
 
+            // 🔔 Notification toast state
+            notificationVisible: false,
+            notificationMessage: '',
+            notificationType: 'success', // 'success' | 'error'
+            _notificationTimer: null,
+
+            showNotification(message, type = 'success') {
+                this.notificationMessage = message;
+                this.notificationType = type;
+                this.notificationVisible = true;
+                if (this._notificationTimer) clearTimeout(this._notificationTimer);
+                this._notificationTimer = setTimeout(() => { this.notificationVisible = false; }, 3000);
+            },
+
             // Initialize - check if user is first time
             async init() {
                 await this.checkFirstTimeStatus();
@@ -3120,7 +3148,6 @@
                     }
 
                 } catch (error) {
-                    console.warn('⚠️ Failed to load dynamic dates, using fallback data');
                     // Keep the existing hardcoded data as fallback
                 }
             },
@@ -3744,7 +3771,6 @@
                         this.showNotification('❌ ' + this.error, 'error');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
                     this.error = 'Terjadi kesalahan jaringan';
                     this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
                 } finally {
@@ -3883,7 +3909,6 @@
                         this.showNotification('❌ ' + this.error, 'error');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
                     this.error = 'Terjadi kesalahan jaringan';
                     this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
                 } finally {
@@ -3954,7 +3979,6 @@
                         throw new Error(data.message || 'Generation failed');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
                     this.error = error.message || 'Terjadi kesalahan saat generate caption';
                 } finally {
                     this.loading = false;
@@ -4029,22 +4053,22 @@
                 } else {
                     // Advanced Mode - Validate form
                     if (!this.form.category) {
-                        alert('Please select a category');
+                        alert('Pilih kategori terlebih dahulu');
                         return;
                     }
                     
                     if (!this.form.subcategory) {
-                        alert('Please select content type');
+                        alert('Pilih jenis konten terlebih dahulu');
                         return;
                     }
                     
                     if (!this.form.brief || this.form.brief.length < 10) {
-                        alert('Please provide a brief (minimum 10 characters)');
+                        alert('Isi brief minimal 10 karakter');
                         return;
                     }
                     
                     if (!this.form.tone) {
-                        alert('Please select a tone');
+                        alert('Pilih tone terlebih dahulu');
                         return;
                     }
                 }
@@ -4184,11 +4208,9 @@
                             setTimeout(() => this.copied = false, 2000);
                         })
                         .catch(err => {
-                            console.error('Clipboard error:', err);
                             this.fallbackCopy(textToCopy);
                         });
                 } catch (err) {
-                    console.error('Copy error:', err);
                     this.fallbackCopy(this.result);
                 }
             },
@@ -4214,7 +4236,6 @@
                         alert('Gagal copy. Silakan copy manual.');
                     }
                 } catch (err) {
-                    console.error('Fallback copy error:', err);
                     alert('Gagal copy. Silakan copy manual dengan Ctrl+C');
                 }
             },
@@ -4267,7 +4288,6 @@
                         alert('Failed to submit rating: ' + (data.message || 'Unknown error'));
                     }
                 } catch (error) {
-                    console.error('Rating error:', error);
                     alert('Failed to submit rating');
                 } finally {
                     this.submittingRating = false;
@@ -4302,7 +4322,6 @@
                         alert('Failed to save: ' + (data.message || 'Unknown error'));
                     }
                 } catch (error) {
-                    console.error('Save error:', error);
                     alert('Failed to save caption for analytics');
                 }
             },
@@ -4315,7 +4334,6 @@
                         this.brandVoices = data.brand_voices;
                     }
                 } catch (error) {
-                    console.error('Load brand voices error:', error);
                 }
             },
             
@@ -4334,7 +4352,7 @@
                     this.form.brief = voice.brand_description;
                 }
                 
-                alert('✓ Brand Voice loaded! Tinggal isi brief dan generate.');
+                this.showNotification('✅ Brand Voice dimuat! Tinggal isi brief dan generate.');
             },
             
             async saveBrandVoice() {
@@ -4368,7 +4386,7 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        alert('✓ Brand Voice berhasil disimpan!');
+                        this.showNotification('✅ Brand Voice berhasil disimpan!');
                         this.showSaveBrandVoiceModal = false;
                         this.brandVoiceForm = { name: '', brand_description: '', is_default: false };
                         this.loadBrandVoices(); // Reload list
@@ -4376,7 +4394,6 @@
                         alert('Failed: ' + (data.message || 'Unknown error'));
                     }
                 } catch (error) {
-                    console.error('Save brand voice error:', error);
                     alert('Failed to save brand voice');
                 } finally {
                     this.savingBrandVoice = false;
@@ -4387,6 +4404,7 @@
             mlStatus: null,
             mlPreview: {},
             showMLPreview: false,
+            mlLoading: false,
             
             // Initialize ML features
             async initML() {
@@ -4404,35 +4422,41 @@
                         this.mlStatus = data;
                     }
                 } catch (error) {
-                    console.error('ML Init Error:', error);
                 }
             },
             
             // Toggle ML preview
             async toggleMLPreview() {
-                if (!this.showMLPreview) {
-                    // Get industry from form
-                    const industry = this.getIndustryFromForm();
-                    const platform = this.form?.platform || 'instagram';
-                    
-                    try {
-                        const response = await fetch(`/api/ml/preview?industry=${industry}&platform=${platform}`, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
-                        });
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            this.mlPreview = data;
-                        }
-                    } catch (error) {
-                        console.error('ML Preview Error:', error);
-                    }
+                if (this.showMLPreview) {
+                    this.showMLPreview = false;
+                    return;
                 }
-                this.showMLPreview = !this.showMLPreview;
+
+                // Show modal immediately with loading state
+                this.mlLoading = true;
+                this.showMLPreview = true;
+
+                const industry = this.getIndustryFromForm();
+                const platform = this.form?.platform || 'instagram';
+
+                try {
+                    const response = await fetch(`/api/ml/preview?industry=${industry}&platform=${platform}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.mlPreview = data;
+                    }
+                } catch (error) {
+                    // silent fail
+                } finally {
+                    this.mlLoading = false;
+                }
             },
             
             // Get industry from form
@@ -4536,7 +4560,6 @@
 
                     if (!qualityRes.ok) {
                         const text = await qualityRes.text();
-                        console.error('Quality response error:', qualityRes.status, text);
                         throw new Error(`Quality analysis failed: ${qualityRes.status}`);
                     }
 
@@ -4552,7 +4575,6 @@
 
                     if (!sentimentRes.ok) {
                         const text = await sentimentRes.text();
-                        console.error('Sentiment response error:', sentimentRes.status, text);
                         throw new Error(`Sentiment analysis failed: ${sentimentRes.status}`);
                     }
 
@@ -4572,7 +4594,6 @@
 
                     if (!recsRes.ok) {
                         const text = await recsRes.text();
-                        console.error('Recommendations response error:', recsRes.status, text);
                         throw new Error(`Recommendations failed: ${recsRes.status}`);
                     }
 
@@ -4599,7 +4620,6 @@
 
                     this.showAnalysis = true;
                 } catch (error) {
-                    console.error('Analysis error:', error);
                     this.analysisError = error.message || 'Gagal menganalisis caption. Silakan coba lagi.';
                 } finally {
                     this.analysisLoading = false;
@@ -4609,7 +4629,7 @@
             useImprovedCaption() {
                 if (this.analysisResult?.quality?.improved_caption) {
                     this.result = this.analysisResult.quality.improved_caption;
-                    alert('✓ Caption updated!');
+                    this.showNotification('✅ Caption berhasil diperbarui!');
                 }
             },
 
@@ -4654,50 +4674,32 @@
             async refreshSuggestions() {
                 this.refreshing = true;
                 try {
+                    const industry = this.getIndustryFromForm();
+                    const platform = this.form?.platform || 'instagram';
+
                     const response = await fetch('/api/ml/refresh', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
+                        },
+                        body: JSON.stringify({ industry, platform })
                     });
 
                     if (response.ok) {
-                        // Reload preview data
-                        const industry = this.getIndustryFromForm();
-                        const platform = this.form?.platform || 'instagram';
-                        
-                        const previewRes = await fetch(`/api/ml/preview?industry=${industry}&platform=${platform}`, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
-                        });
-                        
-                        if (previewRes.ok) {
-                            this.mlPreview = await previewRes.json();
-                        }
+                        const data = await response.json();
+                        this.mlPreview = data;
 
+                        // Also refresh weekly trends
                         const trendsRes = await fetch(`/api/ml/weekly-trends?industry=${industry}`, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
+                            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
                         });
-                        
                         if (trendsRes.ok) {
                             this.weeklyTrends = await trendsRes.json();
                         }
-                        
-                        alert('✅ ML Suggestions berhasil diperbarui dengan data terbaru!');
-                    } else {
-                        alert('❌ Gagal memperbarui suggestions. Coba lagi nanti.');
                     }
                 } catch (error) {
-                    console.error('Refresh error:', error);
-                    alert('❌ Terjadi kesalahan saat memperbarui suggestions.');
+                    // silent fail
                 } finally {
                     this.refreshing = false;
                 }
@@ -4770,7 +4772,6 @@
                     }
 
                 } catch (error) {
-                    console.error('Prediction error:', error);
                     this.predictorError = error.message || 'Terjadi kesalahan saat memprediksi performa';
                     alert(this.predictorError);
                 } finally {
@@ -4823,7 +4824,6 @@
                     }
 
                 } catch (error) {
-                    console.error('Variants generation error:', error);
                     alert(error.message || 'Terjadi kesalahan saat generate variants');
                 } finally {
                     this.variantsLoading = false;
@@ -4859,7 +4859,7 @@
                         <div class="border rounded-lg p-4">
                             <div class="flex justify-between items-center mb-2">
                                 <h4 class="font-semibold">🔄 Variant ${String.fromCharCode(66 + index)} (${variant.focus})</h4>
-                                <button onclick="copyToClipboard('${variant.caption.replace(/'/g, "\\'")}'); alert('Copied!')" 
+                                <button onclick="copyToClipboard('${variant.caption.replace(/'/g, "\\'")}').then(()=>{this.textContent='✅ Copied!';setTimeout(()=>{this.textContent='Copy'},2000)})" 
                                         class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
                                     Copy
                                 </button>
@@ -4908,7 +4908,6 @@
                         this.loadDemoTemplates();
                     }
                 } catch (error) {
-                    console.error('Load templates error:', error);
                     this.loadDemoTemplates();
                 }
             },
@@ -5088,7 +5087,7 @@
                 document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
                 
                 // Show success message
-                alert(`✅ Template "${template.title}" berhasil dimuat! Sesuaikan dengan kebutuhan Anda.`);
+                this.showNotification(`✅ Template "${template.title}" berhasil dimuat!`);
             },
 
             toggleFavorite(template) {
@@ -5117,7 +5116,6 @@
                         });
                     }
                 } catch (error) {
-                    console.error('Load favorites error:', error);
                 }
             },
 
@@ -5163,7 +5161,6 @@
                     }
 
                 } catch (error) {
-                    console.error('Multi-platform generation error:', error);
                     alert('Terjadi kesalahan saat generate content. Silakan coba lagi.');
                 } finally {
                     this.multiPlatformLoading = false;
@@ -5221,7 +5218,6 @@
                         button.classList.add('bg-blue-600');
                     }, 2000);
                 }).catch(err => {
-                    console.error('Copy failed:', err);
                     alert('Gagal copy content');
                 });
             },
@@ -5240,9 +5236,8 @@
                 });
 
                 copyToClipboard(allContent).then(() => {
-                    alert('✅ Semua content berhasil di-copy!');
+                    this.showNotification('✅ Semua content berhasil di-copy!');
                 }).catch(err => {
-                    console.error('Copy all failed:', err);
                     alert('Gagal copy content');
                 });
             },
@@ -5385,29 +5380,20 @@
                     }
 
                 } catch (error) {
-                    console.error('Content repurposing error:', error);
                     alert('Terjadi kesalahan saat repurpose content. Silakan coba lagi.');
                 } finally {
                     this.repurposeLoading = false;
                 }
             },
 
-            copyRepurposedContent(content) {
+            copyRepurposedContent(content, btn) {
                 copyToClipboard(content).then(() => {
-                    // Show temporary success message
-                    const button = event.target;
-                    const originalText = button.textContent;
-                    button.textContent = '✅ Copied!';
-                    button.classList.add('bg-green-600');
-                    button.classList.remove('bg-blue-600', 'bg-gray-500');
-                    
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                        button.classList.remove('bg-green-600');
-                        button.classList.add('bg-blue-600');
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Copy failed:', err);
+                    if (btn) {
+                        const originalText = btn.textContent;
+                        btn.textContent = '✅ Copied!';
+                        setTimeout(() => { btn.textContent = originalText; }, 2000);
+                    }
+                }).catch(() => {
                     alert('Gagal copy content');
                 });
             },
@@ -5431,9 +5417,8 @@
                 });
 
                 copyToClipboard(allContent).then(() => {
-                    alert('✅ Semua repurposed content berhasil di-copy!');
-                }).catch(err => {
-                    console.error('Copy all failed:', err);
+                    this.showNotification('✅ Semua repurposed content berhasil di-copy!');
+                }).catch(() => {
                     alert('Gagal copy content');
                 });
             },
@@ -5530,7 +5515,6 @@
                     
                     alert('✅ Trends berhasil di-refresh!');
                 } catch (error) {
-                    console.error('Refresh trends error:', error);
                     alert('❌ Gagal refresh trends. Silakan coba lagi.');
                 } finally {
                     this.trendsLoading = false;
@@ -5569,7 +5553,6 @@
                     }
 
                 } catch (error) {
-                    console.error('Trend content generation error:', error);
                     
                     // Fallback to basic generation
                     this.generateBasicTrendContent();
@@ -5806,7 +5789,7 @@ ${trend.hashtags?.join(' ') || ''}`
                 this.grammarResult = null;
 
                 try {
-                    const response = await fetch('/api/optimizer/check-grammar', {
+                    const response = await fetch('/api/optimizer/grammar/check', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -5827,8 +5810,7 @@ ${trend.hashtags?.join(' ') || ''}`
                     }
 
                 } catch (error) {
-                    console.error('Grammar check error:', error);
-                    alert('Terjadi kesalahan saat check grammar');
+                    // silent fail
                 } finally {
                     this.grammarLoading = false;
                 }
@@ -5840,7 +5822,7 @@ ${trend.hashtags?.join(' ') || ''}`
                 this.grammarFixing = true;
 
                 try {
-                    const response = await fetch('/api/optimizer/quick-grammar-fix', {
+                    const response = await fetch('/api/optimizer/grammar/quick-fix', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -5856,15 +5838,11 @@ ${trend.hashtags?.join(' ') || ''}`
 
                     if (data.success) {
                         this.result = data.data.corrected_text;
-                        alert('✅ Grammar berhasil diperbaiki!');
                         this.showGrammarChecker = false;
-                    } else {
-                        alert('Error: ' + (data.message || 'Gagal fix grammar'));
                     }
 
                 } catch (error) {
-                    console.error('Quick fix error:', error);
-                    alert('Terjadi kesalahan saat fix grammar');
+                    // silent fail
                 } finally {
                     this.grammarFixing = false;
                 }
@@ -5873,7 +5851,6 @@ ${trend.hashtags?.join(' ') || ''}`
             useCorrectedText() {
                 if (this.grammarResult?.corrected_text) {
                     this.result = this.grammarResult.corrected_text;
-                    alert('✅ Corrected text berhasil digunakan!');
                     this.showGrammarChecker = false;
                 }
             },
@@ -5904,7 +5881,7 @@ ${trend.hashtags?.join(' ') || ''}`
                 this.shortenerResult = null;
 
                 try {
-                    const response = await fetch('/api/optimizer/shorten-caption', {
+                    const response = await fetch('/api/optimizer/length/shorten', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -5929,7 +5906,6 @@ ${trend.hashtags?.join(' ') || ''}`
                     }
 
                 } catch (error) {
-                    console.error('Caption shortening error:', error);
                     alert('Terjadi kesalahan saat shorten caption');
                 } finally {
                     this.shortenerLoading = false;
@@ -5968,7 +5944,7 @@ ${trend.hashtags?.join(' ') || ''}`
                 this.expanderResult = null;
 
                 try {
-                    const response = await fetch('/api/optimizer/expand-caption', {
+                    const response = await fetch('/api/optimizer/length/expand', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -5994,7 +5970,6 @@ ${trend.hashtags?.join(' ') || ''}`
                     }
 
                 } catch (error) {
-                    console.error('Caption expansion error:', error);
                     alert('Terjadi kesalahan saat expand caption');
                 } finally {
                     this.expanderLoading = false;
