@@ -104,6 +104,10 @@
                 </div>
             </div>
 
+            {{-- AI Features Access --}}
+            @php $activeFeatures = old('allowed_features', []); @endphp
+            @include('admin.partials.package-features-checkboxes')
+
             {{-- Features --}}
             <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 pt-4 border-t border-gray-100">Fitur (satu per baris)</h2>
             <div class="mb-6">

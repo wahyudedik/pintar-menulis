@@ -34,8 +34,10 @@
                     @auth
                         <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Dashboard</a>
                         <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
+                        <a href="{{ route('pricing') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Pricing</a>
                     @else
                         <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
+                        <a href="{{ route('pricing') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Pricing</a>
                         <a href="{{ route('login') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Login</a>
                         <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                             Register
@@ -65,8 +67,10 @@
             @auth
                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Dashboard</a>
                 <a href="{{ route('articles.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Artikel</a>
+                <a href="{{ route('pricing') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Pricing</a>
             @else
                 <a href="{{ route('articles.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Artikel</a>
+                <a href="{{ route('pricing') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Pricing</a>
                 <a href="{{ route('login') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Login</a>
                 <a href="{{ route('register') }}" class="block px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center">Register</a>
             @endauth

@@ -94,7 +94,7 @@
                 </div>
 
                 {{-- Fitur --}}
-                <ul class="space-y-2 mb-6 flex-1">
+                <ul class="space-y-2 mb-3 flex-1">
                     @php
                         $features = $package->features;
                         if (is_string($features)) {
@@ -111,6 +111,14 @@
                     </li>
                     @endforeach
                 </ul>
+
+                {{-- Jumlah fitur AI --}}
+                @php $aiCount = count($package->getAllowedFeaturesList()); @endphp
+                @if($aiCount > 0)
+                <div class="mb-4 px-3 py-2 bg-blue-50 rounded-lg text-xs text-blue-700 font-medium">
+                    🤖 {{ $aiCount }} fitur AI tersedia
+                </div>
+                @endif
 
                 {{-- CTA --}}
                 @if($isCurrent)

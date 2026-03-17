@@ -318,6 +318,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/packages', [\App\Http\Controllers\Admin\PackageController::class, 'store'])->name('packages.store');
         Route::get('/packages/{package}/edit', [\App\Http\Controllers\Admin\PackageController::class, 'edit'])->name('packages.edit');
         Route::put('/packages/{package}', [\App\Http\Controllers\Admin\PackageController::class, 'update'])->name('packages.update');
+        Route::delete('/packages/{package}', [\App\Http\Controllers\Admin\PackageController::class, 'destroy'])->name('packages.destroy');
+        Route::patch('/packages/{package}/toggle', [\App\Http\Controllers\Admin\PackageController::class, 'toggle'])->name('packages.toggle');
 
         // Subscription Management
         Route::get('/subscriptions', [\App\Http\Controllers\Admin\PackageController::class, 'subscriptions'])->name('subscriptions');
@@ -373,108 +375,75 @@ Route::middleware(['auth'])->group(function () {
 
 // API Routes
 Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
+    // ── Tidak perlu cek fitur (semua paket bisa) ──────────────────────────────
     Route::post('/ai/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generate'])->name('api.ai.generate');
-    Route::post('/ai/generate-image-caption', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->name('api.ai.generate-image-caption');
-    Route::post('/ai/analyze-image', [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeImage'])->name('api.ai.analyze-image');
-    Route::post('/ai/generate-video-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateVideoContent'])->name('api.ai.generate-video-content');
     Route::get('/check-first-time', [\App\Http\Controllers\Client\AIGeneratorController::class, 'checkFirstTime'])->name('api.check-first-time');
-    
-    // 📈 Performance Predictor API
-    Route::post('/ai/predict-performance', [\App\Http\Controllers\Client\AIGeneratorController::class, 'predictPerformance'])->name('api.ai.predict-performance');
-    Route::post('/ai/generate-ab-variants', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateABVariants'])->name('api.ai.generate-ab-variants');
-    
-    // 📚 Template Library API
     Route::get('/templates/all', [\App\Http\Controllers\Client\AIGeneratorController::class, 'getAllTemplates'])->name('api.templates.all');
-    
-    // 🎯 Multi-Platform Optimizer API
-    Route::post('/ai/generate-multiplatform', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMultiPlatform'])->name('api.ai.generate-multiplatform');
-    
-    // ♻️ Content Repurposing API
-    Route::post('/ai/repurpose-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'repurposeContent'])->name('api.ai.repurpose-content');
-    
-    // 🔔 Trend Alert API
-    Route::post('/ai/generate-trend-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendContent'])->name('api.ai.generate-trend-content');
-
-    // 🎯 Analytics-Optimized Content
-    Route::post('/ai/generate-optimal-content', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateOptimalContent'])->name('api.ai.generate-optimal-content');
-
-    // 🎯 Google Ads Campaign Generator API
-    Route::post('/ai/generate-google-ads', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateGoogleAds'])->name('api.ai.generate-google-ads');
-
-    // 🔗 Magic Promo Link Generator API
-    Route::post('/ai/generate-promo-link', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMagicPromoLink'])->name('api.ai.generate-promo-link');
-
-    // 💬 AI Product Explainer for WhatsApp
-    Route::post('/ai/generate-product-explainer', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateProductExplainer'])->name('api.ai.generate-product-explainer');
-
-    // Features 3-10
-    Route::post('/ai/generate-seo-metadata',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateSeoMetadata'])->name('api.ai.generate-seo-metadata');
-    Route::post('/ai/generate-comparison',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateComparison'])->name('api.ai.generate-comparison');
-    Route::post('/ai/generate-faq',                [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateFaq'])->name('api.ai.generate-faq');
-    Route::post('/ai/generate-reels-hook',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateReelsHook'])->name('api.ai.generate-reels-hook');
-    Route::post('/ai/generate-quality-badge',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateQualityBadge'])->name('api.ai.generate-quality-badge');
-    Route::post('/ai/generate-discount-campaign',  [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateDiscountCampaign'])->name('api.ai.generate-discount-campaign');
-    Route::post('/ai/generate-trend-tags',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendTags'])->name('api.ai.generate-trend-tags');
-    Route::post('/ai/generate-lead-magnet',        [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateLeadMagnet'])->name('api.ai.generate-lead-magnet');
-    
-    // 👥 Collaboration Content Generation API
-    Route::post('/ai/generate-content', [\App\Http\Controllers\Client\ProjectContentController::class, 'generateContent'])->name('api.ai.generate-content');
-    
-    // 🤖 ML System API
     Route::get('/ml/status', [\App\Http\Controllers\MLSuggestionsController::class, 'getStatus'])->name('api.ml.status');
     Route::get('/ml/preview', [\App\Http\Controllers\MLSuggestionsController::class, 'getPreview'])->name('api.ml.preview');
     Route::get('/ml/weekly-trends', [\App\Http\Controllers\MLSuggestionsController::class, 'getWeeklyTrends'])->name('api.ml.weekly-trends');
     Route::post('/ml/refresh', [\App\Http\Controllers\MLSuggestionsController::class, 'refreshSuggestions'])->name('api.ml.refresh');
     Route::get('/ml/cache-stats', [\App\Http\Controllers\MLSuggestionsController::class, 'getCacheStats'])->name('api.ml.cache-stats');
-    
-    // 🔍 AI Analysis API
-    Route::post('/analysis/sentiment', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeSentiment'])->name('api.analysis.sentiment');
-    Route::post('/analysis/image', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeImage'])->name('api.analysis.image');
-    Route::post('/analysis/score-caption', [\App\Http\Controllers\AIAnalysisController::class, 'scoreCaption'])->name('api.analysis.score-caption');
-    Route::post('/analysis/recommendations', [\App\Http\Controllers\AIAnalysisController::class, 'getRecommendations'])->name('api.analysis.recommendations');
-    Route::post('/analysis/campaign', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeCampaign'])->name('api.analysis.campaign');
-    Route::post('/analysis/article', [\App\Http\Controllers\AIAnalysisController::class, 'analyzeArticle'])->name('api.analysis.article');
-    Route::get('/analysis/history', [\App\Http\Controllers\AIAnalysisController::class, 'getHistory'])->name('api.analysis.history');
-    Route::get('/analysis/dashboard', [\App\Http\Controllers\AIAnalysisController::class, 'getDashboard'])->name('api.analysis.dashboard');
-    
-    // 🔧 Caption Optimizer API
-    Route::prefix('optimizer')->name('api.optimizer.')->group(function () {
-        // Grammar Checker
-        Route::post('/grammar/check', [\App\Http\Controllers\CaptionOptimizerController::class, 'checkGrammar'])->name('grammar.check');
-        Route::post('/grammar/quick-fix', [\App\Http\Controllers\CaptionOptimizerController::class, 'quickGrammarFix'])->name('grammar.quick-fix');
-        Route::post('/grammar/detailed-analysis', [\App\Http\Controllers\CaptionOptimizerController::class, 'getDetailedGrammarAnalysis'])->name('grammar.detailed-analysis');
-        
-        // Length Optimizer
-        Route::post('/length/shorten', [\App\Http\Controllers\CaptionOptimizerController::class, 'shortenCaption'])->name('length.shorten');
-        Route::post('/length/expand', [\App\Http\Controllers\CaptionOptimizerController::class, 'expandCaption'])->name('length.expand');
-        Route::post('/length/smart-adjust', [\App\Http\Controllers\CaptionOptimizerController::class, 'smartAdjustLength'])->name('length.smart-adjust');
-        Route::get('/length/optimal-guide', [\App\Http\Controllers\CaptionOptimizerController::class, 'getOptimalLength'])->name('length.optimal-guide');
-        Route::post('/length/analyze-impact', [\App\Http\Controllers\CaptionOptimizerController::class, 'analyzeLengthImpact'])->name('length.analyze-impact');
-        
-        // Batch Operations
-        Route::post('/batch-optimize', [\App\Http\Controllers\CaptionOptimizerController::class, 'batchOptimize'])->name('batch-optimize');
-        
-        // Stats
-        Route::get('/stats', [\App\Http\Controllers\CaptionOptimizerController::class, 'getOptimizerStats'])->name('stats');
-    });
-    
-    // Keyword Research API
-    Route::post('/keyword-research/search', [\App\Http\Controllers\Client\KeywordResearchController::class, 'search'])->name('api.keyword-research.search');
-    Route::get('/keyword-research/history', [\App\Http\Controllers\Client\KeywordResearchController::class, 'history'])->name('api.keyword-research.history');
-    
-    // Caption Rating (Client)
     Route::post('/caption/{id}/rate', [\App\Http\Controllers\Client\CaptionRatingController::class, 'rate'])->name('api.caption.rate');
-    
-    // 💰 Pricing Calculator API
-    Route::post('/competitor-analysis/calculate-pricing', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'calculatePricing'])->name('api.competitor-analysis.calculate-pricing');
-    
     Route::get('/notifications', function() {
         $notifications = \App\Models\Notification::where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
+            ->orderBy('created_at', 'desc')->take(10)->get();
         return response()->json(['notifications' => $notifications]);
     });
+
+    // ── Fitur dikontrol per paket ─────────────────────────────────────────────
+    Route::post('/ai/generate-image-caption',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->middleware('feature:image_caption')->name('api.ai.generate-image-caption');
+    Route::post('/ai/analyze-image',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeImage'])->middleware('feature:image_analysis')->name('api.ai.analyze-image');
+    Route::post('/ai/generate-video-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateVideoContent'])->middleware('feature:video_content')->name('api.ai.generate-video-content');
+    Route::post('/ai/predict-performance',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'predictPerformance'])->middleware('feature:performance_predictor')->name('api.ai.predict-performance');
+    Route::post('/ai/generate-ab-variants',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateABVariants'])->middleware('feature:ab_testing')->name('api.ai.generate-ab-variants');
+    Route::post('/ai/generate-multiplatform',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMultiPlatform'])->middleware('feature:multi_platform')->name('api.ai.generate-multiplatform');
+    Route::post('/ai/repurpose-content',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'repurposeContent'])->middleware('feature:content_repurpose')->name('api.ai.repurpose-content');
+    Route::post('/ai/generate-trend-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendContent'])->middleware('feature:trend_alert')->name('api.ai.generate-trend-content');
+    Route::post('/ai/generate-optimal-content',  [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateOptimalContent'])->middleware('feature:optimal_content')->name('api.ai.generate-optimal-content');
+    Route::post('/ai/generate-google-ads',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateGoogleAds'])->middleware('feature:google_ads')->name('api.ai.generate-google-ads');
+    Route::post('/ai/generate-promo-link',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMagicPromoLink'])->middleware('feature:promo_link')->name('api.ai.generate-promo-link');
+    Route::post('/ai/generate-product-explainer',[\App\Http\Controllers\Client\AIGeneratorController::class, 'generateProductExplainer'])->middleware('feature:product_explainer')->name('api.ai.generate-product-explainer');
+    Route::post('/ai/generate-seo-metadata',     [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateSeoMetadata'])->middleware('feature:seo_metadata')->name('api.ai.generate-seo-metadata');
+    Route::post('/ai/generate-comparison',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateComparison'])->middleware('feature:smart_comparison')->name('api.ai.generate-comparison');
+    Route::post('/ai/generate-faq',              [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateFaq'])->middleware('feature:faq_generator')->name('api.ai.generate-faq');
+    Route::post('/ai/generate-reels-hook',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateReelsHook'])->middleware('feature:reels_hook')->name('api.ai.generate-reels-hook');
+    Route::post('/ai/generate-quality-badge',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateQualityBadge'])->middleware('feature:quality_badge')->name('api.ai.generate-quality-badge');
+    Route::post('/ai/generate-discount-campaign',[\App\Http\Controllers\Client\AIGeneratorController::class, 'generateDiscountCampaign'])->middleware('feature:discount_campaign')->name('api.ai.generate-discount-campaign');
+    Route::post('/ai/generate-trend-tags',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendTags'])->middleware('feature:trend_tags')->name('api.ai.generate-trend-tags');
+    Route::post('/ai/generate-lead-magnet',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateLeadMagnet'])->middleware('feature:lead_magnet')->name('api.ai.generate-lead-magnet');
+    Route::post('/ai/generate-content',          [\App\Http\Controllers\Client\ProjectContentController::class, 'generateContent'])->name('api.ai.generate-content');
+
+    // 🔍 AI Analysis
+    Route::post('/analysis/sentiment',       [\App\Http\Controllers\AIAnalysisController::class, 'analyzeSentiment'])->name('api.analysis.sentiment');
+    Route::post('/analysis/image',           [\App\Http\Controllers\AIAnalysisController::class, 'analyzeImage'])->name('api.analysis.image');
+    Route::post('/analysis/score-caption',   [\App\Http\Controllers\AIAnalysisController::class, 'scoreCaption'])->name('api.analysis.score-caption');
+    Route::post('/analysis/recommendations', [\App\Http\Controllers\AIAnalysisController::class, 'getRecommendations'])->name('api.analysis.recommendations');
+    Route::post('/analysis/campaign',        [\App\Http\Controllers\AIAnalysisController::class, 'analyzeCampaign'])->name('api.analysis.campaign');
+    Route::post('/analysis/article',         [\App\Http\Controllers\AIAnalysisController::class, 'analyzeArticle'])->name('api.analysis.article');
+    Route::get('/analysis/history',          [\App\Http\Controllers\AIAnalysisController::class, 'getHistory'])->name('api.analysis.history');
+    Route::get('/analysis/dashboard',        [\App\Http\Controllers\AIAnalysisController::class, 'getDashboard'])->name('api.analysis.dashboard');
+
+    // 🔧 Caption Optimizer
+    Route::prefix('optimizer')->name('api.optimizer.')->group(function () {
+        Route::post('/grammar/check',            [\App\Http\Controllers\CaptionOptimizerController::class, 'checkGrammar'])->name('grammar.check');
+        Route::post('/grammar/quick-fix',        [\App\Http\Controllers\CaptionOptimizerController::class, 'quickGrammarFix'])->name('grammar.quick-fix');
+        Route::post('/grammar/detailed-analysis',[\App\Http\Controllers\CaptionOptimizerController::class, 'getDetailedGrammarAnalysis'])->name('grammar.detailed-analysis');
+        Route::post('/length/shorten',           [\App\Http\Controllers\CaptionOptimizerController::class, 'shortenCaption'])->name('length.shorten');
+        Route::post('/length/expand',            [\App\Http\Controllers\CaptionOptimizerController::class, 'expandCaption'])->name('length.expand');
+        Route::post('/length/smart-adjust',      [\App\Http\Controllers\CaptionOptimizerController::class, 'smartAdjustLength'])->name('length.smart-adjust');
+        Route::get('/length/optimal-guide',      [\App\Http\Controllers\CaptionOptimizerController::class, 'getOptimalLength'])->name('length.optimal-guide');
+        Route::post('/length/analyze-impact',    [\App\Http\Controllers\CaptionOptimizerController::class, 'analyzeLengthImpact'])->name('length.analyze-impact');
+        Route::post('/batch-optimize',           [\App\Http\Controllers\CaptionOptimizerController::class, 'batchOptimize'])->name('batch-optimize');
+        Route::get('/stats',                     [\App\Http\Controllers\CaptionOptimizerController::class, 'getOptimizerStats'])->name('stats');
+    });
+
+    // 🔑 Keyword Research
+    Route::post('/keyword-research/search',  [\App\Http\Controllers\Client\KeywordResearchController::class, 'search'])->middleware('feature:keyword_research')->name('api.keyword-research.search');
+    Route::get('/keyword-research/history',  [\App\Http\Controllers\Client\KeywordResearchController::class, 'history'])->middleware('feature:keyword_research')->name('api.keyword-research.history');
+
+    // 💰 Competitor Pricing
+    Route::post('/competitor-analysis/calculate-pricing', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'calculatePricing'])->middleware('feature:competitor_analysis')->name('api.competitor-analysis.calculate-pricing');
 });
 
 // Webhook Routes (no CSRF, no auth)

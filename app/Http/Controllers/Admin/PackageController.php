@@ -19,7 +19,9 @@ class PackageController extends Controller
 
     public function create()
     {
-        return view('admin.package-create');
+        $featureGroups = \App\Enums\PackageFeatures::groups();
+        $featureLabels = \App\Enums\PackageFeatures::labels();
+        return view('admin.package-create', compact('featureGroups', 'featureLabels'));
     }
 
     public function store(Request $request)
@@ -44,9 +46,10 @@ class PackageController extends Controller
             ));
         }
 
-        $validated['is_active']   = $request->boolean('is_active');
-        $validated['is_featured'] = $request->boolean('is_featured');
-        $validated['has_trial']   = $request->boolean('has_trial');
+        $validated['allowed_features'] = $request->input('allowed_features', []);
+        $validated['is_active']        = $request->boolean('is_active');
+        $validated['is_featured']      = $request->boolean('is_featured');
+        $validated['has_trial']        = $request->boolean('has_trial');
 
         Package::create($validated);
 
@@ -56,7 +59,9 @@ class PackageController extends Controller
 
     public function edit(Package $package)
     {
-        return view('admin.package-edit', compact('package'));
+        $featureGroups = \App\Enums\PackageFeatures::groups();
+        $featureLabels = \App\Enums\PackageFeatures::labels();
+        return view('admin.package-edit', compact('package', 'featureGroups', 'featureLabels'));
     }
 
     public function update(Request $request, Package $package)
@@ -75,21 +80,40 @@ class PackageController extends Controller
             'sort_order'                 => 'nullable|integer|min:0',
         ]);
 
-        // Handle features textarea → array
         if ($request->filled('features_text')) {
             $validated['features'] = array_values(array_filter(
                 array_map('trim', explode("\n", $request->features_text))
             ));
         }
 
-        $validated['is_active']   = $request->boolean('is_active');
-        $validated['is_featured'] = $request->boolean('is_featured');
-        $validated['has_trial']   = $request->boolean('has_trial');
+        $validated['allowed_features'] = $request->input('allowed_features', []);
+        $validated['is_active']        = $request->boolean('is_active');
+        $validated['is_featured']      = $request->boolean('is_featured');
+        $validated['has_trial']        = $request->boolean('has_trial');
 
         $package->update($validated);
 
         return redirect()->route('admin.packages')
             ->with('success', 'Package berhasil diupdate.');
+    }
+
+    public function destroy(Package $package)
+    {
+        // Cegah hapus paket yang masih punya subscriber aktif
+        $activeCount = $package->subscriptions()->whereIn('status', ['active', 'trial'])->count();
+        if ($activeCount > 0) {
+            return back()->with('error', "Tidak bisa hapus paket \"{$package->name}\" — masih ada {$activeCount} subscriber aktif.");
+        }
+
+        $package->delete();
+        return redirect()->route('admin.packages')->with('success', "Paket \"{$package->name}\" berhasil dihapus.");
+    }
+
+    public function toggle(Package $package)
+    {
+        $package->update(['is_active' => !$package->is_active]);
+        $status = $package->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return back()->with('success', "Paket \"{$package->name}\" berhasil {$status}.");
     }
 
     public function subscriptions(Request $request)
