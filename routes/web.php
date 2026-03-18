@@ -117,6 +117,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/{id}/rate', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'rate'])->name('rate');
             Route::post('/{id}/favorite', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'toggleFavorite'])->name('favorite');
             Route::post('/{id}/use', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'use'])->name('use');
+            Route::get('/{id}/purchase', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'purchase'])->name('purchase');
+            Route::get('/checkout/{purchaseId}', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'checkout'])->name('checkout');
+            Route::post('/checkout/{purchaseId}/confirm', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'confirmPurchase'])->name('checkout.confirm');
             
             // Import/Export
             Route::get('/{id}/export', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'exportSingle'])->name('export');
@@ -370,6 +373,18 @@ Route::middleware(['auth'])->group(function () {
 
         // Referral Monitor
         Route::get('/referrals', [\App\Http\Controllers\Admin\ReferralController::class, 'index'])->name('referrals.index');
+
+        // Marketplace Monitor & Commission Settings
+        Route::get('/marketplace', [\App\Http\Controllers\Admin\MarketplaceController::class, 'index'])->name('marketplace.index');
+        Route::post('/marketplace/templates/{template}/approve', [\App\Http\Controllers\Admin\MarketplaceController::class, 'approveTemplate'])->name('marketplace.templates.approve');
+        Route::post('/marketplace/templates/{template}/reject', [\App\Http\Controllers\Admin\MarketplaceController::class, 'rejectTemplate'])->name('marketplace.templates.reject');
+        Route::delete('/marketplace/templates/{template}', [\App\Http\Controllers\Admin\MarketplaceController::class, 'deleteTemplate'])->name('marketplace.templates.delete');
+        Route::post('/marketplace/purchases/{purchase}/verify', [\App\Http\Controllers\Admin\MarketplaceController::class, 'verifyPurchase'])->name('marketplace.purchases.verify');
+        Route::post('/marketplace/purchases/{purchase}/reject', [\App\Http\Controllers\Admin\MarketplaceController::class, 'rejectPurchase'])->name('marketplace.purchases.reject');
+        Route::post('/marketplace/commission', [\App\Http\Controllers\Admin\MarketplaceController::class, 'updateCommission'])->name('marketplace.commission');
+
+        // Operator Monitor
+        Route::get('/operators', [\App\Http\Controllers\Admin\UserController::class, 'operators'])->name('operators.index');
     });
 });
 

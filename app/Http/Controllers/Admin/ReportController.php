@@ -36,9 +36,10 @@ class ReportController extends Controller
             'rejectedAmount' => WithdrawalRequest::where('status', 'rejected')->sum('amount'),
         ];
 
-        // Commission (Platform fee - 10% of verified payments)
-        $platformCommission = $totalRevenue * 0.10;
-        $operatorEarnings = $totalRevenue * 0.90;
+        // Commission (Platform fee - dynamic rate from admin settings)
+        $orderCommissionRate = cache('commission.order_rate', 10) / 100;
+        $platformCommission = $totalRevenue * $orderCommissionRate;
+        $operatorEarnings = $totalRevenue * (1 - $orderCommissionRate);
 
         // Order Stats
         $totalOrders = Order::count();

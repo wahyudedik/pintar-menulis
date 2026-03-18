@@ -181,10 +181,11 @@ class OrderController extends Controller
                 'released_at' => now(),
             ]);
 
-            // Calculate platform commission (10%)
+            // Calculate platform commission (dynamic, default 10%)
             $paymentAmount = $payment->amount;
-            $platformCommission = $paymentAmount * 0.10;
-            $operatorEarnings = $paymentAmount * 0.90;
+            $commissionRate = cache('commission.order_rate', 10) / 100;
+            $platformCommission = $paymentAmount * $commissionRate;
+            $operatorEarnings = $paymentAmount * (1 - $commissionRate);
 
             // Add earnings to operator
             if ($order->operator_id) {

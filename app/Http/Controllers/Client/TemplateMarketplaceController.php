@@ -122,13 +122,8 @@ class TemplateMarketplaceController extends Controller
         $template = UserTemplate::with(['user', 'ratings.user'])
             ->findOrFail($id);
 
-        // Check access
-        if (!$template->canBeAccessedBy(Auth::id())) {
-            abort(403, 'You need to purchase this template first.');
-        }
-
-        $template->is_favorited = Auth::check() 
-            ? $template->isFavoritedBy(Auth::id()) 
+        $template->is_favorited = Auth::check()
+            ? $template->isFavoritedBy(Auth::id())
             : false;
 
         $template->user_rating = Auth::check()
@@ -275,7 +270,9 @@ class TemplateMarketplaceController extends Controller
         if (!$template->canBeAccessedBy(Auth::id())) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda perlu membeli template ini terlebih dahulu.'
+                'needs_purchase' => true,
+                'message' => 'Anda perlu membeli template ini terlebih dahulu.',
+                'purchase_url' => route('templates.purchase', $id),
             ], 403);
         }
 
@@ -285,5 +282,75 @@ class TemplateMarketplaceController extends Controller
             'success' => true,
             'template' => $template
         ]);
+    }
+
+    // 💳 Purchase premium template
+    public function purchase($id)
+    {
+        $template = UserTemplate::findOrFail($id);
+
+        if (!$template->is_premium || $template->price <= 0) {
+            return redirect()->route('templates.show', $id)
+                ->with('info', 'Template ini gratis, langsung gunakan saja.');
+        }
+
+        if ($template->user_id === Auth::id()) {
+            return redirect()->route('templates.show', $id)
+                ->with('info', 'Ini template milik Anda sendiri.');
+        }
+
+        if ($template->isPurchasedBy(Auth::id())) {
+            return redirect()->route('templates.show', $id)
+                ->with('info', 'Anda sudah memiliki template ini.');
+        }
+
+        // Create pending purchase record
+        $purchase = TemplatePurchase::create([
+            'buyer_id'       => Auth::id(),
+            'template_id'    => $template->id,
+            'seller_id'      => $template->user_id,
+            'price_paid'     => $template->price,
+            'license_type'   => $template->license_type ?? 'personal',
+            'payment_status' => 'pending',
+        ]);
+
+        return redirect()->route('templates.checkout', $purchase->id);
+    }
+
+    // 🧾 Checkout page for template purchase
+    public function checkout($purchaseId)
+    {
+        $purchase = TemplatePurchase::with(['template', 'seller'])
+            ->where('buyer_id', Auth::id())
+            ->where('payment_status', 'pending')
+            ->findOrFail($purchaseId);
+
+        $commissionRate = cache('commission.template_rate', config('marketplace.commission_rate', 20));
+        $sellerEarnings = $purchase->price_paid * (1 - $commissionRate / 100);
+
+        return view('client.template-marketplace.checkout', compact('purchase', 'commissionRate', 'sellerEarnings'));
+    }
+
+    // ✅ Confirm template purchase (after manual payment proof)
+    public function confirmPurchase(Request $request, $purchaseId)
+    {
+        $purchase = TemplatePurchase::where('buyer_id', Auth::id())
+            ->where('payment_status', 'pending')
+            ->findOrFail($purchaseId);
+
+        $validated = $request->validate([
+            'proof_image' => 'required|image|max:2048',
+        ]);
+
+        $path = $request->file('proof_image')->store('template-payments', 'public');
+
+        $purchase->update([
+            'payment_status' => 'processing',
+            'transaction_id' => 'TMP-' . strtoupper(Str::random(10)),
+            'payment_details' => ['proof_image' => $path],
+        ]);
+
+        return redirect()->route('templates.show', $purchase->template_id)
+            ->with('success', 'Bukti pembayaran berhasil dikirim. Admin akan memverifikasi dalam 1x24 jam.');
     }
 }

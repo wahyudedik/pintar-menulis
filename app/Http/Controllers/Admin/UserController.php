@@ -152,4 +152,24 @@ class UserController extends Controller
 
         return back()->with('success', 'Verifikasi operator dibatalkan');
     }
+
+    // Operator Monitor
+    public function operators(Request $request)
+    {
+        $operators = User::where('role', 'operator')
+            ->with('operatorProfile')
+            ->withCount(['operatorOrders'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        $stats = [
+            'total'    => User::where('role', 'operator')->count(),
+            'verified' => \App\Models\OperatorProfile::where('is_verified', true)->count(),
+            'active'   => \App\Models\OperatorProfile::where('is_available', true)->count(),
+        ];
+
+        $commissionRate = cache('commission.order_rate', config('marketplace.order_commission_rate', 10));
+
+        return view('admin.operators', compact('operators', 'stats', 'commissionRate'));
+    }
 }

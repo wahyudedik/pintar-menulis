@@ -123,6 +123,13 @@
         <div class="space-y-4">
             <!-- Use Template Card -->
             <div class="bg-white rounded-xl border border-gray-200 p-6">
+                @php
+                    $isPremiumUnpurchased = $template->is_premium
+                        && $template->price > 0
+                        && auth()->id() !== $template->user_id
+                        && !$template->isPurchasedBy(auth()->id());
+                @endphp
+
                 @if($template->is_premium && $template->price > 0)
                     <p class="text-2xl font-bold text-gray-900 mb-1">Rp {{ number_format($template->price, 0, ',', '.') }}</p>
                     <p class="text-xs text-gray-500 mb-4">Bayar sekali, gunakan selamanya</p>
@@ -130,10 +137,19 @@
                     <p class="text-2xl font-bold text-green-600 mb-1">GRATIS</p>
                     <p class="text-xs text-gray-500 mb-4">Langsung gunakan tanpa biaya</p>
                 @endif
-                <button onclick="useTemplate({{ $template->id }})"
-                        class="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition text-sm">
-                    Gunakan Template
-                </button>
+
+                @if($isPremiumUnpurchased)
+                    <a href="{{ route('templates.purchase', $template->id) }}"
+                       class="w-full py-2.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition text-sm text-center block">
+                        🛒 Beli Template
+                    </a>
+                @else
+                    <button onclick="useTemplate({{ $template->id }})"
+                            class="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition text-sm">
+                        Gunakan Template
+                    </button>
+                @endif
+
                 <a href="{{ route('templates.export', $template->id) }}"
                    class="w-full mt-2 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition text-sm text-center block">
                     Export Template
