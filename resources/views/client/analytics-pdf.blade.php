@@ -174,7 +174,7 @@
     </div>
 
     <div class="footer">
-        <p>Smart Copy SMK - AI Copywriting Platform</p>
+        <p>Noteds - AI Copywriting Platform</p>
         <p>This report is generated automatically from your caption analytics data</p>
     </div>
 </body>

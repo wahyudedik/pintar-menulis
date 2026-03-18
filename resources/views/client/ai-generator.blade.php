@@ -164,7 +164,7 @@
             <button @click="generatorType = 'image-analysis'" 
                     :class="generatorType === 'image-analysis' ? 'bg-white shadow-sm' : 'text-gray-600'"
                     class="px-4 py-2 rounded-md text-sm font-medium transition">
-                🔍 AI Image Analysis
+                🔍 Image & Design Analysis
             </button>
             <button @click="generatorType = 'video'" 
                     :class="generatorType === 'video' ? 'bg-white shadow-sm' : 'text-gray-600'"
@@ -815,12 +815,12 @@
 
                 <!-- AI IMAGE ANALYSIS MODE -->
                 <form @submit.prevent="analyzeImageWithAI" x-show="generatorType === 'image-analysis'" x-cloak enctype="multipart/form-data">
-                    <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                    <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
                         <div class="flex items-center gap-3 mb-2">
                             <span class="text-2xl">🔍</span>
-                            <h3 class="text-lg font-semibold text-gray-900">AI Image Analysis dengan Gemini Vision</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">AI Image & Design Analysis</h3>
                         </div>
-                        <p class="text-sm text-purple-800">Upload gambar dan dapatkan analisis mendalam: objek detection, warna dominan, komposisi, mood, dan rekomendasi marketing!</p>
+                        <p class="text-sm text-purple-800">Upload foto produk atau desain grafis — AI akan menganalisis objek, warna, komposisi, mood, tipografi, layout, konsistensi brand, dan efektivitas CTA!</p>
                     </div>
 
                     <!-- Image Upload for Analysis -->
@@ -844,7 +844,7 @@
                                 </svg>
                                 <p class="text-gray-600 mb-2 font-medium">Klik atau drag & drop gambar di sini</p>
                                 <p class="text-sm text-gray-500">JPG, PNG, WebP (Max 10MB)</p>
-                                <p class="text-xs text-gray-400 mt-2">Gemini Vision akan menganalisis gambar secara detail</p>
+                                <p class="text-xs text-gray-400 mt-2">AI akan menganalisis gambar secara detail</p>
                             </div>
 
                             <div x-show="analysisForm.preview" class="relative">
@@ -894,6 +894,23 @@
                                 <input type="checkbox" x-model="analysisForm.options" value="suggestions" class="text-purple-600">
                                 <span class="text-sm">💡 Saran Perbaikan</span>
                             </label>
+                            {{-- Opsi Analisis Desain --}}
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="typography" class="text-purple-600">
+                                <span class="text-sm">🔤 Tipografi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="layout" class="text-purple-600">
+                                <span class="text-sm">📏 Layout & Hierarki</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="branding" class="text-purple-600">
+                                <span class="text-sm">🏷️ Konsistensi Brand</span>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" x-model="analysisForm.options" value="cta_design" class="text-purple-600">
+                                <span class="text-sm">⚡ Efektivitas CTA</span>
+                            </label>
                         </div>
                     </div>
 
@@ -909,7 +926,7 @@
                     <!-- Quick Analysis Presets -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-3">Preset Analisis Cepat</label>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                             <button type="button" 
                                     @click="setAnalysisPreset('product')"
                                     class="p-4 border border-gray-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition text-left">
@@ -917,7 +934,7 @@
                                     <span class="text-2xl">🛍️</span>
                                     <span class="font-medium text-gray-900">Analisis Produk</span>
                                 </div>
-                                <p class="text-xs text-gray-600">Fokus pada kualitas produk, daya tarik visual, dan tips marketing</p>
+                                <p class="text-xs text-gray-600">Kualitas produk, daya tarik visual, dan tips marketing</p>
                             </button>
                             
                             <button type="button" 
@@ -929,6 +946,16 @@
                                 </div>
                                 <p class="text-xs text-gray-600">Komposisi, mood, engagement potential untuk Instagram/TikTok</p>
                             </button>
+
+                            <button type="button" 
+                                    @click="setAnalysisPreset('design')"
+                                    class="p-4 border border-gray-200 rounded-lg hover:border-pink-400 hover:bg-pink-50 transition text-left">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">🎨</span>
+                                    <span class="font-medium text-gray-900">Analisis Desain</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Tipografi, layout, konsistensi brand, dan efektivitas CTA</p>
+                            </button>
                             
                             <button type="button" 
                                     @click="setAnalysisPreset('complete')"
@@ -937,7 +964,7 @@
                                     <span class="text-2xl">🔍</span>
                                     <span class="font-medium text-gray-900">Analisis Lengkap</span>
                                 </div>
-                                <p class="text-xs text-gray-600">Semua aspek: objek, warna, komposisi, mood, teks, marketing</p>
+                                <p class="text-xs text-gray-600">Semua aspek: foto, desain, warna, komposisi, marketing</p>
                             </button>
                         </div>
                     </div>
@@ -950,7 +977,7 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="font-semibold">🔍 Analisis dengan Gemini Vision</span>
+                            <span class="font-semibold">🔍 Analisis dengan AI Vision</span>
                         </span>
                         <span x-show="loading" class="flex items-center justify-center gap-3">
                             <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -968,7 +995,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <div class="text-sm text-blue-800">
-                                <p class="font-medium mb-2">Gemini Vision akan menganalisis:</p>
+                                <p class="font-medium mb-2">AI akan menganalisis:</p>
                                 <div class="grid grid-cols-2 gap-2 text-xs text-blue-700">
                                     <div>• Objek dan elemen dalam gambar</div>
                                     <div>• Palet warna dan harmoni</div>
@@ -2674,6 +2701,23 @@
         });
     }
 
+    // Handle feature_locked response dari middleware — tampilkan notif upgrade
+    function handleFeatureLocked(data, showNotificationFn) {
+        if (data && data.feature_locked) {
+            const msg = (data.message || 'Fitur ini tidak tersedia di paket kamu.')
+                + ' <a href="{{ route("pricing") }}" class="underline font-semibold">Upgrade sekarang →</a>';
+            // Tampilkan sebagai toast dengan link
+            const toast = document.createElement('div');
+            toast.innerHTML = msg;
+            toast.className = 'fixed bottom-6 right-6 z-50 bg-yellow-500 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium max-w-xs cursor-pointer';
+            toast.onclick = () => window.location.href = '{{ route("pricing") }}';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 6000);
+            return true;
+        }
+        return false;
+    }
+
     function aiGenerator() {
         return {
             mode: 'simple', // default simple mode
@@ -3717,9 +3761,13 @@
                         this.analysisForm.options = ['composition', 'mood', 'colors', 'marketing'];
                         this.analysisForm.context = 'Analisis foto untuk konten social media (Instagram/TikTok)';
                         break;
+                    case 'design':
+                        this.analysisForm.options = ['typography', 'layout', 'branding', 'cta_design', 'colors', 'suggestions'];
+                        this.analysisForm.context = 'Analisis desain grafis: banner, poster, feed Instagram, atau materi marketing. Nilai tipografi, layout, konsistensi brand, dan efektivitas CTA.';
+                        break;
                     case 'complete':
-                        this.analysisForm.options = ['objects', 'colors', 'composition', 'mood', 'text', 'marketing', 'quality', 'suggestions'];
-                        this.analysisForm.context = 'Analisis lengkap semua aspek gambar untuk keperluan bisnis';
+                        this.analysisForm.options = ['objects', 'colors', 'composition', 'mood', 'text', 'marketing', 'quality', 'suggestions', 'typography', 'layout', 'branding', 'cta_design'];
+                        this.analysisForm.context = 'Analisis lengkap semua aspek gambar dan desain untuk keperluan bisnis';
                         break;
                 }
             },
@@ -3755,14 +3803,12 @@
 
                     const data = await response.json();
 
+                    if (handleFeatureLocked(data)) return;
+
                     if (data.success) {
                         this.result = data.analysis;
                         this.lastCaptionId = data.caption_id || null;
-                        
-                        // Show success notification
                         this.showNotification('✅ Analisis gambar berhasil!', 'success');
-                        
-                        // Scroll to result
                         setTimeout(() => {
                             document.querySelector('.mt-6').scrollIntoView({ behavior: 'smooth' });
                         }, 100);
@@ -3892,15 +3938,13 @@
 
                     const data = await response.json();
 
+                    if (handleFeatureLocked(data)) return;
+
                     if (data.success) {
                         this.result = data.content;
                         this.lastCaptionId = data.caption_id || null;
-                        
-                        // Show success notification
                         const imageText = this.videoForm.image_file ? ' dengan analisis visual' : '';
                         this.showNotification(`✅ Konten video berhasil di-generate${imageText}!`, 'success');
-                        
-                        // Scroll to result
                         setTimeout(() => {
                             document.querySelector('.mt-6').scrollIntoView({ behavior: 'smooth' });
                         }, 100);
@@ -4609,7 +4653,7 @@
                         if (!recommendations.success) errors.push('Recommendations: ' + (recommendations.error || 'Invalid JSON response'));
                         
                         // User-friendly error message
-                        throw new Error('⚠️ Gemini API sedang tidak stabil. Coba lagi dalam beberapa saat atau gunakan caption yang lebih pendek.');
+                        throw new Error('⚠️ AI sedang tidak stabil. Coba lagi dalam beberapa saat atau gunakan caption yang lebih pendek.');
                     }
 
                     this.analysisResult = {
@@ -4765,6 +4809,8 @@
 
                     const data = await response.json();
 
+                    if (handleFeatureLocked(data)) return;
+
                     if (data.success) {
                         this.predictionResults = data;
                     } else {
@@ -4773,7 +4819,7 @@
 
                 } catch (error) {
                     this.predictorError = error.message || 'Terjadi kesalahan saat memprediksi performa';
-                    alert(this.predictorError);
+                    this.showNotification('❌ ' + this.predictorError, 'error');
                 } finally {
                     this.predictorLoading = false;
                 }
@@ -4816,15 +4862,16 @@
 
                     const data = await response.json();
 
+                    if (handleFeatureLocked(data)) return;
+
                     if (data.success) {
-                        // Show variants in a modal or new section
                         this.showVariantsModal(data);
                     } else {
                         throw new Error(data.message || 'Gagal generate variants');
                     }
 
                 } catch (error) {
-                    alert(error.message || 'Terjadi kesalahan saat generate variants');
+                    this.showNotification('❌ ' + (error.message || 'Terjadi kesalahan saat generate variants'), 'error');
                 } finally {
                     this.variantsLoading = false;
                 }
@@ -5147,21 +5194,19 @@
 
                     const data = await response.json();
 
+                    if (handleFeatureLocked(data)) return;
+
                     if (data.success) {
                         this.multiPlatformResults = data.results;
-                        
-                        // Scroll to results
                         setTimeout(() => {
-                            document.querySelector('[x-show="multiPlatformResults"]').scrollIntoView({ 
-                                behavior: 'smooth' 
-                            });
+                            document.querySelector('[x-show="multiPlatformResults"]').scrollIntoView({ behavior: 'smooth' });
                         }, 100);
                     } else {
-                        alert('Error: ' + (data.message || 'Gagal generate multi-platform content'));
+                        this.showNotification('❌ ' + (data.message || 'Gagal generate multi-platform content'), 'error');
                     }
 
                 } catch (error) {
-                    alert('Terjadi kesalahan saat generate content. Silakan coba lagi.');
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
                 } finally {
                     this.multiPlatformLoading = false;
                 }
@@ -5365,22 +5410,20 @@
 
                     const data = await response.json();
 
+                    if (handleFeatureLocked(data)) return;
+
                     if (data.success) {
                         this.repurposeResults = data.results;
-                        
-                        // Scroll to results
                         setTimeout(() => {
                             const resultsElement = document.querySelector('[x-show="repurposeResults && repurposeResults.length > 0"]');
-                            if (resultsElement) {
-                                resultsElement.scrollIntoView({ behavior: 'smooth' });
-                            }
+                            if (resultsElement) resultsElement.scrollIntoView({ behavior: 'smooth' });
                         }, 100);
                     } else {
-                        alert('Error: ' + (data.message || 'Gagal repurpose content'));
+                        this.showNotification('❌ ' + (data.message || 'Gagal repurpose content'), 'error');
                     }
 
                 } catch (error) {
-                    alert('Terjadi kesalahan saat repurpose content. Silakan coba lagi.');
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
                 } finally {
                     this.repurposeLoading = false;
                 }
@@ -5545,15 +5588,16 @@
 
                     const data = await response.json();
 
+                    if (handleFeatureLocked(data)) return;
+
                     if (data.success) {
                         this.trendResults = data.results;
-                        alert('✅ Konten trend berhasil di-generate!');
+                        this.showNotification('✅ Konten trend berhasil di-generate!', 'success');
                     } else {
                         throw new Error(data.error || 'Failed to generate trend content');
                     }
 
                 } catch (error) {
-                    
                     // Fallback to basic generation
                     this.generateBasicTrendContent();
                 } finally {
@@ -5996,19 +6040,18 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.adsForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) {
                         this.adsResult = data.campaign;
                         this.adsTab = 'copy';
-                        if (data.quota_remaining !== undefined) {
-                            this.quotaRemaining = data.quota_remaining;
-                        }
+                        if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining;
                     } else if (data.quota_error) {
-                        alert('⚡ ' + data.message);
+                        this.showNotification('⚡ ' + data.message, 'error');
                     } else {
-                        alert('❌ ' + (data.message || 'Gagal generate kampanye'));
+                        this.showNotification('❌ ' + (data.message || 'Gagal generate kampanye'), 'error');
                     }
                 } catch (e) {
-                    alert('Terjadi kesalahan. Coba lagi.');
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
                 } finally {
                     this.adsLoading = false;
                 }
@@ -6104,11 +6147,10 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.promoForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) {
                         this.promoResult = data.data;
-                        if (data.quota_remaining !== undefined) {
-                            this.quotaRemaining = data.quota_remaining;
-                        }
+                        if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining;
                     } else {
                         this.promoError = data.message || 'Terjadi kesalahan';
                     }
@@ -6170,11 +6212,10 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.explainerForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) {
                         this.explainerResult = data.data;
-                        if (data.quota_remaining !== undefined) {
-                            this.quotaRemaining = data.quota_remaining;
-                        }
+                        if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining;
                     } else {
                         this.explainerError = data.message || 'Terjadi kesalahan';
                     }
@@ -6220,6 +6261,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.seoForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.seoResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.seoError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.seoError = 'Gagal terhubung ke server'; }
@@ -6256,6 +6298,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.compForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.compResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.compError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.compError = 'Gagal terhubung ke server'; }
@@ -6283,6 +6326,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.faqForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.faqResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.faqError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.faqError = 'Gagal terhubung ke server'; }
@@ -6319,6 +6363,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.reelsForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.reelsResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.reelsError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.reelsError = 'Gagal terhubung ke server'; }
@@ -6357,6 +6402,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.badgeForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.badgeResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.badgeError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.badgeError = 'Gagal terhubung ke server'; }
@@ -6380,6 +6426,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.discForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.discResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.discError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.discError = 'Gagal terhubung ke server'; }
@@ -6409,6 +6456,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.tagsForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.tagsResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.tagsError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.tagsError = 'Gagal terhubung ke server'; }
@@ -6432,6 +6480,7 @@ ${trend.hashtags?.join(' ') || ''}`
                         body: JSON.stringify(this.magnetForm)
                     });
                     const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
                     if (data.success) { this.magnetResult = data.data; if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining; }
                     else this.magnetError = data.message || 'Terjadi kesalahan';
                 } catch (e) { this.magnetError = 'Gagal terhubung ke server'; }

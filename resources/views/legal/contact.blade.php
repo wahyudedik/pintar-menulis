@@ -1,7 +1,7 @@
 @extends('legal.layout')
 
 @section('title', 'Contact Us')
-@section('description', 'Hubungi Smart Copy SMK - Customer Support & Bantuan')
+@section('description', 'Hubungi Noteds - Customer Support & Bantuan')
 
 @section('content')
 <h1 class="text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>

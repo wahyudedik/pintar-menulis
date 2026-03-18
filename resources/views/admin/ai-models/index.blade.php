@@ -21,7 +21,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-900">{{ $currentModel ?? 'Unknown' }}</p>
-                    <p class="text-xs text-gray-500">Gemini AI</p>
+                    <p class="text-xs text-gray-500">AI</p>
                 </div>
             </div>
             <span class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full">Active</span>

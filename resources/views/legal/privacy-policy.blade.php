@@ -1,7 +1,7 @@
 @extends('legal.layout')
 
 @section('title', 'Privacy Policy')
-@section('description', 'Kebijakan Privasi Smart Copy SMK - Bagaimana kami melindungi data pribadi Anda')
+@section('description', 'Kebijakan Privasi Noteds - Bagaimana kami melindungi data pribadi Anda')
 
 @section('content')
 <h1 class="text-3xl font-bold text-gray-900 mb-2">Privacy Policy</h1>
@@ -10,7 +10,7 @@
 <div class="prose prose-blue max-w-none">
     <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. Pendahuluan</h2>
     <p class="text-gray-700 mb-4">
-        Smart Copy SMK ("kami", "kita", atau "platform") berkomitmen untuk melindungi privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat menggunakan layanan kami.
+        Noteds ("kami", "kita", atau "platform") berkomitmen untuk melindungi privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat menggunakan layanan kami.
     </p>
 
     <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">2. Informasi yang Kami Kumpulkan</h2>
@@ -45,7 +45,7 @@
         Kami <strong>TIDAK</strong> menjual data pribadi Anda kepada pihak ketiga. Kami hanya berbagi informasi dalam kondisi berikut:
     </p>
     <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-        <li><strong>Penyedia Layanan:</strong> Google AI (Gemini) untuk generate caption, payment gateway untuk proses pembayaran</li>
+        <li><strong>Penyedia Layanan:</strong> AI untuk generate caption, payment gateway untuk proses pembayaran</li>
         <li><strong>Operator Freelance:</strong> Hanya informasi yang diperlukan untuk menyelesaikan order (nama, brief, kontak)</li>
         <li><strong>Kewajiban Hukum:</strong> Jika diwajibkan oleh hukum atau proses hukum</li>
         <li><strong>Perlindungan Hak:</strong> Untuk melindungi hak, properti, atau keamanan kami dan pengguna</li>
@@ -109,7 +109,7 @@
 
     <div class="bg-blue-50 border-l-4 border-blue-600 p-4 mt-8">
         <p class="text-sm text-gray-700">
-            <strong>Catatan:</strong> Dengan menggunakan layanan Smart Copy SMK, Anda menyetujui pengumpulan dan penggunaan informasi sesuai dengan Kebijakan Privasi ini.
+            <strong>Catatan:</strong> Dengan menggunakan layanan Noteds, Anda menyetujui pengumpulan dan penggunaan informasi sesuai dengan Kebijakan Privasi ini.
         </p>
     </div>
 </div>

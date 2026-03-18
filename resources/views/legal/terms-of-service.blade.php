@@ -1,7 +1,7 @@
 @extends('legal.layout')
 
 @section('title', 'Terms of Service')
-@section('description', 'Syarat dan Ketentuan Layanan Smart Copy SMK')
+@section('description', 'Syarat dan Ketentuan Layanan Noteds')
 
 @section('content')
 <h1 class="text-3xl font-bold text-gray-900 mb-2">Terms of Service</h1>
@@ -10,15 +10,15 @@
 <div class="prose prose-blue max-w-none">
     <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. Penerimaan Syarat</h2>
     <p class="text-gray-700 mb-4">
-        Dengan mengakses dan menggunakan Smart Copy SMK ("Platform", "Layanan", "kami"), Anda setuju untuk terikat oleh Syarat dan Ketentuan ini. Jika Anda tidak setuju dengan syarat ini, mohon untuk tidak menggunakan layanan kami.
+        Dengan mengakses dan menggunakan Noteds ("Platform", "Layanan", "kami"), Anda setuju untuk terikat oleh Syarat dan Ketentuan ini. Jika Anda tidak setuju dengan syarat ini, mohon untuk tidak menggunakan layanan kami.
     </p>
 
     <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">2. Deskripsi Layanan</h2>
     <p class="text-gray-700 mb-4">
-        Smart Copy SMK adalah platform AI Caption Generator yang menyediakan:
+        Noteds adalah platform AI Caption Generator yang menyediakan:
     </p>
     <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-        <li>Generate caption otomatis menggunakan AI (Google Gemini)</li>
+        <li>Generate caption otomatis menggunakan AI</li>
         <li>Template caption untuk berbagai industri UMKM</li>
         <li>Layanan operator freelance untuk pembuatan caption custom</li>
         <li>Analytics dan tracking performa caption</li>
@@ -94,7 +94,7 @@
     
     <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">7.1 Konten Platform</h3>
     <p class="text-gray-700 mb-4">
-        Semua konten di platform (logo, design, template, code) adalah milik Smart Copy SMK dan dilindungi oleh hak cipta.
+        Semua konten di platform (logo, design, template, code) adalah milik Noteds dan dilindungi oleh hak cipta.
     </p>
 
     <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">7.2 Konten yang Anda Buat</h3>
@@ -116,7 +116,7 @@
 
     <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">9. Batasan Tanggung Jawab</h2>
     <p class="text-gray-700 mb-4">
-        Dalam kondisi apapun, Smart Copy SMK tidak bertanggung jawab atas:
+        Dalam kondisi apapun, Noteds tidak bertanggung jawab atas:
     </p>
     <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
         <li>Kerugian tidak langsung, insidental, atau konsekuensial</li>
@@ -164,7 +164,7 @@
 
     <div class="bg-yellow-50 border-l-4 border-yellow-600 p-4 mt-8">
         <p class="text-sm text-gray-700">
-            <strong>Penting:</strong> Dengan menggunakan layanan Smart Copy SMK, Anda menyatakan telah membaca, memahami, dan menyetujui Syarat dan Ketentuan ini.
+            <strong>Penting:</strong> Dengan menggunakan layanan Noteds, Anda menyatakan telah membaca, memahami, dan menyetujui Syarat dan Ketentuan ini.
         </p>
     </div>
 </div>

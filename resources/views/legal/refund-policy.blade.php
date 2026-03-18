@@ -1,7 +1,7 @@
 @extends('legal.layout')
 
 @section('title', 'Refund Policy')
-@section('description', 'Kebijakan Pengembalian Dana Smart Copy SMK')
+@section('description', 'Kebijakan Pengembalian Dana Noteds')
 
 @section('content')
 <h1 class="text-3xl font-bold text-gray-900 mb-2">Refund Policy</h1>
@@ -10,7 +10,7 @@
 <div class="prose prose-blue max-w-none">
     <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. Kebijakan Umum</h2>
     <p class="text-gray-700 mb-4">
-        Smart Copy SMK berkomitmen untuk memberikan layanan terbaik. Kami memahami bahwa terkadang ada situasi yang memerlukan pengembalian dana. Kebijakan ini menjelaskan kondisi dan prosedur refund.
+        Noteds berkomitmen untuk memberikan layanan terbaik. Kami memahami bahwa terkadang ada situasi yang memerlukan pengembalian dana. Kebijakan ini menjelaskan kondisi dan prosedur refund.
     </p>
 
     <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">2. Paket Premium (AI Generator)</h2>

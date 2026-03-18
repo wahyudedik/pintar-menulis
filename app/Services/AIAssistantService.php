@@ -58,7 +58,7 @@ class AIAssistantService
      */
     private function getSystemPrompt(string $context): string
     {
-        $basePrompt = "Kamu adalah AI Assistant untuk Smart Copy SMK - aplikasi pembuat caption jualan untuk UMKM Indonesia. Kamu membantu user dengan:
+        $basePrompt = "Kamu adalah AI Assistant untuk Noteds - aplikasi pembuat caption jualan untuk UMKM Indonesia. Kamu membantu user dengan:
 1. Cara menggunakan aplikasi
 2. Tips digital marketing
 3. Strategi caption yang efektif
@@ -83,7 +83,7 @@ Jawab dalam Bahasa Indonesia yang friendly dan mudah dipahami. Jawab singkat dan
     {
         $suggestions = [
             'landing_page' => [
-                'Apa itu Smart Copy SMK?',
+                'Apa itu Noteds?',
                 'Bagaimana cara membuat caption yang menjual?',
                 'Berapa harga aplikasi ini?',
                 'Apakah ada trial gratis?',
@@ -101,7 +101,7 @@ Jawab dalam Bahasa Indonesia yang friendly dan mudah dipahami. Jawab singkat dan
                 'Apa caption terbaik saya?',
             ],
             'general' => [
-                'Apa itu Smart Copy SMK?',
+                'Apa itu Noteds?',
                 'Bagaimana cara membuat caption yang baik?',
                 'Apa tips digital marketing?',
                 'Bagaimana cara menggunakan aplikasi?',
