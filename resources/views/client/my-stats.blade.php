@@ -134,7 +134,7 @@
                 <div class="flex items-start justify-between mb-2">
                     <div class="flex-1">
                         <div class="flex items-center space-x-2 mb-1">
-                            <span class="text-xs font-medium text-gray-600">{{ ucfirst($caption->category) }}</span>
+                            <span class="text-xs font-medium text-gray-600">{{ ucfirst(str_replace('_', ' ', $caption->category)) }}</span>
                             <span class="text-xs text-gray-400">•</span>
                             <span class="text-xs text-gray-600">{{ ucfirst($caption->platform) }}</span>
                             <span class="text-xs text-gray-400">•</span>

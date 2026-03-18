@@ -32,6 +32,10 @@ class PackageFeatures
     const ANALYTICS_EXPORT        = 'analytics_export';
     const TREND_ALERT             = 'trend_alert';
     const OPTIMAL_CONTENT         = 'optimal_content';
+    const FINANCIAL_ANALYSIS      = 'financial_analysis';
+    const MULTIPLE_CAPTIONS       = 'multiple_captions';
+    const EBOOK_ANALYSIS          = 'ebook_analysis';
+    const READER_TREND            = 'reader_trend';
 
     // ── Human-readable labels ─────────────────────────────────────────────────
     public static function labels(): array
@@ -64,6 +68,10 @@ class PackageFeatures
             self::ANALYTICS_EXPORT      => 'Analytics & Export PDF',
             self::TREND_ALERT           => 'Trend Alert & Viral Ideas',
             self::OPTIMAL_CONTENT       => 'Analytics-Optimized Content',
+            self::FINANCIAL_ANALYSIS    => 'Analisis Saham & Dokumen Keuangan',
+            self::MULTIPLE_CAPTIONS     => 'Generate Multiple Captions',
+            self::EBOOK_ANALYSIS        => 'AI Analisis Ebook',
+            self::READER_TREND          => 'AI Analisis Tren Pembaca',
         ];
     }
 
@@ -76,6 +84,7 @@ class PackageFeatures
                 self::IMAGE_CAPTION,
                 self::IMAGE_ANALYSIS,
                 self::VIDEO_CONTENT,
+                self::MULTIPLE_CAPTIONS,
             ],
             'Optimasi & Analitik' => [
                 self::PERFORMANCE_PREDICTOR,
@@ -104,6 +113,9 @@ class PackageFeatures
                 self::REELS_HOOK,
                 self::QUALITY_BADGE,
                 self::COMPETITOR_ANALYSIS,
+                self::FINANCIAL_ANALYSIS,
+                self::EBOOK_ANALYSIS,
+                self::READER_TREND,
             ],
             'Tim & Lanjutan' => [
                 self::BRAND_VOICE,
@@ -127,6 +139,7 @@ class PackageFeatures
                 self::CAPTION_GENERATOR,
                 self::IMAGE_CAPTION,
                 self::IMAGE_ANALYSIS,
+                self::MULTIPLE_CAPTIONS,
                 self::PROMO_LINK,
                 self::PRODUCT_EXPLAINER,
                 self::DISCOUNT_CAMPAIGN,
@@ -140,6 +153,7 @@ class PackageFeatures
                 self::IMAGE_CAPTION,
                 self::IMAGE_ANALYSIS,
                 self::VIDEO_CONTENT,
+                self::MULTIPLE_CAPTIONS,
                 self::PERFORMANCE_PREDICTOR,
                 self::AB_TESTING,
                 self::MULTI_PLATFORM,
@@ -161,6 +175,9 @@ class PackageFeatures
                 self::ANALYTICS_EXPORT,
                 self::TREND_ALERT,
                 self::OPTIMAL_CONTENT,
+                self::FINANCIAL_ANALYSIS,
+                self::EBOOK_ANALYSIS,
+                self::READER_TREND,
             ],
             // Bisnis — semua fitur
             'business' => array_keys(self::labels()),

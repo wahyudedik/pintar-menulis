@@ -715,35 +715,28 @@
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            scales: { y: { beginAtZero: true } }
         }
     });
     @endif
 
     @if($categoryPerformance->count() > 0)
+    const categoryLabels = {!! json_encode($categoryPerformance->pluck('category')) !!};
     const categoryCtx = document.getElementById('categoryChart').getContext('2d');
     new Chart(categoryCtx, {
         type: 'doughnut',
         data: {
-            labels: {!! json_encode($categoryPerformance->pluck('category')) !!},
+            labels: categoryLabels.map(c => formatCategoryLabel(c)),
             datasets: [{
                 data: {!! json_encode($categoryPerformance->pluck('avg_engagement')) !!},
-                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'],
                 borderWidth: 0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
+            plugins: { legend: { position: 'bottom' } }
         }
     });
     @endif
@@ -767,22 +760,13 @@
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            scales: { y: { beginAtZero: true } }
         }
     });
     @endif
 
-    function editMetrics(id) {
-        // TODO: Implement edit metrics modal
-        alert('Edit metrics feature coming soon! ID: ' + id);
-    }
-
     function showAddCaptionModal() {
-        alert('Add caption feature - integrate with AI Generator');
+        showNotification('Gunakan AI Generator untuk membuat caption, lalu track di sini.', 'info');
     }
 </script>
 
@@ -890,8 +874,31 @@
 </div>
 
 <script>
+    const categoryLabelMap = {
+        'caption': 'Caption',
+        'social_media': 'Social Media',
+        'google_ads': 'Google Ads',
+        'email_marketing': 'Email Marketing',
+        'product_description': 'Deskripsi Produk',
+        'blog_article': 'Artikel Blog',
+        'video_script': 'Script Video',
+        'whatsapp': 'WhatsApp',
+        'seo_content': 'Konten SEO',
+        'brand_voice': 'Brand Voice',
+        'image_analysis': 'Analisis Gambar',
+        'design_analysis': 'Analisis Desain',
+        'financial_analysis': 'Analisis Keuangan',
+        'ebook_analysis': 'Analisis Ebook',
+        'reader_trend': 'Tren Pembaca',
+        'multiple_captions': 'Multiple Captions',
+    };
+
+    function formatCategoryLabel(cat) {
+        if (!cat) return 'Lainnya';
+        return categoryLabelMap[cat] || cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
     function editMetrics(id) {
-        // Fetch caption data
         fetch(`/analytics/${id}`)
             .then(response => response.json())
             .then(data => {
@@ -908,26 +915,22 @@
                     document.getElementById('user_rating').value = caption.user_rating || '';
                     document.getElementById('user_notes').value = caption.user_notes || '';
                     document.getElementById('marked_as_successful').checked = caption.marked_as_successful;
-                    
                     document.getElementById('editMetricsModal').classList.remove('hidden');
+                } else {
+                    showNotification('Gagal memuat data caption.', 'error');
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to load caption data');
-            });
+            .catch(() => showNotification('Gagal memuat data caption.', 'error'));
     }
-    
+
     function closeEditModal() {
         document.getElementById('editMetricsModal').classList.add('hidden');
     }
-    
+
     function saveMetrics(event) {
         event.preventDefault();
-        
         const formData = new FormData(event.target);
         const captionId = formData.get('caption_id');
-        
         const data = {
             likes: parseInt(formData.get('likes')) || 0,
             comments: parseInt(formData.get('comments')) || 0,
@@ -940,7 +943,6 @@
             user_notes: formData.get('user_notes'),
             marked_as_successful: formData.get('marked_as_successful') === 'on'
         };
-        
         fetch(`/analytics/${captionId}`, {
             method: 'PUT',
             headers: {
@@ -952,197 +954,101 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('✓ Metrics updated successfully!\nEngagement Rate: ' + data.engagement_rate + '%');
+                showNotification('Metrics berhasil disimpan! Engagement Rate: ' + data.engagement_rate + '%', 'success');
                 closeEditModal();
                 location.reload();
             } else {
-                alert('Failed to update: ' + (data.message || 'Unknown error'));
+                showNotification(data.message || 'Gagal menyimpan metrics.', 'error');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to save metrics');
-        });
+        .catch(() => showNotification('Gagal menyimpan metrics.', 'error'));
     }
 
-    // 📊 Enhanced Analytics Functions
     function refreshAnalytics() {
-        // Show loading state
         const refreshBtn = document.querySelector('button[onclick="refreshAnalytics()"]');
-        const originalText = refreshBtn.innerHTML;
         refreshBtn.innerHTML = '⏳ Loading...';
         refreshBtn.disabled = true;
-
-        // Simulate API call to refresh analytics data
-        setTimeout(() => {
-            // In real implementation, this would fetch fresh data from server
-            location.reload();
-        }, 1500);
+        setTimeout(() => location.reload(), 1000);
     }
 
     function toggleAnalyticsView() {
-        // Toggle between different analytics views
-        const sections = document.querySelectorAll('.analytics-section');
-        sections.forEach(section => {
-            section.classList.toggle('hidden');
-        });
+        document.querySelectorAll('.analytics-section').forEach(s => s.classList.toggle('hidden'));
     }
 
-    // ⏰ Initialize Time Heatmap
     function initializeTimeHeatmap() {
         const heatmapContainer = document.getElementById('timeHeatmap');
         if (!heatmapContainer) return;
-
-        // Sample data for time heatmap (in real app, this would come from analytics)
         const heatmapData = [
-            [2, 1, 1, 2, 3, 4, 2], // Monday to Sunday
-            [1, 2, 3, 4, 5, 3, 1], // Different time slots
+            [2, 1, 1, 2, 3, 4, 2],
+            [1, 2, 3, 4, 5, 3, 1],
             [3, 4, 5, 4, 3, 2, 1],
             [2, 3, 4, 5, 4, 3, 2]
         ];
-
-        let heatmapHTML = '';
-        for (let i = 0; i < 4; i++) { // 4 time periods
-            for (let j = 0; j < 7; j++) { // 7 days
-                const intensity = heatmapData[i][j];
-                const color = getHeatmapColor(intensity);
-                heatmapHTML += `<div class="w-8 h-6 rounded ${color} flex items-center justify-center text-xs text-white font-medium" title="Day ${j+1}, Period ${i+1}: ${intensity}/5">${intensity}</div>`;
+        const colors = ['bg-gray-200','bg-blue-200','bg-blue-400','bg-blue-600','bg-blue-800','bg-blue-900'];
+        let html = '';
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 7; j++) {
+                const v = heatmapData[i][j];
+                html += `<div class="w-8 h-6 rounded ${colors[v]} flex items-center justify-center text-xs text-white font-medium">${v}</div>`;
             }
         }
-        heatmapContainer.innerHTML = heatmapHTML;
+        heatmapContainer.innerHTML = html;
     }
 
-    function getHeatmapColor(intensity) {
-        const colors = [
-            'bg-gray-200',
-            'bg-blue-200',
-            'bg-blue-400',
-            'bg-blue-600',
-            'bg-blue-800',
-            'bg-blue-900'
-        ];
-        return colors[intensity] || colors[0];
-    }
-
-    // 💰 ROI Calculator Functions
     function calculateROI() {
         const salesAmount = parseFloat(document.getElementById('salesAmount').value) || 0;
         const marketingCost = parseFloat(document.getElementById('marketingCost').value) || 0;
-
         if (salesAmount <= 0 || marketingCost <= 0) {
-            alert('Please enter valid sales amount and marketing cost');
+            showNotification('Masukkan nilai penjualan dan biaya marketing yang valid.', 'error');
             return;
         }
-
         const netProfit = salesAmount - marketingCost;
         const roiPercentage = ((netProfit / marketingCost) * 100).toFixed(1);
         const profitMarginPercentage = ((netProfit / salesAmount) * 100).toFixed(1);
-
-        // Update UI
         document.getElementById('roiPercentage').textContent = roiPercentage + '%';
-        document.getElementById('netProfit').textContent = formatRupiah(netProfit);
+        document.getElementById('netProfit').textContent = 'Rp ' + netProfit.toLocaleString('id-ID');
         document.getElementById('profitMargin').textContent = profitMarginPercentage + '%';
-
-        // Show results
         document.getElementById('roiResults').classList.remove('hidden');
-
-        // Update ROI color based on performance
-        const roiElement = document.getElementById('roiPercentage');
-        roiElement.className = 'text-3xl font-bold';
-        if (roiPercentage >= 300) {
-            roiElement.classList.add('text-green-600');
-        } else if (roiPercentage >= 100) {
-            roiElement.classList.add('text-blue-600');
-        } else {
-            roiElement.classList.add('text-red-600');
-        }
-
-        // Generate top ROI captions (sample data)
-        generateTopROICaptions(roiPercentage);
-    }
-
-    function generateTopROICaptions(currentROI) {
+        const roiEl = document.getElementById('roiPercentage');
+        roiEl.className = 'text-3xl font-bold ' + (roiPercentage >= 300 ? 'text-green-600' : roiPercentage >= 100 ? 'text-blue-600' : 'text-red-600');
         const topROIContainer = document.getElementById('topROICaptions');
-        const sampleCaptions = [
+        const samples = [
             { text: '🔥 Flash Sale 50% OFF! Limited time only...', roi: 450 },
             { text: '✨ New product launch with exclusive discount...', roi: 320 },
             { text: '💎 Premium quality at affordable price...', roi: 280 }
         ];
-
-        let html = '';
-        sampleCaptions.forEach(caption => {
-            const roiColor = caption.roi >= 300 ? 'text-green-600' : caption.roi >= 100 ? 'text-blue-600' : 'text-red-600';
-            html += `
-                <div class="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
-                    <span class="flex-1 truncate">${caption.text}</span>
-                    <span class="font-bold ${roiColor} ml-2">${caption.roi}%</span>
-                </div>
-            `;
-        });
-        topROIContainer.innerHTML = html;
+        topROIContainer.innerHTML = samples.map(c => {
+            const color = c.roi >= 300 ? 'text-green-600' : c.roi >= 100 ? 'text-blue-600' : 'text-red-600';
+            return `<div class="flex justify-between items-center p-2 bg-gray-50 rounded text-sm"><span class="flex-1 truncate">${c.text}</span><span class="font-bold ${color} ml-2">${c.roi}%</span></div>`;
+        }).join('');
     }
 
-    // 🥊 Competitor Comparison Functions
     function loadCompetitorData() {
         const competitorId = document.getElementById('competitorSelect').value;
-        
         if (!competitorId) {
             document.getElementById('competitorComparison').classList.add('hidden');
             document.getElementById('noCompetitorSelected').classList.remove('hidden');
             return;
         }
-
-        // Show loading state
         document.getElementById('noCompetitorSelected').classList.add('hidden');
         document.getElementById('competitorComparison').classList.remove('hidden');
-
-        // In real implementation, this would fetch competitor data from API
-        // For now, we'll use sample data
         updateCompetitorComparison({
-            engagement_rate: 3.8,
-            avg_reach: 3200,
-            posting_frequency: 7,
-            advantages: [
-                'Higher engagement rate (+1.4%)',
-                'Better content quality score',
-                'More consistent posting schedule'
-            ],
-            improvements: [
-                'Increase posting frequency',
-                'Improve reach optimization',
-                'Use trending hashtags more effectively'
-            ]
+            engagement_rate: 3.8, avg_reach: 3200, posting_frequency: 7,
+            advantages: ['Higher engagement rate (+1.4%)', 'Better content quality score', 'More consistent posting schedule'],
+            improvements: ['Increase posting frequency', 'Improve reach optimization', 'Use trending hashtags more effectively']
         });
     }
 
-    function updateCompetitorComparison(competitorData) {
-        // Update comparison metrics
-        document.getElementById('competitorEngagement').textContent = competitorData.engagement_rate + '%';
-        document.getElementById('competitorReach').textContent = (competitorData.avg_reach / 1000).toFixed(1) + 'K';
-        document.getElementById('competitorFrequency').textContent = competitorData.posting_frequency + '/week';
-
-        // Update advantages
-        const advantagesContainer = document.getElementById('myAdvantages');
-        advantagesContainer.innerHTML = competitorData.advantages.map(adv => `<div>• ${adv}</div>`).join('');
-
-        // Update improvement areas
-        const improvementsContainer = document.getElementById('improvementAreas');
-        improvementsContainer.innerHTML = competitorData.improvements.map(imp => `<div>• ${imp}</div>`).join('');
+    function updateCompetitorComparison(data) {
+        document.getElementById('competitorEngagement').textContent = data.engagement_rate + '%';
+        document.getElementById('competitorReach').textContent = (data.avg_reach / 1000).toFixed(1) + 'K';
+        document.getElementById('competitorFrequency').textContent = data.posting_frequency + '/week';
+        document.getElementById('myAdvantages').innerHTML = data.advantages.map(a => `<div>• ${a}</div>`).join('');
+        document.getElementById('improvementAreas').innerHTML = data.improvements.map(i => `<div>• ${i}</div>`).join('');
     }
 
-    // 🔧 Utility Functions
-    function formatRupiah(number) {
-        return 'Rp ' + number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-
-    // Initialize enhanced analytics on page load
     document.addEventListener('DOMContentLoaded', function() {
         initializeTimeHeatmap();
-        
-        // Auto-refresh analytics every 5 minutes
-        setInterval(() => {
-            // Silent refresh placeholder - update data without page reload
-        }, 300000); // 5 minutes
     });
 </script>
 @endsection

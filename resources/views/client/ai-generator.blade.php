@@ -266,6 +266,21 @@
                     class="px-4 py-2 rounded-md text-sm font-medium transition">
                 🧲 Lead Magnet
             </button>
+            <button @click="generatorType = 'financial'" 
+                    :class="generatorType === 'financial' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📊 Analisis Keuangan
+            </button>
+            <button @click="generatorType = 'ebook'"
+                    :class="generatorType === 'ebook' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📚 Analisis Ebook
+            </button>
+            <button @click="generatorType = 'reader_trend'"
+                    :class="generatorType === 'reader_trend' ? 'bg-white shadow-sm' : 'text-gray-600'"
+                    class="px-4 py-2 rounded-md text-sm font-medium transition">
+                📖 Tren Pembaca
+            </button>
         </div>
     </div>
 
@@ -624,8 +639,8 @@
                                 <span class="ml-3">
                                     <span class="text-sm font-medium text-gray-900">🔥 Generate Multiple Captions (Premium)</span>
                                     <span class="block text-xs text-gray-600 mt-1">
-                                        Default: 1 caption terbaik (GRATIS)<br>
-                                        Centang untuk pilih jumlah caption (berbayar)
+                                        Default: 1 caption terbaik<br>
+                                        Centang untuk generate lebih banyak variasi (pakai kuota lebih)
                                     </span>
                                 </span>
                             </label>
@@ -639,7 +654,7 @@
                                 <input type="radio" x-model="form.variation_count" value="5" name="variation_count" class="w-4 h-4 text-blue-600">
                                 <span class="ml-3 flex-1">
                                     <span class="text-sm font-medium text-gray-900">5 Captions</span>
-                                    <span class="block text-xs text-gray-600">Rp 5,000 - Perfect untuk pilihan cepat</span>
+                                    <span class="block text-xs text-gray-600">Pakai 2 kuota — pilihan cepat</span>
                                 </span>
                             </label>
                             
@@ -647,7 +662,7 @@
                                 <input type="radio" x-model="form.variation_count" value="10" name="variation_count" class="w-4 h-4 text-blue-600">
                                 <span class="ml-3 flex-1">
                                     <span class="text-sm font-medium text-gray-900">10 Captions</span>
-                                    <span class="block text-xs text-gray-600">Rp 9,000 - Hemat 10% untuk lebih banyak pilihan</span>
+                                    <span class="block text-xs text-gray-600">Pakai 3 kuota — lebih banyak pilihan</span>
                                 </span>
                             </label>
                             
@@ -655,7 +670,7 @@
                                 <input type="radio" x-model="form.variation_count" value="15" name="variation_count" class="w-4 h-4 text-blue-600">
                                 <span class="ml-3 flex-1">
                                     <span class="text-sm font-medium text-gray-900">15 Captions</span>
-                                    <span class="block text-xs text-gray-600">Rp 12,000 - Hemat 20% untuk A/B testing</span>
+                                    <span class="block text-xs text-gray-600">Pakai 4 kuota — cocok untuk A/B testing</span>
                                 </span>
                             </label>
                             
@@ -663,7 +678,7 @@
                                 <input type="radio" x-model="form.variation_count" value="20" name="variation_count" class="w-4 h-4 text-blue-600">
                                 <span class="ml-3 flex-1">
                                     <span class="text-sm font-medium text-gray-900">20 Captions</span>
-                                    <span class="block text-xs text-gray-600">Rp 15,000 - Hemat 25% untuk campaign besar</span>
+                                    <span class="block text-xs text-gray-600">Pakai 5 kuota — untuk campaign besar</span>
                                 </span>
                             </label>
                         </div>
@@ -2678,6 +2693,15 @@
         {{-- 🧲 AI Lead Magnet Creator --}}
         @include('client.partials.lead-magnet')
 
+        {{-- 📊 Analisis Keuangan & Saham --}}
+        @include('client.partials.financial-analysis')
+
+        {{-- 📚 Analisis Ebook --}}
+        @include('client.partials.ebook-analysis')
+
+        {{-- 📖 Tren Pembaca --}}
+        @include('client.partials.reader-trend')
+
         <!-- 🤖 ML Upgrade Modal & Features -->
         @include('client.partials.ml-upgrade-modal')
     </div>
@@ -2965,6 +2989,30 @@
             magnetError: null,
             magnetCopied: false,
             magnetWACopied: false,
+
+            // 📊 Financial Analysis state
+            financialForm: { analysis_type: 'stock_chart', context: '' },
+            financialImages: [],
+            financialDocs: [],
+            financialLoading: false,
+            financialResult: null,
+            financialError: null,
+            financialCopied: false,
+
+            // ── Ebook Analysis ──────────────────────────────────────────────
+            ebookForm: { analysis_type: 'full', context: '' },
+            ebookDocs: [],
+            ebookLoading: false,
+            ebookResult: null,
+            ebookError: null,
+            ebookCopied: false,
+
+            // ── Reader Trend Analysis ───────────────────────────────────────
+            readerTrendForm: { genre: '', platform: '' , context: '' },
+            readerTrendLoading: false,
+            readerTrendResult: null,
+            readerTrendError: null,
+            readerTrendCopied: false,
             repurposeOptions: [
                 {value: 'instagram_story', label: '📱 Instagram Story', description: 'Short, visual, engaging'},
                 {value: 'tiktok_script', label: '🎵 TikTok Video Script', description: 'Hook + content + CTA'},
@@ -6499,6 +6547,168 @@ ${trend.hashtags?.join(' ') || ''}`
                 copyToClipboard(link).then(() => {
                     this.magnetWACopied = true;
                     setTimeout(() => { this.magnetWACopied = false; }, 2000);
+                });
+            },
+
+            // ─── Financial Analysis ──────────────────────────────────────────
+            async analyzeFinancial() {
+                if (this.financialImages.length === 0 && this.financialDocs.length === 0) {
+                    this.showNotification('❌ Upload minimal satu file (chart atau PDF)', 'error');
+                    return;
+                }
+                this.financialLoading = true;
+                this.financialResult = null;
+                this.financialError = null;
+
+                const formData = new FormData();
+                formData.append('analysis_type', this.financialForm.analysis_type);
+                formData.append('context', this.financialForm.context);
+                this.financialImages.forEach((f, i) => formData.append(`images[${i}]`, f));
+                this.financialDocs.forEach((f, i) => formData.append(`documents[${i}]`, f));
+
+                try {
+                    const response = await fetch('/api/ai/analyze-financial', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: formData,
+                    });
+                    const data = await response.json();
+                    if (handleFeatureLocked(data)) return;
+                    if (data.success) {
+                        this.financialResult = data.analysis;
+                        if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining;
+                        this.showNotification('✅ Analisis selesai!', 'success');
+                    } else {
+                        this.financialError = data.message || 'Terjadi kesalahan';
+                        this.showNotification('❌ ' + this.financialError, 'error');
+                    }
+                } catch (e) {
+                    this.financialError = 'Terjadi kesalahan jaringan';
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
+                } finally {
+                    this.financialLoading = false;
+                }
+            },
+
+            financialAddImages(event) {
+                const files = Array.from(event.target.files);
+                this.financialImages = [...this.financialImages, ...files].slice(0, 5);
+            },
+
+            financialAddDocs(event) {
+                const files = Array.from(event.target.files);
+                this.financialDocs = [...this.financialDocs, ...files].slice(0, 5);
+            },
+
+            financialRemoveImage(idx) { this.financialImages.splice(idx, 1); },
+            financialRemoveDoc(idx)   { this.financialDocs.splice(idx, 1); },
+
+            financialCopyResult() {
+                copyToClipboard(this.financialResult || '').then(() => {
+                    this.financialCopied = true;
+                    setTimeout(() => { this.financialCopied = false; }, 2000);
+                });
+            },
+
+            // ── Ebook Analysis ──────────────────────────────────────────────
+            ebookAddDocs(event) {
+                const files = Array.from(event.target.files);
+                this.ebookDocs = [...this.ebookDocs, ...files].slice(0, 3);
+            },
+            ebookRemoveDoc(idx) { this.ebookDocs.splice(idx, 1); },
+
+            async analyzeEbook() {
+                if (this.ebookDocs.length === 0) {
+                    this.showNotification('⚠️ Upload minimal satu file PDF', 'error');
+                    return;
+                }
+                this.ebookLoading = true;
+                this.ebookResult = null;
+                this.ebookError = null;
+
+                const formData = new FormData();
+                formData.append('analysis_type', this.ebookForm.analysis_type);
+                formData.append('context', this.ebookForm.context || '');
+                this.ebookDocs.forEach(f => formData.append('documents[]', f));
+
+                try {
+                    const resp = await fetch('/api/ai/analyze-ebook', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: formData,
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) {
+                        if (handleFeatureLocked(data)) return;
+                        this.ebookError = data.message || 'Terjadi kesalahan';
+                        this.showNotification('❌ ' + this.ebookError, 'error');
+                    } else if (data.success) {
+                        this.ebookResult = data.analysis;
+                        if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining;
+                        this.showNotification('✅ Analisis ebook selesai!', 'success');
+                    } else {
+                        this.ebookError = data.message || 'Terjadi kesalahan';
+                        this.showNotification('❌ ' + this.ebookError, 'error');
+                    }
+                } catch (e) {
+                    this.ebookError = 'Terjadi kesalahan jaringan';
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
+                } finally {
+                    this.ebookLoading = false;
+                }
+            },
+
+            ebookCopyResult() {
+                copyToClipboard(this.ebookResult || '').then(() => {
+                    this.ebookCopied = true;
+                    setTimeout(() => { this.ebookCopied = false; }, 2000);
+                });
+            },
+
+            // ── Reader Trend Analysis ───────────────────────────────────────
+            async analyzeReaderTrend() {
+                this.readerTrendLoading = true;
+                this.readerTrendResult = null;
+                this.readerTrendError = null;
+
+                try {
+                    const resp = await fetch('/api/ai/analyze-reader-trend', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                        body: JSON.stringify({
+                            genre: this.readerTrendForm.genre,
+                            platform: this.readerTrendForm.platform,
+                            context: this.readerTrendForm.context,
+                        }),
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) {
+                        if (handleFeatureLocked(data)) return;
+                        this.readerTrendError = data.message || 'Terjadi kesalahan';
+                        this.showNotification('❌ ' + this.readerTrendError, 'error');
+                    } else if (data.success) {
+                        this.readerTrendResult = data.analysis;
+                        if (data.quota_remaining !== undefined) this.quotaRemaining = data.quota_remaining;
+                        this.showNotification('✅ Analisis tren selesai!', 'success');
+                    } else {
+                        this.readerTrendError = data.message || 'Terjadi kesalahan';
+                        this.showNotification('❌ ' + this.readerTrendError, 'error');
+                    }
+                } catch (e) {
+                    this.readerTrendError = 'Terjadi kesalahan jaringan';
+                    this.showNotification('❌ Terjadi kesalahan jaringan', 'error');
+                } finally {
+                    this.readerTrendLoading = false;
+                }
+            },
+
+            readerTrendCopyResult() {
+                copyToClipboard(this.readerTrendResult || '').then(() => {
+                    this.readerTrendCopied = true;
+                    setTimeout(() => { this.readerTrendCopied = false; }, 2000);
                 });
             },
         }

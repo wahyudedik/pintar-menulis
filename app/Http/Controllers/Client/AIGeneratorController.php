@@ -2191,7 +2191,181 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
         return $sub->remaining_quota;
     }
 
-    /** 3. SEO Metadata */
+    /**
+     * 📊 Analyze financial documents & stock charts
+     */
+    public function analyzeFinancial(Request $request)
+    {
+        set_time_limit(180);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+
+        $request->validate([
+            'analysis_type' => 'required|in:stock_chart,financial_report,combined',
+            'context'       => 'nullable|string|max:1000',
+            'images.*'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'documents.*'   => 'nullable|file|mimes:pdf|max:20480', // 20MB per PDF
+        ]);
+
+        try {
+            $images    = [];
+            $documents = [];
+
+            // Process uploaded images (stock charts)
+            foreach ($request->file('images', []) as $img) {
+                $images[] = [
+                    'mime_type' => $img->getMimeType(),
+                    'data'      => base64_encode(file_get_contents($img->getRealPath())),
+                ];
+            }
+
+            // Process uploaded PDFs (financial reports)
+            foreach ($request->file('documents', []) as $doc) {
+                $documents[] = [
+                    'data' => base64_encode(file_get_contents($doc->getRealPath())),
+                ];
+            }
+
+            if (empty($images) && empty($documents)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Upload minimal satu file (gambar chart atau dokumen PDF).',
+                ], 422);
+            }
+
+            $result = $this->geminiService->analyzeFinancial([
+                'analysis_type' => $request->analysis_type,
+                'context'       => $request->context ?? '',
+                'images'        => $images,
+                'documents'     => $documents,
+            ]);
+
+            $quota = $this->_consume();
+
+            // Save to history
+            \App\Models\CaptionHistory::recordCaption(
+                auth()->id(),
+                $result['analysis'],
+                [
+                    'brief'    => 'Financial Analysis: ' . $request->analysis_type,
+                    'category' => 'financial-analysis',
+                    'platform' => 'analysis',
+                    'tone'     => 'analytical',
+                ]
+            );
+
+            return response()->json([
+                'success'         => true,
+                'analysis'        => $result['analysis'],
+                'analysis_type'   => $result['analysis_type'],
+                'generation_time' => $result['generation_time'],
+                'quota_remaining' => $quota,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Financial Analysis Failed', [
+                'error'   => $e->getMessage(),
+                'user_id' => auth()->id(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menganalisis: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * 📚 Analyze ebook (PDF upload)
+     */
+    public function analyzeEbook(Request $request)
+    {
+        set_time_limit(180);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+
+        $request->validate([
+            'analysis_type' => 'required|in:full,summary,quality,audience',
+            'context'       => 'nullable|string|max:1000',
+            'documents.*'   => 'required|file|mimes:pdf|max:20480',
+        ]);
+
+        try {
+            $documents = [];
+            foreach ($request->file('documents', []) as $doc) {
+                $documents[] = ['data' => base64_encode(file_get_contents($doc->getRealPath()))];
+            }
+
+            if (empty($documents)) {
+                return response()->json(['success' => false, 'message' => 'Upload minimal satu file PDF.'], 422);
+            }
+
+            $result = $this->geminiService->analyzeEbook([
+                'analysis_type' => $request->analysis_type,
+                'context'       => $request->context ?? '',
+                'documents'     => $documents,
+            ]);
+
+            $quota = $this->_consume();
+
+            \App\Models\CaptionHistory::recordCaption(
+                auth()->id(),
+                $result['analysis'],
+                ['brief' => 'Ebook Analysis: ' . $request->analysis_type, 'category' => 'ebook-analysis', 'platform' => 'analysis', 'tone' => 'analytical']
+            );
+
+            return response()->json([
+                'success'         => true,
+                'analysis'        => $result['analysis'],
+                'analysis_type'   => $result['analysis_type'],
+                'generation_time' => $result['generation_time'],
+                'quota_remaining' => $quota,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Ebook Analysis Failed', ['error' => $e->getMessage(), 'user_id' => auth()->id()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menganalisis ebook: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * 📖 Analyze reader trends
+     */
+    public function analyzeReaderTrend(Request $request)
+    {
+        set_time_limit(120);
+        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+
+        $request->validate([
+            'genre'    => 'nullable|string|max:200',
+            'platform' => 'nullable|string|max:100',
+            'context'  => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $result = $this->geminiService->analyzeReaderTrend([
+                'genre'    => $request->genre ?? '',
+                'platform' => $request->platform ?? '',
+                'context'  => $request->context ?? '',
+            ]);
+
+            $quota = $this->_consume();
+
+            \App\Models\CaptionHistory::recordCaption(
+                auth()->id(),
+                $result['analysis'],
+                ['brief' => 'Reader Trend Analysis', 'category' => 'reader-trend', 'platform' => 'analysis', 'tone' => 'analytical']
+            );
+
+            return response()->json([
+                'success'         => true,
+                'analysis'        => $result['analysis'],
+                'generation_time' => $result['generation_time'],
+                'quota_remaining' => $quota,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Reader Trend Analysis Failed', ['error' => $e->getMessage(), 'user_id' => auth()->id()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menganalisis tren: ' . $e->getMessage()], 500);
+        }
+    }
     public function generateSeoMetadata(Request $request)
     {
         set_time_limit(120);

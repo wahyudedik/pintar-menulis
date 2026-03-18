@@ -77,6 +77,8 @@ Berikan analisis dalam format JSON:
         {\"keyword\": \"long tail keyword\", \"volume\": \"volume\", \"intent\": \"informational/commercial/transactional\"},
         {\"keyword\": \"long tail keyword 2\", \"volume\": \"volume\", \"intent\": \"informational/commercial/transactional\"}
     ],
+    \"cpc_low\": \"estimasi CPC minimum dalam Rupiah (angka saja)\",
+    \"cpc_high\": \"estimasi CPC maksimum dalam Rupiah (angka saja)\",
     \"content_ideas\": [\"ide konten 1\", \"ide konten 2\", \"ide konten 3\"],
     \"hashtag_suggestions\": [\"#hashtag1\", \"#hashtag2\", \"#hashtag3\"],
     \"competitor_keywords\": [\"keyword yang digunakan kompetitor\"],
@@ -169,6 +171,8 @@ Berikan data realistis untuk pasar Indonesia.";
                 'Perbandingan ' . $keyword . ' populer'
             ],
             'hashtag_suggestions' => ['#' . str_replace(' ', '', $keyword), '#' . $industry, '#indonesia'],
+            'cpc_low' => rand(500, 2000),
+            'cpc_high' => rand(2001, 8000),
             'competitor_keywords' => [$keyword . ' berkualitas', $keyword . ' original'],
             'opportunities' => ['Long-tail keywords dengan kompetisi rendah'],
             'recommendations' => ['Fokus pada long-tail keywords', 'Buat konten edukatif']
@@ -191,6 +195,8 @@ Berikan data realistis untuk pasar Indonesia.";
             'long_tail_keywords' => is_array($data['long_tail_keywords']) ? $data['long_tail_keywords'] : [],
             'content_ideas' => is_array($data['content_ideas']) ? $data['content_ideas'] : [],
             'hashtag_suggestions' => is_array($data['hashtag_suggestions']) ? $data['hashtag_suggestions'] : [],
+            'cpc_low' => is_numeric($data['cpc_low'] ?? null) ? (int)$data['cpc_low'] : rand(500, 2000),
+            'cpc_high' => is_numeric($data['cpc_high'] ?? null) ? (int)$data['cpc_high'] : rand(2001, 8000),
             'competitor_keywords' => is_array($data['competitor_keywords']) ? $data['competitor_keywords'] : [],
             'opportunities' => is_array($data['opportunities']) ? $data['opportunities'] : [],
             'recommendations' => is_array($data['recommendations']) ? $data['recommendations'] : []

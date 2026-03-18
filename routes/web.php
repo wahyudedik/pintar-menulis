@@ -394,6 +394,9 @@ Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
     // ── Fitur dikontrol per paket ─────────────────────────────────────────────
     Route::post('/ai/generate-image-caption',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->middleware('feature:image_caption')->name('api.ai.generate-image-caption');
     Route::post('/ai/analyze-image',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeImage'])->middleware('feature:image_analysis')->name('api.ai.analyze-image');
+    Route::post('/ai/analyze-financial',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeFinancial'])->middleware('feature:financial_analysis')->name('api.ai.analyze-financial');
+    Route::post('/ai/analyze-ebook',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeEbook'])->middleware('feature:ebook_analysis')->name('api.ai.analyze-ebook');
+    Route::post('/ai/analyze-reader-trend',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeReaderTrend'])->middleware('feature:reader_trend')->name('api.ai.analyze-reader-trend');
     Route::post('/ai/generate-video-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateVideoContent'])->middleware('feature:video_content')->name('api.ai.generate-video-content');
     Route::post('/ai/predict-performance',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'predictPerformance'])->middleware('feature:performance_predictor')->name('api.ai.predict-performance');
     Route::post('/ai/generate-ab-variants',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateABVariants'])->middleware('feature:ab_testing')->name('api.ai.generate-ab-variants');

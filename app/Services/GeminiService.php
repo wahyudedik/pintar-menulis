@@ -1622,6 +1622,327 @@ class GeminiService
         $this->fallbackManager->resetUsageStats();
     }
 
+        /**
+         * 📊 Analyze financial documents & stock charts
+         * Supports: images (charts), PDFs (financial reports), multiple docs
+         */
+        public function analyzeFinancial(array $params): array
+        {
+            $startTime = microtime(true);
+
+            $analysisType = $params['analysis_type'] ?? 'general'; // stock_chart | financial_report | combined
+            $context      = $params['context'] ?? '';
+            $parts        = [];
+
+            // Build prompt
+            $prompt = $this->buildFinancialPrompt($analysisType, $context);
+            $parts[] = ['text' => $prompt];
+
+            // Attach images (stock charts)
+            foreach ($params['images'] ?? [] as $img) {
+                $parts[] = [
+                    'inline_data' => [
+                        'mime_type' => $img['mime_type'],
+                        'data'      => $img['data'],
+                    ],
+                ];
+            }
+
+            // Attach PDF documents
+            foreach ($params['documents'] ?? [] as $doc) {
+                $parts[] = [
+                    'inline_data' => [
+                        'mime_type' => 'application/pdf',
+                        'data'      => $doc['data'],
+                    ],
+                ];
+            }
+
+            $requestData = [
+                'contents' => [['role' => 'user', 'parts' => $parts]],
+                'generationConfig' => [
+                    'temperature'     => 0.3,
+                    'maxOutputTokens' => 4096,
+                    'topP'            => 0.8,
+                ],
+            ];
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(180)
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($this->apiUrl . '?key=' . $this->apiKey, $requestData);
+
+                if (!$response->successful()) {
+                    $err = $response->json()['error']['message'] ?? 'Unknown error';
+                    throw new \Exception('AI service error: ' . $err);
+                }
+
+                $data = $response->json();
+                $text = $data['candidates'][0]['content']['parts'][0]['text']
+                    ?? throw new \Exception('Tidak ada hasil analisis dari AI.');
+
+                $generationTime = round(microtime(true) - $startTime, 2);
+
+                return [
+                    'success'         => true,
+                    'analysis'        => $this->formatFinancialAnalysis($text, $analysisType),
+                    'raw'             => $text,
+                    'analysis_type'   => $analysisType,
+                    'generation_time' => $generationTime,
+                    'model_used'      => $this->currentModel,
+                ];
+
+            } catch (\Exception $e) {
+                Log::error('Financial analysis failed', ['error' => $e->getMessage()]);
+                throw $e;
+            }
+        }
+
+        private function buildFinancialPrompt(string $type, string $context): string
+        {
+            $contextSection = $context ? "\nKONTEKS TAMBAHAN:\n{$context}\n" : '';
+
+            if ($type === 'stock_chart') {
+                return <<<PROMPT
+    Kamu adalah analis teknikal saham profesional. Analisis chart saham yang diberikan secara mendalam.
+
+    {$contextSection}
+
+    Berikan analisis komprehensif mencakup:
+
+    ## 📈 ANALISIS TEKNIKAL
+    - Tren utama (uptrend/downtrend/sideways) dan kekuatannya
+    - Support dan resistance level yang teridentifikasi
+    - Pola chart yang terlihat (head & shoulders, double top/bottom, triangle, dll)
+    - Volume analisis (jika terlihat)
+
+    ## 📊 INDIKATOR TEKNIKAL
+    - Moving averages yang terlihat (MA20, MA50, MA200)
+    - Momentum dan kondisi overbought/oversold
+    - Divergence yang teridentifikasi
+
+    ## 🎯 SINYAL TRADING
+    - Sinyal beli/jual berdasarkan analisis teknikal
+    - Entry point yang potensial
+    - Stop loss yang disarankan
+    - Target harga (price target)
+
+    ## ⚠️ RISIKO & CATATAN
+    - Risiko utama yang perlu diperhatikan
+    - Faktor yang bisa membatalkan analisis ini
+
+    ## 📝 KESIMPULAN
+    Ringkasan singkat dan rekomendasi aksi (Buy/Hold/Sell/Wait)
+
+    ---
+    ⚠️ *Disclaimer: Analisis ini hanya untuk tujuan edukasi dan bukan merupakan saran investasi. Selalu lakukan riset mandiri sebelum berinvestasi.*
+    PROMPT;
+            }
+
+            if ($type === 'financial_report') {
+                return <<<PROMPT
+    Kamu adalah analis keuangan profesional. Analisis dokumen keuangan yang diberikan secara mendalam.
+
+    {$contextSection}
+
+    Berikan analisis komprehensif mencakup:
+
+    ## 💰 RINGKASAN KEUANGAN
+    - Pendapatan/Revenue dan pertumbuhannya
+    - Laba bersih (Net Income) dan margin
+    - EBITDA (jika tersedia)
+
+    ## 📊 RASIO KEUANGAN UTAMA
+    - Profitabilitas: ROE, ROA, Net Margin, Gross Margin
+    - Likuiditas: Current Ratio, Quick Ratio
+    - Solvabilitas: Debt-to-Equity, Interest Coverage
+    - Valuasi: P/E, P/B (jika data tersedia)
+
+    ## 📈 ANALISIS TREN
+    - Pertumbuhan YoY (Year-over-Year)
+    - Tren pendapatan dan profitabilitas
+    - Perubahan signifikan dibanding periode sebelumnya
+
+    ## 💪 KEKUATAN & KELEMAHAN
+    - Kekuatan finansial utama perusahaan
+    - Area yang perlu perhatian atau perbaikan
+    - Red flags yang teridentifikasi
+
+    ## 🔮 OUTLOOK
+    - Prospek keuangan berdasarkan data yang ada
+    - Faktor risiko utama
+    - Potensi pertumbuhan
+
+    ## 📝 KESIMPULAN
+    Penilaian keseluruhan kondisi keuangan (Sangat Baik/Baik/Cukup/Perlu Perhatian)
+
+    ---
+    ⚠️ *Disclaimer: Analisis ini hanya untuk tujuan edukasi dan bukan merupakan saran investasi.*
+    PROMPT;
+            }
+
+            // combined
+            return <<<PROMPT
+    Kamu adalah analis investasi profesional. Analisis semua data yang diberikan (chart saham dan/atau dokumen keuangan) secara komprehensif dan terintegrasi.
+
+    {$contextSection}
+
+    Berikan analisis lengkap mencakup aspek teknikal (dari chart) dan fundamental (dari laporan keuangan), serta kesimpulan investasi yang terintegrasi.
+
+    Sertakan:
+    - Analisis teknikal chart (tren, support/resistance, sinyal)
+    - Analisis fundamental (keuangan, rasio, pertumbuhan)
+    - Kesesuaian antara kondisi teknikal dan fundamental
+    - Rekomendasi investasi berdasarkan kedua analisis
+
+    ---
+    ⚠️ *Disclaimer: Analisis ini hanya untuk tujuan edukasi dan bukan merupakan saran investasi.*
+    PROMPT;
+        }
+
+        private function formatFinancialAnalysis(string $raw, string $type): string
+        {
+            $typeLabel = match($type) {
+                'stock_chart'      => '📈 Analisis Chart Saham',
+                'financial_report' => '📄 Analisis Laporan Keuangan',
+                default            => '📊 Analisis Keuangan Terintegrasi',
+            };
+
+            $header  = "## {$typeLabel}\n";
+            $header .= "📅 " . now()->format('d M Y, H:i') . " WIB\n\n";
+
+            return $header . $raw;
+        }
+
+        // ── Ebook Analysis ────────────────────────────────────────────────────
+        public function analyzeEbook(array $params): array
+        {
+            $startTime   = microtime(true);
+            $analysisType = $params['analysis_type'] ?? 'full'; // full | summary | quality | audience
+            $context      = $params['context'] ?? '';
+            $parts        = [];
+
+            $prompt = $this->buildEbookPrompt($analysisType, $context);
+            $parts[] = ['text' => $prompt];
+
+            foreach ($params['documents'] ?? [] as $doc) {
+                $parts[] = [
+                    'inline_data' => [
+                        'mime_type' => 'application/pdf',
+                        'data'      => $doc['data'],
+                    ],
+                ];
+            }
+
+            $requestData = [
+                'contents'         => [['role' => 'user', 'parts' => $parts]],
+                'generationConfig' => [
+                    'temperature'     => 0.4,
+                    'maxOutputTokens' => 4096,
+                    'topP'            => 0.85,
+                ],
+            ];
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(180)
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($this->apiUrl . '?key=' . $this->apiKey, $requestData);
+
+                if (!$response->successful()) {
+                    $err = $response->json()['error']['message'] ?? 'Unknown error';
+                    throw new \Exception('AI service error: ' . $err);
+                }
+
+                $data = $response->json();
+                $text = $data['candidates'][0]['content']['parts'][0]['text']
+                    ?? throw new \Exception('Tidak ada hasil analisis dari AI.');
+
+                return [
+                    'success'         => true,
+                    'analysis'        => "## 📚 Analisis Ebook\n📅 " . now()->format('d M Y, H:i') . " WIB\n\n" . $text,
+                    'analysis_type'   => $analysisType,
+                    'generation_time' => round(microtime(true) - $startTime, 2),
+                    'model_used'      => $this->currentModel,
+                ];
+            } catch (\Exception $e) {
+                Log::error('Ebook analysis failed', ['error' => $e->getMessage()]);
+                throw $e;
+            }
+        }
+
+        private function buildEbookPrompt(string $type, string $context): string
+        {
+            $contextSection = $context ? "\nKONTEKS TAMBAHAN:\n{$context}\n" : '';
+            $base = "Kamu adalah analis konten dan editor buku profesional. Analisis ebook/dokumen yang diunggah dengan cermat.{$contextSection}\n\n";
+
+            return match($type) {
+                'summary' => $base . "Buat RINGKASAN KOMPREHENSIF yang mencakup:\n1. Judul & Penulis (jika ada)\n2. Tema utama & sub-tema\n3. Poin-poin kunci per bab\n4. Kesimpulan utama\n5. Kutipan penting (maks 3)\n\nGunakan format yang rapi dan mudah dibaca.",
+
+                'quality' => $base . "Lakukan ANALISIS KUALITAS KONTEN yang mencakup:\n1. Kedalaman materi (1-10)\n2. Kejelasan penulisan (1-10)\n3. Struktur & alur (1-10)\n4. Akurasi informasi\n5. Kekuatan & kelemahan\n6. Saran perbaikan spesifik\n7. Perbandingan dengan standar industri\n\nBerikan penilaian jujur dan konstruktif.",
+
+                'audience' => $base . "Analisis KESESUAIAN TARGET PEMBACA yang mencakup:\n1. Target pembaca ideal (usia, profesi, minat)\n2. Level pengetahuan yang dibutuhkan (pemula/menengah/ahli)\n3. Manfaat utama bagi pembaca\n4. Potensi pasar & segmen\n5. Rekomendasi platform distribusi\n6. Strategi pemasaran yang cocok\n7. Harga jual yang disarankan\n\nBerikan analisis yang actionable.",
+
+                default => $base . "Lakukan ANALISIS LENGKAP ebook ini yang mencakup:\n\n**1. RINGKASAN EKSEKUTIF**\n- Judul, penulis, genre\n- Tema utama & premis\n- Poin-poin kunci\n\n**2. ANALISIS KONTEN**\n- Kedalaman & akurasi materi\n- Struktur & alur penulisan\n- Gaya bahasa & keterbacaan\n\n**3. TARGET PEMBACA**\n- Profil pembaca ideal\n- Level pengetahuan yang dibutuhkan\n- Manfaat utama\n\n**4. KUALITAS & SKOR**\n- Skor keseluruhan (1-10)\n- Kekuatan utama\n- Area yang perlu diperbaiki\n\n**5. REKOMENDASI**\n- Saran pengembangan konten\n- Strategi pemasaran\n- Potensi monetisasi\n\nBerikan analisis yang komprehensif, jujur, dan actionable.",
+            };
+        }
+
+        // ── Reader Trend Analysis ─────────────────────────────────────────────
+        public function analyzeReaderTrend(array $params): array
+        {
+            $startTime = microtime(true);
+            $genre     = $params['genre'] ?? '';
+            $platform  = $params['platform'] ?? '';
+            $context   = $params['context'] ?? '';
+
+            $prompt = "Kamu adalah analis tren pembaca dan pasar buku/konten digital di Indonesia yang berpengalaman.\n\n";
+
+            if ($genre)    $prompt .= "GENRE/KATEGORI: {$genre}\n";
+            if ($platform) $prompt .= "PLATFORM TARGET: {$platform}\n";
+            if ($context)  $prompt .= "KONTEKS TAMBAHAN: {$context}\n";
+
+            $prompt .= "\nBerikan ANALISIS TREN PEMBACA yang komprehensif mencakup:\n\n";
+            $prompt .= "**1. TREN TOPIK POPULER**\n- 10 topik yang paling diminati pembaca saat ini\n- Tren yang sedang naik vs menurun\n- Topik evergreen yang selalu relevan\n\n";
+            $prompt .= "**2. PROFIL PEMBACA MODERN**\n- Demografi pembaca aktif (usia, gender, profesi)\n- Preferensi format (ebook, audiobook, fisik)\n- Waktu & durasi membaca rata-rata\n- Platform favorit\n\n";
+            $prompt .= "**3. POLA ENGAGEMENT**\n- Faktor yang membuat pembaca bertahan\n- Elemen yang meningkatkan ulasan positif\n- Panjang konten ideal per genre\n- Gaya penulisan yang disukai\n\n";
+            $prompt .= "**4. PELUANG PASAR**\n- Niche yang belum banyak digarap\n- Genre dengan pertumbuhan tertinggi\n- Segmen pembaca yang underserved\n- Rekomendasi topik untuk konten baru\n\n";
+            $prompt .= "**5. STRATEGI KONTEN**\n- Tips menulis yang sesuai tren\n- Cara meningkatkan keterbacaan\n- Rekomendasi judul & cover yang menarik\n- Waktu terbaik untuk publish\n\nFokus pada pasar Indonesia dan berikan data/insight yang actionable.";
+
+            $requestData = [
+                'contents'         => [['role' => 'user', 'parts' => [['text' => $prompt]]]],
+                'generationConfig' => [
+                    'temperature'     => 0.6,
+                    'maxOutputTokens' => 3000,
+                    'topP'            => 0.9,
+                ],
+            ];
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(120)
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($this->apiUrl . '?key=' . $this->apiKey, $requestData);
+
+                if (!$response->successful()) {
+                    $err = $response->json()['error']['message'] ?? 'Unknown error';
+                    throw new \Exception('AI service error: ' . $err);
+                }
+
+                $data = $response->json();
+                $text = $data['candidates'][0]['content']['parts'][0]['text']
+                    ?? throw new \Exception('Tidak ada hasil analisis dari AI.');
+
+                return [
+                    'success'         => true,
+                    'analysis'        => "## 📖 Analisis Tren Pembaca\n📅 " . now()->format('d M Y, H:i') . " WIB\n\n" . $text,
+                    'generation_time' => round(microtime(true) - $startTime, 2),
+                    'model_used'      => $this->currentModel,
+                ];
+            } catch (\Exception $e) {
+                Log::error('Reader trend analysis failed', ['error' => $e->getMessage()]);
+                throw $e;
+            }
+        }
+
+
     /**
      * Generate image caption using Gemini Vision API
      */

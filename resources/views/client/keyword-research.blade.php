@@ -108,9 +108,9 @@
                         <h4 class="font-semibold text-gray-900 mb-3">🔗 Related Keywords:</h4>
                         <div class="flex flex-wrap gap-2">
                             <template x-for="(related, index) in searchResult.related_keywords" :key="index">
-                                <button @click="searchQuery = related; searchKeyword()"
+                                <button @click="searchQuery = related.keyword; searchKeyword()"
                                         class="px-3 py-1 bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 rounded-full text-sm transition"
-                                        x-text="related">
+                                        x-text="related.keyword">
                                 </button>
                             </template>
                         </div>
@@ -234,6 +234,7 @@ function keywordResearch() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({

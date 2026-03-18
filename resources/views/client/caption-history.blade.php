@@ -199,7 +199,27 @@
                         </td>
                         <td class="px-4 py-3 text-sm">
                             <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">
-                                {{ $history->category ? ucfirst(str_replace('_', ' ', $history->category)) : 'N/A' }}
+                                @php
+                                    $catLabels = [
+                                        'caption' => 'Caption',
+                                        'social_media' => 'Social Media',
+                                        'google_ads' => 'Google Ads',
+                                        'email_marketing' => 'Email Marketing',
+                                        'product_description' => 'Deskripsi Produk',
+                                        'blog_article' => 'Artikel Blog',
+                                        'video_script' => 'Script Video',
+                                        'whatsapp' => 'WhatsApp',
+                                        'seo_content' => 'Konten SEO',
+                                        'brand_voice' => 'Brand Voice',
+                                        'image_analysis' => 'Analisis Gambar',
+                                        'design_analysis' => 'Analisis Desain',
+                                        'financial_analysis' => 'Analisis Keuangan',
+                                        'ebook_analysis' => 'Analisis Ebook',
+                                        'reader_trend' => 'Tren Pembaca',
+                                        'multiple_captions' => 'Multiple Captions',
+                                    ];
+                                @endphp
+                                {{ $catLabels[$history->category] ?? ($history->category ? ucfirst(str_replace('_', ' ', $history->category)) : 'N/A') }}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm">
@@ -305,6 +325,30 @@
 </div>
 
 <script>
+    const categoryLabelMap = {
+        'caption': 'Caption',
+        'social_media': 'Social Media',
+        'google_ads': 'Google Ads',
+        'email_marketing': 'Email Marketing',
+        'product_description': 'Deskripsi Produk',
+        'blog_article': 'Artikel Blog',
+        'video_script': 'Script Video',
+        'whatsapp': 'WhatsApp',
+        'seo_content': 'Konten SEO',
+        'brand_voice': 'Brand Voice',
+        'image_analysis': 'Analisis Gambar',
+        'design_analysis': 'Analisis Desain',
+        'financial_analysis': 'Analisis Keuangan',
+        'ebook_analysis': 'Analisis Ebook',
+        'reader_trend': 'Tren Pembaca',
+        'multiple_captions': 'Multiple Captions',
+    };
+
+    function formatCategoryLabel(cat) {
+        if (!cat) return 'N/A';
+        return categoryLabelMap[cat] || cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
     function viewCaption(id) {
         fetch(`/caption-history/${id}`)
             .then(response => response.json())
@@ -315,22 +359,17 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Caption Text:</label>
-                                <div class="p-4 bg-gray-50 rounded-lg text-sm text-gray-900 whitespace-pre-wrap">
-                                    ${history.caption_text}
-                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg text-sm text-gray-900 whitespace-pre-wrap">${history.caption_text}</div>
                             </div>
-                            
                             ${history.brief_summary ? `
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Brief Summary:</label>
                                 <p class="text-sm text-gray-600">${history.brief_summary}</p>
-                            </div>
-                            ` : ''}
-                            
+                            </div>` : ''}
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Category:</label>
-                                    <p class="text-sm text-gray-900">${history.category || 'N/A'}</p>
+                                    <p class="text-sm text-gray-900">${formatCategoryLabel(history.category)}</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Subcategory:</label>
@@ -350,67 +389,53 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Last Generated:</label>
-                                    <p class="text-sm text-gray-900">${new Date(history.last_generated_at).toLocaleString()}</p>
+                                    <p class="text-sm text-gray-900">${new Date(history.last_generated_at).toLocaleString('id-ID')}</p>
                                 </div>
                             </div>
-                            
                             <div class="p-4 bg-blue-50 rounded-lg">
-                                <p class="text-sm text-blue-900">
-                                    <strong>Hash:</strong> <code class="text-xs">${history.hash}</code>
-                                </p>
-                                <p class="text-xs text-blue-700 mt-2">
-                                    Hash digunakan untuk detect caption yang mirip/sama
-                                </p>
+                                <p class="text-sm text-blue-900"><strong>Hash:</strong> <code class="text-xs">${history.hash}</code></p>
+                                <p class="text-xs text-blue-700 mt-2">Hash digunakan untuk detect caption yang mirip/sama</p>
                             </div>
                         </div>
                     `;
                     document.getElementById('viewCaptionModal').classList.remove('hidden');
+                } else {
+                    showNotification('Gagal memuat detail caption.', 'error');
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to load caption details');
-            });
+            .catch(() => showNotification('Gagal memuat detail caption.', 'error'));
     }
-    
+
     function closeViewModal() {
         document.getElementById('viewCaptionModal').classList.add('hidden');
     }
-    
+
     function deleteCaption(id) {
-        if (!confirm('Delete this caption from history? AI will no longer avoid this caption.')) {
-            return;
-        }
-        
+        if (!confirm('Hapus caption ini dari history? AI tidak akan lagi menghindari caption ini.')) return;
         fetch(`/caption-history/${id}`, {
             method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('✓ Caption deleted from history');
-                location.reload();
+                showNotification('Caption berhasil dihapus dari history.', 'success');
+                setTimeout(() => location.reload(), 800);
             } else {
-                alert('Failed to delete: ' + (data.message || 'Unknown error'));
+                showNotification(data.message || 'Gagal menghapus caption.', 'error');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to delete caption');
-        });
+        .catch(() => showNotification('Gagal menghapus caption.', 'error'));
     }
-    
+
     function showClearHistoryModal() {
         document.getElementById('clearHistoryModal').classList.remove('hidden');
     }
-    
+
     function closeClearModal() {
         document.getElementById('clearHistoryModal').classList.add('hidden');
     }
-    
+
     function confirmClearHistory() {
         fetch('/caption-history/clear-all', {
             method: 'POST',
@@ -422,16 +447,13 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('✓ ' + data.message);
-                location.reload();
+                showNotification(data.message, 'success');
+                setTimeout(() => location.reload(), 800);
             } else {
-                alert('Failed: ' + (data.message || 'Unknown error'));
+                showNotification(data.message || 'Gagal menghapus history.', 'error');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to clear history');
-        });
+        .catch(() => showNotification('Gagal menghapus history.', 'error'));
     }
 </script>
 @endsection
