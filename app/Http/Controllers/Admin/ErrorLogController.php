@@ -10,6 +10,9 @@ class ErrorLogController extends Controller
 {
     private string $logPath;
 
+    // Max bytes to read from end of file (5 MB)
+    private const MAX_READ_BYTES = 5 * 1024 * 1024;
+
     public function __construct()
     {
         $this->logPath = storage_path('logs/laravel.log');
@@ -17,21 +20,16 @@ class ErrorLogController extends Controller
 
     public function index(Request $request)
     {
-        $level    = $request->get('level', 'all');
-        $search   = $request->get('search', '');
-        $perPage  = (int) $request->get('per_page', 50);
-        $page     = (int) $request->get('page', 1);
+        $level   = $request->get('level', 'all');
+        $search  = $request->get('search', '');
+        $perPage = (int) $request->get('per_page', 50);
+        $page    = (int) $request->get('page', 1);
 
-        $entries  = $this->parseLog($level, $search);
-        $total    = count($entries);
-        $entries  = array_slice($entries, ($page - 1) * $perPage, $perPage);
+        $entries = $this->parseLog($level, $search);
+        $total   = count($entries);
+        $entries = array_slice($entries, ($page - 1) * $perPage, $perPage);
 
-        $stats = $this->getStats();
-
-        if ($request->expectsJson()) {
-            return response()->json(compact('entries', 'total', 'stats'));
-        }
-
+        $stats      = $this->getStats();
         $totalPages = (int) ceil($total / $perPage);
 
         return view('admin.error-logs.index', compact(
@@ -40,7 +38,7 @@ class ErrorLogController extends Controller
         ));
     }
 
-    public function clear(Request $request)
+    public function clear()
     {
         if (File::exists($this->logPath)) {
             File::put($this->logPath, '');
@@ -58,15 +56,40 @@ class ErrorLogController extends Controller
 
     // ─── Helpers ────────────────────────────────────────────────────────────────
 
-    private function parseLog(string $level = 'all', string $search = ''): array
+    /**
+     * Read only the tail of the log file to avoid memory exhaustion on large files.
+     */
+    private function readLogTail(): string
     {
         if (!File::exists($this->logPath)) {
-            return [];
+            return '';
         }
 
-        $content = File::get($this->logPath);
-        // Split on log entry boundaries
+        $size = File::size($this->logPath);
+        if ($size === 0) return '';
+
+        $readBytes = min($size, self::MAX_READ_BYTES);
+        $handle    = fopen($this->logPath, 'rb');
+        fseek($handle, -$readBytes, SEEK_END);
+        $content = fread($handle, $readBytes);
+        fclose($handle);
+
+        // Drop the first (possibly partial) line
+        $firstNewline = strpos($content, "\n");
+        if ($firstNewline !== false && $readBytes < $size) {
+            $content = substr($content, $firstNewline + 1);
+        }
+
+        return $content;
+    }
+
+    private function parseLog(string $level = 'all', string $search = ''): array
+    {
+        $content = $this->readLogTail();
+        if (!$content) return [];
+
         $rawEntries = preg_split('/\n(?=\[\d{4}-\d{2}-\d{2})/', trim($content));
+        if (!$rawEntries) return [];
 
         $entries = [];
         foreach (array_reverse($rawEntries) as $raw) {
@@ -87,45 +110,43 @@ class ErrorLogController extends Controller
 
     private function parseEntry(string $raw): ?array
     {
-        // [2026-03-19 05:33:16] local.ERROR: message {"context"}
-        if (!preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+(\w+)\.(\w+):\s+(.+?)(?:\s*(\{.*\}|\[.*\]))?\s*$/s', $raw, $m)) {
-            // Try simpler match
-            if (!preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+\w+\.(\w+):\s+(.*)$/s', $raw, $m2)) {
-                return null;
-            }
-            return [
-                'datetime'  => $m2[1],
-                'level'     => strtolower($m2[2]),
-                'message'   => trim(substr($m2[3], 0, 300)),
-                'context'   => null,
-                'stacktrace'=> $this->extractStacktrace($m2[3]),
-                'full'      => $raw,
-            ];
+        if (!preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+\w+\.(\w+):\s+(.*)$/s', $raw, $m)) {
+            return null;
         }
 
-        $message = trim($m[4]);
-        $context = isset($m[5]) ? $this->tryDecodeJson($m[5]) : null;
+        $level   = strtolower($m[2]);
+        $rest    = trim($m[3]);
+        $context = null;
+
+        // Try to split message from JSON context
+        $jsonStart = strpos($rest, ' {"');
+        if ($jsonStart !== false) {
+            $message    = substr($rest, 0, $jsonStart);
+            $jsonStr    = substr($rest, $jsonStart + 1);
+            $context    = $this->tryDecodeJson($jsonStr);
+        } else {
+            $message = $rest;
+        }
 
         // Extract exception message from context
         if (is_array($context) && isset($context['exception'])) {
-            $exMsg = $this->extractExceptionMessage($context['exception']);
+            $exMsg = $this->extractExceptionMessage((string) $context['exception']);
             if ($exMsg) $message = $exMsg;
         }
 
         return [
             'datetime'   => $m[1],
-            'level'      => strtolower($m[3]),
-            'message'    => substr($message, 0, 500),
+            'level'      => $level,
+            'message'    => substr(trim($message), 0, 500),
             'context'    => $context,
             'stacktrace' => $this->extractStacktrace($raw),
-            'full'       => $raw,
+            'full'       => substr($raw, 0, 2000),
         ];
     }
 
-    private function extractExceptionMessage(string $exceptionStr): ?string
+    private function extractExceptionMessage(string $str): ?string
     {
-        // "[object] (ExceptionClass(code: 0): Message at file:line)"
-        if (preg_match('/\(code:\s*\d+\):\s*(.+?)\s+at\s+/s', $exceptionStr, $m)) {
+        if (preg_match('/\(code:\s*\d+\):\s*(.+?)\s+at\s+/s', $str, $m)) {
             return trim($m[1]);
         }
         return null;
@@ -150,23 +171,25 @@ class ErrorLogController extends Controller
 
     private function getStats(): array
     {
-        $all = $this->parseLog();
+        // For stats, parse only a smaller tail to keep it fast
+        $content = $this->readLogTail();
+        $rawEntries = $content ? preg_split('/\n(?=\[\d{4}-\d{2}-\d{2})/', trim($content)) : [];
+
         $counts = ['error' => 0, 'warning' => 0, 'info' => 0, 'debug' => 0, 'critical' => 0, 'other' => 0];
 
-        foreach ($all as $e) {
-            $l = $e['level'];
+        foreach ($rawEntries as $raw) {
+            if (!preg_match('/^\[\d{4}-\d{2}-\d{2}[^\]]+\]\s+\w+\.(\w+):/i', trim($raw), $m)) continue;
+            $l = strtolower($m[1]);
             if (isset($counts[$l])) $counts[$l]++;
             else $counts['other']++;
         }
 
-        $counts['total'] = count($all);
+        $counts['total'] = array_sum(array_values($counts));
 
-        // File size
         $counts['file_size'] = File::exists($this->logPath)
             ? $this->formatBytes(File::size($this->logPath))
             : '0 B';
 
-        // Last modified
         $counts['last_modified'] = File::exists($this->logPath)
             ? date('d M Y H:i:s', File::lastModified($this->logPath))
             : '-';

@@ -259,6 +259,7 @@
 
     <!-- 🤖 AI Assistant Widget -->
     <?php echo $__env->make('partials.ai-assistant-widget', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html>
 <?php /**PATH E:\PROJEKU\pintar-menulis\resources\views/layouts/app-layout.blade.php ENDPATH**/ ?>

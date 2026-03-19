@@ -258,5 +258,6 @@
 
     <!-- 🤖 AI Assistant Widget -->
     @include('partials.ai-assistant-widget')
+    @stack('scripts')
 </body>
 </html>
