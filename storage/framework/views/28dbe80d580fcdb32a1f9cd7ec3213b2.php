@@ -1,29 +1,29 @@
-@extends('layouts.client')
 
-@section('title', 'AI Generator')
 
-@push('head')
+<?php $__env->startSection('title', 'AI Generator'); ?>
+
+<?php $__env->startPush('head'); ?>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<script src="{{ asset('js/caption-analysis.js') }}"></script>
-@endpush
+<script src="<?php echo e(asset('js/caption-analysis.js')); ?>"></script>
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="p-6" x-data="aiGenerator()" x-init="init()">
 
-    {{-- ── Toast Notification ── --}}
+    
     <div x-show="notificationVisible" x-cloak x-transition
          :class="notificationType === 'success' ? 'bg-green-600' : 'bg-red-600'"
          class="fixed bottom-6 right-6 z-50 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium max-w-xs"
          x-text="notificationMessage">
     </div>
 
-    {{-- ── Subscription / Quota Banner ── --}}
-    @php
+    
+    <?php
         $sub = auth()->user()->currentSubscription();
-    @endphp
-    @if(!$sub || !$sub->isValid())
+    ?>
+    <?php if(!$sub || !$sub->isValid()): ?>
     <div class="mb-5 bg-yellow-50 border border-yellow-300 rounded-xl p-4 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
             <span class="text-2xl">⚡</span>
@@ -32,60 +32,62 @@
                 <p class="text-xs text-yellow-700 mt-0.5">Mulai trial gratis 30 hari untuk menggunakan AI Generator.</p>
             </div>
         </div>
-        <a href="{{ route('pricing') }}"
+        <a href="<?php echo e(route('pricing')); ?>"
            class="flex-shrink-0 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold rounded-lg transition">
             Mulai Trial Gratis
         </a>
     </div>
-    @elseif($sub->isOnTrial())
+    <?php elseif($sub->isOnTrial()): ?>
     <div class="mb-5 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
             <span class="text-2xl">🎉</span>
             <div>
-                <p class="font-semibold text-blue-900 text-sm">Trial aktif — {{ $sub->days_remaining }} hari tersisa</p>
+                <p class="font-semibold text-blue-900 text-sm">Trial aktif — <?php echo e($sub->days_remaining); ?> hari tersisa</p>
                 <div class="flex items-center gap-2 mt-1">
                     <div class="w-32 bg-blue-200 rounded-full h-1.5">
-                        <div class="h-1.5 rounded-full bg-blue-500" style="width: {{ $sub->trial_progress }}%"></div>
+                        <div class="h-1.5 rounded-full bg-blue-500" style="width: <?php echo e($sub->trial_progress); ?>%"></div>
                     </div>
-                    <span class="text-xs text-blue-600">Kuota: {{ $sub->remaining_quota }}/{{ $sub->ai_quota_limit }}
-                        @if($sub->package && $sub->package->price == 0)
+                    <span class="text-xs text-blue-600">Kuota: <?php echo e($sub->remaining_quota); ?>/<?php echo e($sub->ai_quota_limit); ?>
+
+                        <?php if($sub->package && $sub->package->price == 0): ?>
                             · Maks 5/hari
-                        @endif
+                        <?php endif; ?>
                     </span>
                 </div>
             </div>
         </div>
-        <a href="{{ route('pricing') }}"
+        <a href="<?php echo e(route('pricing')); ?>"
            class="flex-shrink-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition">
             Upgrade Paket
         </a>
     </div>
-    @elseif($sub->isActive())
-    @php $quotaPct = $sub->quota_percentage; @endphp
-    @if($quotaPct >= 80)
+    <?php elseif($sub->isActive()): ?>
+    <?php $quotaPct = $sub->quota_percentage; ?>
+    <?php if($quotaPct >= 80): ?>
     <div class="mb-5 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-            <span class="text-2xl">{{ $quotaPct >= 100 ? '🚫' : '⚠️' }}</span>
+            <span class="text-2xl"><?php echo e($quotaPct >= 100 ? '🚫' : '⚠️'); ?></span>
             <div>
                 <p class="font-semibold text-orange-900 text-sm">
-                    {{ $quotaPct >= 100 ? 'Kuota habis!' : 'Kuota hampir habis' }}
+                    <?php echo e($quotaPct >= 100 ? 'Kuota habis!' : 'Kuota hampir habis'); ?>
+
                 </p>
                 <div class="flex items-center gap-2 mt-1">
                     <div class="w-32 bg-orange-200 rounded-full h-1.5">
-                        <div class="h-1.5 rounded-full {{ $quotaPct >= 100 ? 'bg-red-500' : 'bg-orange-500' }}"
-                             style="width: {{ min(100, $quotaPct) }}%"></div>
+                        <div class="h-1.5 rounded-full <?php echo e($quotaPct >= 100 ? 'bg-red-500' : 'bg-orange-500'); ?>"
+                             style="width: <?php echo e(min(100, $quotaPct)); ?>%"></div>
                     </div>
-                    <span class="text-xs text-orange-700">{{ $sub->remaining_quota }} generate tersisa</span>
+                    <span class="text-xs text-orange-700"><?php echo e($sub->remaining_quota); ?> generate tersisa</span>
                 </div>
             </div>
         </div>
-        <a href="{{ route('pricing') }}"
+        <a href="<?php echo e(route('pricing')); ?>"
            class="flex-shrink-0 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg transition">
             Upgrade
         </a>
     </div>
-    @endif
-    @endif
+    <?php endif; ?>
+    <?php endif; ?>
 
     <!-- Header dengan ML Insights Button -->
     <div class="flex items-center justify-between mb-6">
@@ -909,7 +911,7 @@
                                 <input type="checkbox" x-model="analysisForm.options" value="suggestions" class="text-purple-600">
                                 <span class="text-sm">💡 Saran Perbaikan</span>
                             </label>
-                            {{-- Opsi Analisis Desain --}}
+                            
                             <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                                 <input type="checkbox" x-model="analysisForm.options" value="typography" class="text-purple-600">
                                 <span class="text-sm">🔤 Tipografi</span>
@@ -1298,7 +1300,7 @@
                 </svg>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Bulk Content Generator</h3>
                 <p class="text-gray-600 mb-4">Generate 7 atau 30 hari konten sekaligus dengan content calendar</p>
-                <a href="{{ route('bulk-content.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <a href="<?php echo e(route('bulk-content.index')); ?>" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
@@ -1313,7 +1315,7 @@
                 </svg>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Caption History</h3>
                 <p class="text-gray-600 mb-4">Lihat semua caption yang pernah kamu generate</p>
-                <a href="{{ route('caption-history.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <a href="<?php echo e(route('caption-history.index')); ?>" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                     </svg>
@@ -1329,7 +1331,7 @@
                 </svg>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">My Stats & ML Insights</h3>
                 <p class="text-gray-600 mb-4">Lihat statistik dan insights dari AI kamu</p>
-                <a href="{{ route('my-stats') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <a href="<?php echo e(route('my-stats')); ?>" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
@@ -2123,7 +2125,7 @@
                     </div>
                     
                     <!-- 🔍 Caption Optimizer Tools -->
-                    @include('client.partials.caption-optimizer')
+                    <?php echo $__env->make('client.partials.caption-optimizer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                     
                     <button @click="reset"
                             class="w-full mt-3 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
@@ -2134,7 +2136,7 @@
         </div>
         
         <!-- 🔍 Caption Analysis Modal - Full Screen -->
-        @include('client.partials.caption-analysis')
+        <?php echo $__env->make('client.partials.caption-analysis', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         
         <!-- Save Brand Voice Modal -->
         <div x-show="showSaveBrandVoiceModal" x-cloak 
@@ -2660,50 +2662,50 @@
             </div>
         </div>
         
-        {{-- 🎯 Google Ads Campaign Generator --}}
-        @include('client.partials.google-ads-generator')
+        
+        <?php echo $__env->make('client.partials.google-ads-generator', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 🔗 Magic Promo Link Generator --}}
-        @include('client.partials.promo-link-generator')
+        
+        <?php echo $__env->make('client.partials.promo-link-generator', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 💬 AI Product Explainer for WhatsApp --}}
-        @include('client.partials.product-explainer')
+        
+        <?php echo $__env->make('client.partials.product-explainer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 🔍 SEO Metadata Auto-Fill --}}
-        @include('client.partials.seo-metadata')
+        
+        <?php echo $__env->make('client.partials.seo-metadata', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- ⚖️ Smart Comparison Tool --}}
-        @include('client.partials.smart-comparison')
+        
+        <?php echo $__env->make('client.partials.smart-comparison', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- ❓ Automated FAQ Generator --}}
-        @include('client.partials.faq-generator')
+        
+        <?php echo $__env->make('client.partials.faq-generator', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 🎬 AI Reels/TikTok Hook Generator --}}
-        @include('client.partials.reels-hook')
+        
+        <?php echo $__env->make('client.partials.reels-hook', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 🏅 Digital Asset Quality Badge --}}
-        @include('client.partials.quality-badge')
+        
+        <?php echo $__env->make('client.partials.quality-badge', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 🏷️ Discount Campaign Copywriter --}}
-        @include('client.partials.discount-campaign')
+        
+        <?php echo $__env->make('client.partials.discount-campaign', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 📈 Trend-Based Product Tagging --}}
-        @include('client.partials.trend-tags')
+        
+        <?php echo $__env->make('client.partials.trend-tags', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 🧲 AI Lead Magnet Creator --}}
-        @include('client.partials.lead-magnet')
+        
+        <?php echo $__env->make('client.partials.lead-magnet', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 📊 Analisis Keuangan & Saham --}}
-        @include('client.partials.financial-analysis')
+        
+        <?php echo $__env->make('client.partials.financial-analysis', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 📚 Analisis Ebook --}}
-        @include('client.partials.ebook-analysis')
+        
+        <?php echo $__env->make('client.partials.ebook-analysis', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        {{-- 📖 Tren Pembaca --}}
-        @include('client.partials.reader-trend')
+        
+        <?php echo $__env->make('client.partials.reader-trend', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
         <!-- 🤖 ML Upgrade Modal & Features -->
-        @include('client.partials.ml-upgrade-modal')
+        <?php echo $__env->make('client.partials.ml-upgrade-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     </div>
 
 <script>
@@ -2729,12 +2731,12 @@
     function handleFeatureLocked(data, showNotificationFn) {
         if (data && data.feature_locked) {
             const msg = (data.message || 'Fitur ini tidak tersedia di paket kamu.')
-                + ' <a href="{{ route("pricing") }}" class="underline font-semibold">Upgrade sekarang →</a>';
+                + ' <a href="<?php echo e(route("pricing")); ?>" class="underline font-semibold">Upgrade sekarang →</a>';
             // Tampilkan sebagai toast dengan link
             const toast = document.createElement('div');
             toast.innerHTML = msg;
             toast.className = 'fixed bottom-6 right-6 z-50 bg-yellow-500 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium max-w-xs cursor-pointer';
-            toast.onclick = () => window.location.href = '{{ route("pricing") }}';
+            toast.onclick = () => window.location.href = '<?php echo e(route("pricing")); ?>';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 6000);
             return true;
@@ -6742,5 +6744,7 @@ ${trend.hashtags?.join(' ') || ''}`
 <style>
     [x-cloak] { display: none !important; }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layouts.client', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\PROJEKU\pintar-menulis\resources\views/client/ai-generator.blade.php ENDPATH**/ ?>

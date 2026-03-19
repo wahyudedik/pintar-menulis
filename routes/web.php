@@ -396,7 +396,7 @@ Route::middleware(['auth'])->group(function () {
 // API Routes
 Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
     // ── Tidak perlu cek fitur (semua paket bisa) ──────────────────────────────
-    Route::post('/ai/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generate'])->name('api.ai.generate');
+    Route::post('/ai/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generate'])->middleware('ai.limit:300')->name('api.ai.generate');
     Route::get('/check-first-time', [\App\Http\Controllers\Client\AIGeneratorController::class, 'checkFirstTime'])->name('api.check-first-time');
     Route::get('/templates/all', [\App\Http\Controllers\Client\AIGeneratorController::class, 'getAllTemplates'])->name('api.templates.all');
     Route::get('/ml/status', [\App\Http\Controllers\MLSuggestionsController::class, 'getStatus'])->name('api.ml.status');
@@ -411,30 +411,32 @@ Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
         return response()->json(['notifications' => $notifications]);
     });
 
-    // ── Fitur dikontrol per paket ─────────────────────────────────────────────
-    Route::post('/ai/generate-image-caption',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->middleware('feature:image_caption')->name('api.ai.generate-image-caption');
-    Route::post('/ai/analyze-image',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeImage'])->middleware('feature:image_analysis')->name('api.ai.analyze-image');
-    Route::post('/ai/analyze-financial',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeFinancial'])->middleware('feature:financial_analysis')->name('api.ai.analyze-financial');
-    Route::post('/ai/analyze-ebook',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeEbook'])->middleware('feature:ebook_analysis')->name('api.ai.analyze-ebook');
-    Route::post('/ai/analyze-reader-trend',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeReaderTrend'])->middleware('feature:reader_trend')->name('api.ai.analyze-reader-trend');
-    Route::post('/ai/generate-video-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateVideoContent'])->middleware('feature:video_content')->name('api.ai.generate-video-content');
-    Route::post('/ai/predict-performance',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'predictPerformance'])->middleware('feature:performance_predictor')->name('api.ai.predict-performance');
-    Route::post('/ai/generate-ab-variants',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateABVariants'])->middleware('feature:ab_testing')->name('api.ai.generate-ab-variants');
-    Route::post('/ai/generate-multiplatform',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMultiPlatform'])->middleware('feature:multi_platform')->name('api.ai.generate-multiplatform');
-    Route::post('/ai/repurpose-content',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'repurposeContent'])->middleware('feature:content_repurpose')->name('api.ai.repurpose-content');
-    Route::post('/ai/generate-trend-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendContent'])->middleware('feature:trend_alert')->name('api.ai.generate-trend-content');
-    Route::post('/ai/generate-optimal-content',  [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateOptimalContent'])->middleware('feature:optimal_content')->name('api.ai.generate-optimal-content');
-    Route::post('/ai/generate-google-ads',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateGoogleAds'])->middleware('feature:google_ads')->name('api.ai.generate-google-ads');
-    Route::post('/ai/generate-promo-link',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMagicPromoLink'])->middleware('feature:promo_link')->name('api.ai.generate-promo-link');
-    Route::post('/ai/generate-product-explainer',[\App\Http\Controllers\Client\AIGeneratorController::class, 'generateProductExplainer'])->middleware('feature:product_explainer')->name('api.ai.generate-product-explainer');
-    Route::post('/ai/generate-seo-metadata',     [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateSeoMetadata'])->middleware('feature:seo_metadata')->name('api.ai.generate-seo-metadata');
-    Route::post('/ai/generate-comparison',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateComparison'])->middleware('feature:smart_comparison')->name('api.ai.generate-comparison');
-    Route::post('/ai/generate-faq',              [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateFaq'])->middleware('feature:faq_generator')->name('api.ai.generate-faq');
-    Route::post('/ai/generate-reels-hook',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateReelsHook'])->middleware('feature:reels_hook')->name('api.ai.generate-reels-hook');
-    Route::post('/ai/generate-quality-badge',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateQualityBadge'])->middleware('feature:quality_badge')->name('api.ai.generate-quality-badge');
-    Route::post('/ai/generate-discount-campaign',[\App\Http\Controllers\Client\AIGeneratorController::class, 'generateDiscountCampaign'])->middleware('feature:discount_campaign')->name('api.ai.generate-discount-campaign');
-    Route::post('/ai/generate-trend-tags',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendTags'])->middleware('feature:trend_tags')->name('api.ai.generate-trend-tags');
-    Route::post('/ai/generate-lead-magnet',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateLeadMagnet'])->middleware('feature:lead_magnet')->name('api.ai.generate-lead-magnet');
+    // ── Fitur dikontrol per paket — semua AI endpoint pakai ai.limit:180 ──────
+    Route::middleware('ai.limit:180')->group(function () {
+        Route::post('/ai/generate-image-caption',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->middleware('feature:image_caption')->name('api.ai.generate-image-caption');
+        Route::post('/ai/analyze-image',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeImage'])->middleware('feature:image_analysis')->name('api.ai.analyze-image');
+        Route::post('/ai/analyze-financial',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeFinancial'])->middleware('feature:financial_analysis')->name('api.ai.analyze-financial');
+        Route::post('/ai/analyze-ebook',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeEbook'])->middleware('feature:ebook_analysis')->name('api.ai.analyze-ebook');
+        Route::post('/ai/analyze-reader-trend',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeReaderTrend'])->middleware('feature:reader_trend')->name('api.ai.analyze-reader-trend');
+        Route::post('/ai/generate-video-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateVideoContent'])->middleware('feature:video_content')->name('api.ai.generate-video-content');
+        Route::post('/ai/predict-performance',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'predictPerformance'])->middleware('feature:performance_predictor')->name('api.ai.predict-performance');
+        Route::post('/ai/generate-ab-variants',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateABVariants'])->middleware('feature:ab_testing')->name('api.ai.generate-ab-variants');
+        Route::post('/ai/generate-multiplatform',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMultiPlatform'])->middleware('feature:multi_platform')->name('api.ai.generate-multiplatform');
+        Route::post('/ai/repurpose-content',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'repurposeContent'])->middleware('feature:content_repurpose')->name('api.ai.repurpose-content');
+        Route::post('/ai/generate-trend-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendContent'])->middleware('feature:trend_alert')->name('api.ai.generate-trend-content');
+        Route::post('/ai/generate-optimal-content',  [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateOptimalContent'])->middleware('feature:optimal_content')->name('api.ai.generate-optimal-content');
+        Route::post('/ai/generate-google-ads',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateGoogleAds'])->middleware('feature:google_ads')->name('api.ai.generate-google-ads');
+        Route::post('/ai/generate-promo-link',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMagicPromoLink'])->middleware('feature:promo_link')->name('api.ai.generate-promo-link');
+        Route::post('/ai/generate-product-explainer',[\App\Http\Controllers\Client\AIGeneratorController::class, 'generateProductExplainer'])->middleware('feature:product_explainer')->name('api.ai.generate-product-explainer');
+        Route::post('/ai/generate-seo-metadata',     [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateSeoMetadata'])->middleware('feature:seo_metadata')->name('api.ai.generate-seo-metadata');
+        Route::post('/ai/generate-comparison',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateComparison'])->middleware('feature:smart_comparison')->name('api.ai.generate-comparison');
+        Route::post('/ai/generate-faq',              [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateFaq'])->middleware('feature:faq_generator')->name('api.ai.generate-faq');
+        Route::post('/ai/generate-reels-hook',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateReelsHook'])->middleware('feature:reels_hook')->name('api.ai.generate-reels-hook');
+        Route::post('/ai/generate-quality-badge',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateQualityBadge'])->middleware('feature:quality_badge')->name('api.ai.generate-quality-badge');
+        Route::post('/ai/generate-discount-campaign',[\App\Http\Controllers\Client\AIGeneratorController::class, 'generateDiscountCampaign'])->middleware('feature:discount_campaign')->name('api.ai.generate-discount-campaign');
+        Route::post('/ai/generate-trend-tags',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendTags'])->middleware('feature:trend_tags')->name('api.ai.generate-trend-tags');
+        Route::post('/ai/generate-lead-magnet',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateLeadMagnet'])->middleware('feature:lead_magnet')->name('api.ai.generate-lead-magnet');
+    });
     Route::post('/ai/generate-content',          [\App\Http\Controllers\Client\ProjectContentController::class, 'generateContent'])->name('api.ai.generate-content');
 
     // 🔍 AI Analysis

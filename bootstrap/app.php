@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'     => \App\Http\Middleware\RoleMiddleware::class,
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'feature'  => \App\Http\Middleware\CheckFeatureAccess::class,
+            'ai.limit' => \App\Http\Middleware\SetAIExecutionLimit::class,
         ]);
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackFeatureUsage::class);
         // Exclude payment webhooks from CSRF verification
@@ -25,13 +26,16 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Return JSON for API requests
+        // Return JSON for API requests — never leak internal error details
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
+                \Log::error('Unhandled API exception: ' . $e->getMessage(), [
+                    'url'   => $request->fullUrl(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
                 return response()->json([
                     'success' => false,
-                    'error' => $e->getMessage() ?: 'An error occurred',
-                    'message' => $e->getMessage() ?: 'An error occurred',
+                    'message' => 'Terjadi kesalahan pada server. Silakan coba lagi.',
                 ], 500);
             }
         });

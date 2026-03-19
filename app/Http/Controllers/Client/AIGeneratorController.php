@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\HandlesAIQuota;
 use App\Services\AIService;
 use App\Services\MLDataService;
 use Illuminate\Http\Request;
 
 class AIGeneratorController extends Controller
 {
+    use HandlesAIQuota;
+
     protected $aiService;
     protected $mlService;
     protected $geminiService;
@@ -74,14 +77,11 @@ class AIGeneratorController extends Controller
     }
     public function generate(Request $request)
     {
-        // Set longer execution time for this specific request
-        set_time_limit(300); // 5 minutes
-        ini_set('max_execution_time', 300);
-
         // ── Subscription & daily limit check ─────────────────────────────────
         $user = auth()->user();
         $sub  = $user->currentSubscription();
 
+        // Reuse unified quota check (with richer messages for main generate)
         if (!$sub || !$sub->isValid()) {
             return response()->json([
                 'success'     => false,
@@ -157,19 +157,16 @@ class AIGeneratorController extends Controller
             $params['ml_ctas'] = $mlData['ctas'];
             $params['ml_topics'] = $mlData['topics'];
 
-            // 🔍 KEYWORD RESEARCH INTEGRATION (Using ML Data Service)
-            // Extract keywords from brief using AI
-            $extractedKeywords = $this->extractKeywordsFromBrief($validated['brief']);
-            
-            // Get keyword insights from ML data
+            // 🔍 KEYWORD INSIGHTS — only run in advanced mode or when brief is substantial
+            // Skip in simple/short briefs to reduce latency
             $keywordInsights = [];
-            foreach (array_slice($extractedKeywords, 0, 3) as $keyword) {
-                $keywordData = $this->getKeywordInsights($keyword);
-                
-                // Sanitize all string values for JSON encoding
-                $keywordData = $this->sanitizeForJson($keywordData);
-                
-                $keywordInsights[] = $keywordData;
+            if ($params['mode'] === 'advanced' && strlen($validated['brief']) >= 30) {
+                $extractedKeywords = $this->extractKeywordsFromBrief($validated['brief']);
+                foreach (array_slice($extractedKeywords, 0, 3) as $keyword) {
+                    $keywordInsights[] = $this->sanitizeForJson(
+                        $this->getKeywordInsights($keyword)
+                    );
+                }
             }
 
             $result = $this->aiService->generateCopywriting($params);
@@ -217,20 +214,20 @@ class AIGeneratorController extends Controller
             
         } catch (\Exception $e) {
             \Log::error('AI Generate Error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+                'user_id' => auth()->id(),
+                'trace'   => $e->getTraceAsString(),
             ]);
-            
-            // Handle specific timeout errors
+
             if (strpos($e->getMessage(), 'Maximum execution time') !== false) {
                 return response()->json([
                     'success' => false,
-                    'message' => '⏱️ Proses generate membutuhkan waktu lebih lama dari biasanya. Silakan coba dengan brief yang lebih singkat atau coba lagi dalam beberapa saat.'
+                    'message' => '⏱️ Proses generate membutuhkan waktu lebih lama dari biasanya. Silakan coba dengan brief yang lebih singkat atau coba lagi dalam beberapa saat.',
                 ], 500);
             }
-            
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Terjadi kesalahan saat generate konten. Silakan coba lagi.',
             ], 500);
         }
     }
@@ -242,32 +239,36 @@ class AIGeneratorController extends Controller
     {
         $industry = $params['industry'];
         $platform = $params['platform'];
-        $tone = $params['tone'];
-        $goal = $params['goal'];
-        
-        $mlData = [
-            'hashtags' => [],
-            'keywords' => [],
-            'hooks' => [],
-            'ctas' => [],
-            'topics' => [],
-            'source' => 'ml', // Always ML (no Google API)
+        $tone     = $params['tone'];
+        $goal     = $params['goal'];
+        $brief    = $params['brief'];
+
+        // Cache static ML data (hashtags, hooks, CTAs, topics) per industry+platform+tone+goal — 1 jam
+        $staticCacheKey = "ml_static:{$industry}:{$platform}:{$tone}:{$goal}";
+        $staticData = \Cache::remember($staticCacheKey, 3600, function () use ($industry, $platform, $tone, $goal) {
+            return [
+                'hashtags' => $this->mlService->getTrendingHashtags($industry, $platform, 30),
+                'hooks'    => $this->mlService->getBestHooks($industry, $tone, 5),
+                'ctas'     => $this->mlService->getBestCTAs($industry, $goal, 5),
+                'topics'   => $this->mlService->getTrendingTopics($industry, 5),
+            ];
+        });
+
+        // Keywords depend on brief — cache per brief hash (15 menit)
+        $briefHash    = md5($brief . $industry);
+        $keywordCache = "ml_keywords:{$briefHash}";
+        $keywords     = \Cache::remember($keywordCache, 900, function () use ($brief, $industry) {
+            return $this->mlService->getKeywordSuggestions($brief, $industry, 10);
+        });
+
+        return [
+            'hashtags' => $staticData['hashtags'],
+            'keywords' => $keywords,
+            'hooks'    => $staticData['hooks'],
+            'ctas'     => $staticData['ctas'],
+            'topics'   => $staticData['topics'],
+            'source'   => 'ml',
         ];
-        
-        // Always use ML data (free)
-        $mlData['hashtags'] = $this->mlService->getTrendingHashtags($industry, $platform, 30);
-        $mlData['keywords'] = $this->mlService->getKeywordSuggestions(
-            $params['brief'],
-            $industry,
-            10
-        );
-        
-        // Always get hooks, CTAs, topics from ML
-        $mlData['hooks'] = $this->mlService->getBestHooks($industry, $tone, 5);
-        $mlData['ctas'] = $this->mlService->getBestCTAs($industry, $goal, 5);
-        $mlData['topics'] = $this->mlService->getTrendingTopics($industry, 5);
-        
-        return $mlData;
     }
 
     /**
@@ -368,7 +369,7 @@ class AIGeneratorController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal generate caption: ' . $e->getMessage()
+                'message' => 'Gagal generate caption. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -442,7 +443,7 @@ class AIGeneratorController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menganalisis gambar: ' . $e->getMessage()
+                'message' => 'Gagal menganalisis gambar. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -533,7 +534,7 @@ class AIGeneratorController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal generate konten video: ' . $e->getMessage()
+                'message' => 'Gagal generate konten video. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -559,57 +560,33 @@ class AIGeneratorController extends Controller
      */
     private function getKeywordInsights(string $keyword): array
     {
-        try {
-            // Use AI to generate keyword insights
-            $prompt = "Analisis keyword '{$keyword}' untuk social media marketing Indonesia:
-
-Berikan data dalam format JSON:
-{
-    \"keyword\": \"{$keyword}\",
-    \"search_volume\": \"estimasi volume pencarian bulanan\",
-    \"competition\": \"low/medium/high\",
-    \"trend\": \"growth factor (0.8-1.5)\",
-    \"related_keywords\": [\"keyword terkait 1\", \"keyword terkait 2\", \"keyword terkait 3\"]
-}
-
-Berikan estimasi realistis berdasarkan tren Indonesia.";
-
-            $geminiService = app(\App\Services\GeminiService::class);
-            $aiResponse = $geminiService->generateText($prompt, 300, 0.7);
-            
-            // Try to parse AI response
-            if (preg_match('/\{.*\}/s', $aiResponse, $matches)) {
-                $insights = json_decode($matches[0], true);
-                if ($insights && is_array($insights)) {
-                    return [
-                        'keyword' => $insights['keyword'] ?? $keyword,
-                        'search_volume' => is_numeric($insights['search_volume']) ? (int)$insights['search_volume'] : rand(1000, 50000),
-                        'competition' => in_array($insights['competition'], ['low', 'medium', 'high']) ? $insights['competition'] : 'medium',
-                        'trend' => is_numeric($insights['trend']) ? (float)$insights['trend'] : 1.0,
-                        'related_keywords' => is_array($insights['related_keywords']) ? $insights['related_keywords'] : [
-                            $keyword . ' terbaik',
-                            $keyword . ' murah',
-                            'tips ' . $keyword
-                        ]
-                    ];
+        // Cache per keyword — 1 jam (data ini tidak berubah cepat)
+        $cacheKey = 'kw_insights:' . md5($keyword);
+        return \Cache::remember($cacheKey, 3600, function () use ($keyword) {
+            try {
+                // Try ML service first
+                $mlKeywords = $this->mlService->getKeywordSuggestions($keyword, 'general', 3);
+                $related = array_column($mlKeywords, 'keyword');
+                if (empty($related)) {
+                    $related = [$keyword . ' terbaik', $keyword . ' murah', 'tips ' . $keyword];
                 }
+                return [
+                    'keyword'          => $keyword,
+                    'search_volume'    => rand(1000, 50000),
+                    'competition'      => ['low', 'medium', 'high'][rand(0, 2)],
+                    'trend'            => rand(80, 120) / 100,
+                    'related_keywords' => array_slice($related, 0, 3),
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'keyword'          => $keyword,
+                    'search_volume'    => rand(1000, 50000),
+                    'competition'      => 'medium',
+                    'trend'            => 1.0,
+                    'related_keywords' => [$keyword . ' terbaik', $keyword . ' murah', 'tips ' . $keyword],
+                ];
             }
-        } catch (\Exception $e) {
-            \Log::warning('AI keyword insights failed, using fallback: ' . $e->getMessage());
-        }
-
-        // Fallback with more realistic data
-        return [
-            'keyword' => $keyword,
-            'search_volume' => rand(1000, 50000),
-            'competition' => ['low', 'medium', 'high'][rand(0, 2)],
-            'trend' => rand(80, 120) / 100,
-            'related_keywords' => [
-                $keyword . ' terbaik',
-                $keyword . ' murah',
-                'tips ' . $keyword
-            ]
-        ];
+        });
     }
     /**
      * 📈 CAPTION PERFORMANCE PREDICTOR - Main Feature
@@ -670,7 +647,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memprediksi performa caption: ' . $e->getMessage()
+                'message' => 'Gagal memprediksi performa caption. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -737,7 +714,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal generate A/B variants: ' . $e->getMessage()
+                'message' => 'Gagal generate A/B variants. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -883,7 +860,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
             
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memuat templates: ' . $e->getMessage(),
+                'message' => 'Gagal memuat templates. Silakan coba lagi.',
                 'templates' => []
             ], 500);
         }
@@ -958,7 +935,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal generate multi-platform content: ' . $e->getMessage()
+                'message' => 'Gagal generate multi-platform content. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -1238,7 +1215,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal repurpose content: ' . $e->getMessage()
+                'message' => 'Gagal repurpose content. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -1516,7 +1493,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal generate trend content: ' . $e->getMessage()
+                'message' => 'Gagal generate trend content. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -1738,7 +1715,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal generate optimal content: ' . $e->getMessage()
+                'message' => 'Gagal generate optimal content. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -2021,8 +1998,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
      */
     public function generateGoogleAds(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2048,7 +2024,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 ], 500);
             }
 
-            $quota = $this->_consume();
+            $quota = $this->consumeQuota();
 
             return response()->json([
                 'success'         => true,
@@ -2065,7 +2041,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
             \Log::error('Google Ads Generator Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Terjadi kesalahan. Silakan coba lagi.',
             ], 500);
         }
     }
@@ -2075,8 +2051,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
      */
     public function generateProductExplainer(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2095,7 +2070,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan pesan. Silakan coba lagi.'], 500);
             }
 
-            $quota = $this->_consume();
+            $quota = $this->consumeQuota();
 
             return response()->json([
                 'success'         => true,
@@ -2112,7 +2087,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
             \Log::error('Product Explainer Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Terjadi kesalahan. Silakan coba lagi.',
             ], 500);
         }
     }
@@ -2122,8 +2097,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
      */
     public function generateMagicPromoLink(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2142,7 +2116,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan caption. Silakan coba lagi.'], 500);
             }
 
-            $quota = $this->_consume();
+            $quota = $this->consumeQuota();
 
             return response()->json([
                 'success'         => true,
@@ -2159,45 +2133,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
             \Log::error('Magic Promo Link Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Terjadi kesalahan. Silakan coba lagi.',
             ], 500);
         }
     }
 
-    // ── Shared quota guard ──────────────────────────────────────────
-    private function _checkQuota(): array|null
-    {
-        $user = auth()->user();
-        $sub  = $user->currentSubscription();
-        if (!$sub || !$sub->isValid()) {
-            return ['success' => false, 'quota_error' => true, 'message' => '⚡ Kamu belum memiliki langganan aktif.'];
-        }
-        if ($sub->remaining_quota <= 0) {
-            return ['success' => false, 'quota_error' => true, 'message' => '🚫 Kuota AI kamu sudah habis bulan ini.'];
-        }
-        return null;
-    }
-
-    private function _quotaResponse(array|null $err, int $status = 403)
-    {
-        return response()->json($err, $status);
-    }
-
-    private function _consume(): int
-    {
-        $sub = auth()->user()->currentSubscription();
-        $sub->consumeQuota(1);
-        $sub->refresh();
-        return $sub->remaining_quota;
-    }
+    // ── Shared quota guard — now provided by HandlesAIQuota trait ──────────────
 
     /**
      * 📊 Analyze financial documents & stock charts
      */
     public function analyzeFinancial(Request $request)
     {
-        set_time_limit(180);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
 
         $request->validate([
             'analysis_type' => 'required|in:stock_chart,financial_report,combined',
@@ -2239,7 +2187,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'documents'     => $documents,
             ]);
 
-            $quota = $this->_consume();
+            $quota = $this->consumeQuota();
 
             // Save to history
             \App\Models\CaptionHistory::recordCaption(
@@ -2268,7 +2216,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
             ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menganalisis: ' . $e->getMessage(),
+                'message' => 'Gagal menganalisis. Silakan coba lagi.',
             ], 500);
         }
     }
@@ -2278,8 +2226,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
      */
     public function analyzeEbook(Request $request)
     {
-        set_time_limit(180);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
 
         $request->validate([
             'analysis_type' => 'required|in:full,summary,quality,audience',
@@ -2303,7 +2250,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'documents'     => $documents,
             ]);
 
-            $quota = $this->_consume();
+            $quota = $this->consumeQuota();
 
             \App\Models\CaptionHistory::recordCaption(
                 auth()->id(),
@@ -2321,7 +2268,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
         } catch (\Exception $e) {
             Log::error('Ebook Analysis Failed', ['error' => $e->getMessage(), 'user_id' => auth()->id()]);
-            return response()->json(['success' => false, 'message' => 'Gagal menganalisis ebook: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal menganalisis ebook. Silakan coba lagi.'], 500);
         }
     }
 
@@ -2330,8 +2277,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
      */
     public function analyzeReaderTrend(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
 
         $request->validate([
             'genre'    => 'nullable|string|max:200',
@@ -2346,7 +2292,7 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'context'  => $request->context ?? '',
             ]);
 
-            $quota = $this->_consume();
+            $quota = $this->consumeQuota();
 
             \App\Models\CaptionHistory::recordCaption(
                 auth()->id(),
@@ -2363,13 +2309,12 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
 
         } catch (\Exception $e) {
             Log::error('Reader Trend Analysis Failed', ['error' => $e->getMessage(), 'user_id' => auth()->id()]);
-            return response()->json(['success' => false, 'message' => 'Gagal menganalisis tren: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal menganalisis tren. Silakan coba lagi.'], 500);
         }
     }
     public function generateSeoMetadata(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name'   => 'required|string|max:150',
@@ -2379,20 +2324,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'url'            => 'nullable|string|max:200',
             ]);
             $result = $this->geminiService->generateSeoMetadata($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 
     /** 4. Smart Comparison */
     public function generateComparison(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_a_name'  => 'required|string|max:150',
@@ -2404,20 +2348,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'buyer_persona'   => 'nullable|string|max:300',
             ]);
             $result = $this->geminiService->generateComparison($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 
     /** 5. FAQ Generator */
     public function generateFaq(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name' => 'required|string|max:150',
@@ -2426,20 +2369,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'category'     => 'nullable|string|max:100',
             ]);
             $result = $this->geminiService->generateFaq($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 
     /** 6. Reels/TikTok Hook */
     public function generateReelsHook(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name'    => 'required|string|max:150',
@@ -2450,20 +2392,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'video_goal'      => 'nullable|string|max:200',
             ]);
             $result = $this->geminiService->generateReelsHook($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 
     /** 7. Quality Badge Scanner */
     public function generateQualityBadge(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name' => 'required|string|max:150',
@@ -2472,20 +2413,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'code_or_doc'  => 'nullable|string|max:3000',
             ]);
             $result = $this->geminiService->generateQualityBadge($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 
     /** 8. Discount Campaign Copywriter */
     public function generateDiscountCampaign(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'promo_name'     => 'required|string|max:100',
@@ -2499,20 +2439,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'wa_number'      => 'nullable|string|max:20',
             ]);
             $result = $this->geminiService->generateDiscountCampaign($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 
     /** 9. Trend-Based Product Tagging */
     public function generateTrendTags(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name' => 'required|string|max:150',
@@ -2521,20 +2460,19 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'current_tags' => 'nullable|string|max:300',
             ]);
             $result = $this->geminiService->generateTrendTags($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 
     /** 10. Lead Magnet Creator */
     public function generateLeadMagnet(Request $request)
     {
-        set_time_limit(120);
-        if ($err = $this->_checkQuota()) return $this->_quotaResponse($err);
+        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name'    => 'required|string|max:150',
@@ -2546,12 +2484,12 @@ Berikan estimasi realistis berdasarkan tren Indonesia.";
                 'wa_number'       => 'nullable|string|max:20',
             ]);
             $result = $this->geminiService->generateLeadMagnet($v);
-            $quota  = $this->_consume();
+            $quota  = $this->consumeQuota();
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan. Silakan coba lagi.'], 500);
         }
     }
 }
