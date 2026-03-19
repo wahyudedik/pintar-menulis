@@ -41,8 +41,17 @@
                     <div class="pt-3 border-t">
                         <p class="text-xs text-gray-500 mb-2">Brief dari Client</p>
                         <div class="bg-gray-50 rounded p-3">
-                            <p class="text-sm text-gray-800">{{ $order->brief }}</p>
+                            <p class="text-sm text-gray-800">{{ $order->brief ?? '(tidak ada teks brief)' }}</p>
                         </div>
+                        @if($order->brief_file)
+                        <a href="{{ Storage::url($order->brief_file) }}" target="_blank"
+                           class="mt-2 flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            {{ $order->brief_file_original_name ?? 'Download File Brief' }}
+                        </a>
+                        @endif
                     </div>
 
                     @if($order->revision_notes)

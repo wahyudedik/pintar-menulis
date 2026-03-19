@@ -17,9 +17,13 @@ class WithdrawalController extends Controller
     }
     public function index()
     {
-        $withdrawals = WithdrawalRequest::with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(50);
+        $query = WithdrawalRequest::with('user')->orderBy('created_at', 'desc');
+
+        if (request('type') && in_array(request('type'), ['referral', 'operator', 'guru'])) {
+            $query->where('type', request('type'));
+        }
+
+        $withdrawals = $query->paginate(50);
 
         $stats = [
             'pending'      => WithdrawalRequest::where('status', 'pending')->count(),

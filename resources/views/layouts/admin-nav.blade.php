@@ -55,10 +55,17 @@
                                 <a href="{{ route('admin.ml-data.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">ML Data</a>
                             </div>
                         </div>
-
-                        {{-- Konten & Lainnya --}}
+                        {{-- Analytics --}}
                         <div class="relative" x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false">
-                            <button class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm flex items-center gap-1 {{ request()->routeIs('admin.banner*') || request()->routeIs('admin.ad-placements*') || request()->routeIs('admin.feedback*') || request()->routeIs('admin.guru-monitor*') || request()->routeIs('admin.whatsapp*') ? 'bg-blue-50 text-blue-600' : '' }}">
+                            <button class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm flex items-center gap-1 {{ request()->routeIs('admin.feature-analytics*') ? 'bg-blue-50 text-blue-600' : '' }}">
+                                Analytics <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="open" x-cloak class="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                <a href="{{ route('admin.feature-analytics.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">📊 Client Feature Analytics</a>
+                            </div>
+                        </div>
+                        <div class="relative" x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false">
+                            <button class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm flex items-center gap-1 {{ request()->routeIs('admin.banner*') || request()->routeIs('admin.ad-placements*') || request()->routeIs('admin.feedback*') || request()->routeIs('admin.guru-monitor*') || request()->routeIs('admin.whatsapp*') || request()->routeIs('admin.error-logs*') ? 'bg-blue-50 text-blue-600' : '' }}">
                                 Lainnya <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div x-show="open" x-cloak class="absolute top-full left-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -68,6 +75,8 @@
                                 <a href="{{ route('admin.guru-monitor.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">Guru Monitor</a>
                                 <a href="{{ route('admin.whatsapp-analytics.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">WhatsApp Analytics</a>
                                 <a href="{{ route('admin.payment-settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">Settings</a>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a href="{{ route('admin.error-logs.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 {{ request()->routeIs('admin.error-logs*') ? 'bg-red-50 text-red-600' : '' }}">🪵 Error Logs</a>
                             </div>
                         </div>
                     </div>
@@ -104,5 +113,6 @@
     <main>
         @yield('content')
     </main>
+    @stack('scripts')
 </body>
 </html>

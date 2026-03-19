@@ -36,7 +36,7 @@ class ReferralController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'amount'         => 'required|integer|min:10000',
+            'amount'         => 'required|integer|min:50000',
             'bank_name'      => 'required|string',
             'account_number' => 'required|string',
             'account_name'   => 'required|string',
@@ -51,6 +51,7 @@ class ReferralController extends Controller
 
         WithdrawalRequest::create([
             'user_id'        => $user->id,
+            'type'           => 'referral',
             'amount'         => $validated['amount'],
             'bank_name'      => $validated['bank_name'],
             'account_number' => $validated['account_number'],

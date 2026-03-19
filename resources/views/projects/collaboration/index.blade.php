@@ -75,7 +75,7 @@
                             <div>
                                 <p class="text-sm font-medium text-gray-900">{{ $member->user->name }}</p>
                                 <p class="text-xs text-gray-500">{{ $member->user->email }}</p>
-                                <p class="text-xs text-gray-400">Joined {{ $member->joined_at->diffForHumans() }}</p>
+                                <p class="text-xs text-gray-400">Joined {{ $member->joined_at?->diffForHumans() ?? '-' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -128,7 +128,7 @@
                             <div>
                                 <p class="text-sm font-medium text-gray-900">{{ $invitation->user->name }}</p>
                                 <p class="text-xs text-gray-500">{{ $invitation->user->email }}</p>
-                                <p class="text-xs text-gray-400">Invited {{ $invitation->invited_at->diffForHumans() }} by {{ $invitation->invitedBy->name }}</p>
+                                <p class="text-xs text-gray-400">Invited {{ $invitation->invited_at?->diffForHumans() ?? '-' }} by {{ $invitation->invitedBy?->name ?? '-' }}</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">

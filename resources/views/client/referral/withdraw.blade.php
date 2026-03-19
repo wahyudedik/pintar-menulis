@@ -15,7 +15,7 @@
 
     <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
         <p class="text-sm text-blue-700">Saldo tersedia: <span class="font-bold">Rp {{ number_format($stats['available_balance'], 0, ',', '.') }}</span></p>
-        <p class="text-xs text-blue-500 mt-1">Minimum penarikan Rp 10.000</p>
+        <p class="text-xs text-blue-500 mt-1">Minimum penarikan Rp 50.000</p>
     </div>
 
     @if(session('error'))
@@ -27,10 +27,10 @@
             @csrf
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Penarikan (Rp)</label>
-                <input type="number" name="amount" min="10000" max="{{ $stats['available_balance'] }}" required
+                <input type="number" name="amount" min="50000" max="{{ $stats['available_balance'] }}" required
                        value="{{ old('amount') }}"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                       placeholder="Minimal Rp 10.000">
+                       placeholder="Minimal Rp 50.000">
                 @error('amount')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
             </div>
             <div class="mb-4">

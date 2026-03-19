@@ -699,6 +699,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    const categoryLabelMap = {
+        'caption': 'Caption',
+        'social_media': 'Social Media',
+        'google_ads': 'Google Ads',
+        'email_marketing': 'Email Marketing',
+        'product_description': 'Deskripsi Produk',
+        'blog_article': 'Artikel Blog',
+        'video_script': 'Script Video',
+        'whatsapp': 'WhatsApp',
+        'seo_content': 'Konten SEO',
+        'brand_voice': 'Brand Voice',
+        'image_analysis': 'Analisis Gambar',
+        'design_analysis': 'Analisis Desain',
+        'financial_analysis': 'Analisis Keuangan',
+        'ebook_analysis': 'Analisis Ebook',
+        'reader_trend': 'Tren Pembaca',
+        'multiple_captions': 'Multiple Captions',
+    };
+
+    function formatCategoryLabel(cat) {
+        if (!cat) return 'Lainnya';
+        return categoryLabelMap[cat] || cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
     @if($platformPerformance->count() > 0)
     const platformCtx = document.getElementById('platformChart').getContext('2d');
     new Chart(platformCtx, {
@@ -874,30 +898,6 @@
 </div>
 
 <script>
-    const categoryLabelMap = {
-        'caption': 'Caption',
-        'social_media': 'Social Media',
-        'google_ads': 'Google Ads',
-        'email_marketing': 'Email Marketing',
-        'product_description': 'Deskripsi Produk',
-        'blog_article': 'Artikel Blog',
-        'video_script': 'Script Video',
-        'whatsapp': 'WhatsApp',
-        'seo_content': 'Konten SEO',
-        'brand_voice': 'Brand Voice',
-        'image_analysis': 'Analisis Gambar',
-        'design_analysis': 'Analisis Desain',
-        'financial_analysis': 'Analisis Keuangan',
-        'ebook_analysis': 'Analisis Ebook',
-        'reader_trend': 'Tren Pembaca',
-        'multiple_captions': 'Multiple Captions',
-    };
-
-    function formatCategoryLabel(cat) {
-        if (!cat) return 'Lainnya';
-        return categoryLabelMap[cat] || cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    }
-
     function editMetrics(id) {
         fetch(`/analytics/${id}`)
             .then(response => response.json())

@@ -35,6 +35,23 @@
                     </div>
 
                     <div>
+                        <p class="text-xs text-gray-500">Status Pembayaran</p>
+                        @php
+                        $payBadge = match($order->payment_status) {
+                            'pending_payment' => ['bg-red-100 text-red-700',   '⏳ Belum Dibayar'],
+                            'paid'            => ['bg-blue-100 text-blue-700', '✅ Dibayar'],
+                            'held'            => ['bg-blue-100 text-blue-700', '🔒 Dana di-Escrow'],
+                            'released'        => ['bg-green-100 text-green-700','💸 Dana Diteruskan'],
+                            'refunded'        => ['bg-gray-100 text-gray-700', '↩️ Refunded'],
+                            default           => ['bg-gray-100 text-gray-600',  $order->payment_status],
+                        };
+                        @endphp
+                        <span class="inline-block px-2 py-1 rounded-full text-xs mt-1 {{ $payBadge[0] }}">
+                            {{ $payBadge[1] }}
+                        </span>
+                    </div>
+
+                    <div>
                         <p class="text-xs text-gray-500">Kategori</p>
                         <p class="font-medium text-sm">{{ $order->category }}</p>
                     </div>
@@ -104,9 +121,85 @@
             <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Brief dari Anda</h3>
                 <div class="bg-gray-50 rounded p-3">
-                    <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ $order->brief }}</p>
+                    <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ $order->brief ?? '(tidak ada teks brief)' }}</p>
+                </div>
+                @if($order->brief_file)
+                <a href="{{ Storage::url($order->brief_file) }}" target="_blank"
+                   class="mt-2 flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    {{ $order->brief_file_original_name ?? 'Download File Brief' }}
+                </a>
+                @endif
+            </div>
+
+            {{-- ═══════════════════════════════════════════════════════
+                 PAYMENT BANNER — tampil sesuai status pembayaran
+            ═══════════════════════════════════════════════════════ --}}
+            @php
+                $pendingPayment = \App\Models\Payment::where('order_id', $order->id)
+                    ->where('status', 'processing')->first();
+            @endphp
+
+            {{-- 1. Belum bayar sama sekali --}}
+            @if($order->payment_status === 'pending_payment' && !$pendingPayment)
+            <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-lg p-5 mb-4 text-white">
+                <div class="flex items-start gap-3 mb-3">
+                    <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <div>
+                        <h3 class="text-lg font-semibold">Menunggu Pembayaran</h3>
+                        <p class="text-sm opacity-90 mt-1">Order Anda sudah dibuat. Lakukan pembayaran agar operator bisa mulai mengerjakan.</p>
+                    </div>
+                </div>
+                <div class="bg-white/20 rounded-lg p-3 mb-4 text-sm">
+                    <div class="flex justify-between">
+                        <span>Total Pembayaran</span>
+                        <span class="font-bold text-lg">Rp {{ number_format($order->budget, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between mt-1 opacity-80 text-xs">
+                        <span>Deadline</span>
+                        <span>{{ $order->deadline->format('d M Y') }}</span>
+                    </div>
+                </div>
+                <a href="{{ route('payment.show', $order) }}"
+                   class="block w-full bg-white text-orange-600 text-center font-semibold py-3 rounded-lg hover:bg-orange-50 transition text-sm">
+                    💳 Bayar Sekarang — Rp {{ number_format($order->budget, 0, ',', '.') }}
+                </a>
+            </div>
+            @endif
+
+            {{-- 2. Bukti sudah diupload, menunggu verifikasi admin --}}
+            @if($pendingPayment && $order->payment_status === 'pending_payment')
+            <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-4">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div>
+                        <h3 class="text-base font-semibold text-yellow-900">Bukti Pembayaran Sedang Diverifikasi</h3>
+                        <p class="text-sm text-yellow-800 mt-1">Admin sedang memverifikasi bukti transfer Anda. Biasanya selesai dalam 1×24 jam.</p>
+                    </div>
                 </div>
             </div>
+            @endif
+
+            {{-- 3. Pembayaran sudah verified (held) — operator sedang mengerjakan --}}
+            @if($order->payment_status === 'held')
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <div>
+                        <h3 class="text-base font-semibold text-blue-900">Pembayaran Terverifikasi — Dana di-Escrow</h3>
+                        <p class="text-sm text-blue-800 mt-1">Dana Rp {{ number_format($order->budget, 0, ',', '.') }} aman di-hold platform. Akan diteruskan ke operator setelah Anda approve hasil pekerjaan.</p>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Result -->
             @if($order->result || $order->revisions->count() > 0)

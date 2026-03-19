@@ -540,6 +540,11 @@ Singkat dan actionable.";
         $bestCompetitor = $competitors->sortByDesc('followers_count')->first();
 
         return [
+            'winner' => $bestCompetitor->username,
+            'winner_reasons' => [
+                'Jumlah followers terbanyak dalam perbandingan',
+                'Posisi market yang kuat',
+            ],
             'market_overview' => [
                 'market_leader' => $bestCompetitor->username,
                 'competitive_landscape' => 'Analisis dasar berdasarkan data tersedia'
@@ -553,6 +558,11 @@ Singkat dan actionable.";
                 'Fokus pada platform dengan engagement terbaik',
                 'Pelajari strategi kompetitor dengan followers terbanyak',
                 'Optimalkan content consistency dan quality'
+            ],
+            'opportunities' => [
+                'Content gap yang belum dimanfaatkan kompetitor lain',
+                'Peluang kolaborasi atau diferensiasi konten',
+                'Optimasi hashtag dan caption berdasarkan trend kompetitor'
             ]
         ];
     }

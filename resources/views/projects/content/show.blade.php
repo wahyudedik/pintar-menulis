@@ -3,464 +3,379 @@
 @section('title', $content->title . ' - ' . $project->business_name)
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Content Display -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h5 class="card-title mb-1">{{ $content->title }}</h5>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-info">{{ ucfirst(str_replace('_', ' ', $content->content_type)) }}</span>
-                                @if($content->platform)
-                                    <span class="badge bg-secondary">{{ ucfirst($content->platform) }}</span>
-                                @endif
-                                @php
-                                    $statusColors = [
-                                        'draft' => 'secondary',
-                                        'review' => 'warning',
-                                        'approved' => 'success',
-                                        'published' => 'primary',
-                                        'rejected' => 'danger'
-                                    ];
-                                @endphp
-                                <span class="badge bg-{{ $statusColors[$content->status] ?? 'secondary' }}">
-                                    {{ ucfirst($content->status) }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Actions
+<div class="p-6" x-data="contentShow()">
+
+    {{-- Header --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <a href="{{ route('projects.show', $project) }}" class="hover:text-gray-700">{{ $project->business_name }}</a>
+                <span>/</span>
+                <a href="{{ route('projects.content.index', $project) }}" class="hover:text-gray-700">Konten</a>
+                <span>/</span>
+                <span class="text-gray-700 truncate max-w-xs">{{ $content->title }}</span>
+            </div>
+            <h1 class="text-xl font-bold text-gray-900">{{ $content->title }}</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('projects.content.index', $project) }}"
+               class="text-sm text-gray-600 border border-gray-300 px-3 py-2 rounded-lg hover:bg-gray-50 transition">
+                ← Daftar Konten
+            </a>
+            <a href="{{ route('projects.show', $project) }}"
+               class="text-sm text-gray-600 border border-gray-300 px-3 py-2 rounded-lg hover:bg-gray-50 transition">
+                ← Project
+            </a>
+        </div>
+    </div>
+
+    @if(session('success'))
+    <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{{ session('error') }}</div>
+    @endif
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {{-- Main Content --}}
+        <div class="lg:col-span-2 space-y-6">
+
+            {{-- Content Card --}}
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        @php
+                            $typeLabels = ['caption'=>'Caption','article'=>'Artikel','ad_copy'=>'Iklan','email'=>'Email','product_desc'=>'Deskripsi Produk'];
+                            $statusColors = ['draft'=>'bg-gray-100 text-gray-700','review'=>'bg-yellow-100 text-yellow-700','approved'=>'bg-green-100 text-green-700','rejected'=>'bg-red-100 text-red-700','published'=>'bg-blue-100 text-blue-700'];
+                            $statusLabels = ['draft'=>'Draft','review'=>'Menunggu Review','approved'=>'Disetujui','rejected'=>'Ditolak','published'=>'Dipublikasi'];
+                        @endphp
+                        <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                            {{ $typeLabels[$content->content_type] ?? ucfirst($content->content_type) }}
+                        </span>
+                        @if($content->platform)
+                        <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                            {{ ucfirst($content->platform) }}
+                        </span>
+                        @endif
+                        <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$content->status] ?? 'bg-gray-100 text-gray-700' }}">
+                            {{ $statusLabels[$content->status] ?? ucfirst($content->status) }}
+                        </span>
+                    </div>
+
+                    {{-- Actions Dropdown --}}
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false"
+                                class="flex items-center gap-1 text-sm text-gray-600 border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition">
+                            Aksi
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="open" x-cloak
+                             class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1">
+                            @if($canEdit)
+                            <a href="{{ route('projects.content.edit', [$project, $content]) }}"
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                ✏️ Edit
+                            </a>
+                            @endif
+                            @if($content->status === 'draft' && $canEdit)
+                            <form action="{{ route('projects.content.submit-review', [$project, $content]) }}" method="POST"
+                                  onsubmit="return confirm('Kirim konten ini untuk review?')">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    📤 Kirim untuk Review
+                                </button>
+                            </form>
+                            @endif
+                            @if($content->status === 'review' && $canApprove)
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <button @click="showApproveModal = true; open = false"
+                                    class="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-700 hover:bg-green-50">
+                                ✅ Setujui
                             </button>
-                            <ul class="dropdown-menu">
-                                @if($content->canEdit(auth()->user()))
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('projects.content.edit', [$project, $content]) }}">
-                                        <i class="fas fa-edit me-2"></i>Edit
-                                    </a>
-                                </li>
-                                @endif
-                                @if($content->status == 'draft' && $content->canEdit(auth()->user()))
-                                <li>
-                                    <form action="{{ route('projects.content.submit-review', [$project, $content]) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-paper-plane me-2"></i>Submit for Review
-                                        </button>
-                                    </form>
-                                </li>
-                                @endif
-                                @if($content->status == 'review' && auth()->user()->can('approve-content', $project))
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <button class="dropdown-item text-success" onclick="approveContent()">
-                                        <i class="fas fa-check me-2"></i>Approve
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item text-danger" onclick="rejectContent()">
-                                        <i class="fas fa-times me-2"></i>Reject
-                                    </button>
-                                </li>
-                                @endif
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('projects.content.versions', [$project, $content]) }}">
-                                        <i class="fas fa-history me-2"></i>Version History
-                                    </a>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item" onclick="copyContent()">
-                                        <i class="fas fa-copy me-2"></i>Copy Content
-                                    </button>
-                                </li>
-                            </ul>
+                            <button @click="showRejectModal = true; open = false"
+                                    class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                ❌ Tolak
+                            </button>
+                            @endif
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="{{ route('projects.content.versions', [$project, $content]) }}"
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                🕐 Riwayat Versi
+                            </a>
+                            <button @click="copyContent(); open = false"
+                                    class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                📋 Salin Konten
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <!-- Content -->
-                    <div class="mb-4">
-                        <div class="content-display p-3 bg-light rounded" id="contentDisplay">
-                            {!! nl2br(e($content->content)) !!}
-                        </div>
-                        <div class="mt-2 text-muted small">
-                            <i class="fas fa-font me-1"></i>{{ strlen($content->content) }} characters
-                        </div>
-                    </div>
 
-                    <!-- Tags -->
+                <div class="p-5">
+                    {{-- Content Body --}}
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4 whitespace-pre-wrap text-gray-800 text-sm leading-relaxed" id="contentDisplay">{{ $content->content }}</div>
+                    <p class="text-xs text-gray-400">{{ strlen($content->content) }} karakter</p>
+
+                    {{-- Tags --}}
                     @if($content->tags)
-                    <div class="mb-4">
-                        <h6>Tags:</h6>
-                        <div class="d-flex flex-wrap gap-1">
+                    <div class="mt-4">
+                        <p class="text-xs font-medium text-gray-500 mb-2">Tags:</p>
+                        <div class="flex flex-wrap gap-1">
                             @foreach(explode(',', $content->tags) as $tag)
-                                <span class="badge bg-light text-dark">{{ trim($tag) }}</span>
+                            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">{{ trim($tag) }}</span>
                             @endforeach
                         </div>
                     </div>
                     @endif
 
-                    <!-- Notes -->
+                    {{-- Notes --}}
                     @if($content->notes)
-                    <div class="mb-4">
-                        <h6>Notes:</h6>
-                        <div class="p-3 bg-info bg-opacity-10 rounded">
-                            {!! nl2br(e($content->notes)) !!}
-                        </div>
+                    <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                        <p class="text-xs font-medium text-blue-700 mb-1">Catatan:</p>
+                        <p class="text-sm text-blue-800 whitespace-pre-wrap">{{ $content->notes }}</p>
                     </div>
                     @endif
 
-                    <!-- Metadata -->
-                    <div class="row text-muted small">
-                        <div class="col-md-6">
-                            <i class="fas fa-user me-1"></i>Created by: {{ $content->creator->name }}
-                        </div>
-                        <div class="col-md-6">
-                            <i class="fas fa-clock me-1"></i>{{ $content->created_at->format('M d, Y \a\t H:i') }}
-                        </div>
-                        @if($content->updated_at != $content->created_at)
-                        <div class="col-md-6 mt-1">
-                            <i class="fas fa-edit me-1"></i>Last updated: {{ $content->updated_at->format('M d, Y \a\t H:i') }}
-                        </div>
+                    {{-- Review Notes --}}
+                    @if($content->review_notes)
+                    <div class="mt-4 p-3 {{ $content->status === 'rejected' ? 'bg-red-50 border border-red-100' : 'bg-green-50 border border-green-100' }} rounded-lg">
+                        <p class="text-xs font-medium {{ $content->status === 'rejected' ? 'text-red-700' : 'text-green-700' }} mb-1">
+                            {{ $content->status === 'rejected' ? 'Alasan Penolakan:' : 'Catatan Reviewer:' }}
+                        </p>
+                        <p class="text-sm {{ $content->status === 'rejected' ? 'text-red-800' : 'text-green-800' }}">{{ $content->review_notes }}</p>
+                        @if($content->reviewer)
+                        <p class="text-xs text-gray-500 mt-1">— {{ $content->reviewer->name }}, {{ $content->reviewed_at?->format('d M Y H:i') }}</p>
                         @endif
-                        @if($content->approved_at)
-                        <div class="col-md-6 mt-1">
-                            <i class="fas fa-check me-1"></i>Approved: {{ $content->approved_at->format('M d, Y \a\t H:i') }}
-                        </div>
+                    </div>
+                    @endif
+
+                    {{-- Meta --}}
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-4 text-xs text-gray-500">
+                        <span>Dibuat oleh: <span class="font-medium text-gray-700">{{ $content->creator->name }}</span></span>
+                        <span>{{ $content->created_at->format('d M Y \p\u\k\u\l H:i') }}</span>
+                        @if($content->updated_at->ne($content->created_at))
+                        <span>Diperbarui: {{ $content->updated_at->format('d M Y H:i') }}</span>
                         @endif
                     </div>
                 </div>
             </div>
 
-            <!-- Comments Section -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-comments me-2"></i>Comments ({{ $content->comments->count() }})
-                    </h5>
+            {{-- Comments --}}
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-100">
+                    <h3 class="font-semibold text-gray-800">Komentar ({{ $content->comments->count() }})</h3>
                 </div>
-                <div class="card-body">
-                    <!-- Add Comment Form -->
-                    <form action="{{ route('projects.content.comments.store', [$project, $content]) }}" method="POST" class="mb-4">
+                <div class="p-5">
+                    {{-- Add Comment --}}
+                    <form action="{{ route('projects.content.comments.store', [$project, $content]) }}" method="POST" class="mb-6">
                         @csrf
-                        <div class="mb-3">
-                            <textarea class="form-control @error('comment') is-invalid @enderror" 
-                                      name="comment" rows="3" 
-                                      placeholder="Add a comment..." required>{{ old('comment') }}</textarea>
-                            @error('comment')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-2"></i>Add Comment
+                        <input type="hidden" name="type" value="comment">
+                        <textarea name="comment" rows="3" required
+                                  placeholder="Tambahkan komentar atau feedback..."
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 @error('comment') border-red-400 @enderror">{{ old('comment') }}</textarea>
+                        @error('comment')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                        <button type="submit"
+                                class="mt-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                            Tambah Komentar
                         </button>
                     </form>
 
-                    <!-- Comments List -->
-                    @if($content->comments->count() > 0)
-                        <div class="comments-list">
-                            @foreach($content->comments->sortByDesc('created_at') as $comment)
-                            <div class="comment-item border-bottom pb-3 mb-3">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="d-flex">
-                                        <div class="avatar-sm me-3">
-                                            <div class="avatar-title bg-primary rounded-circle">
-                                                {{ substr($comment->user->name, 0, 1) }}
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex align-items-center gap-2 mb-1">
-                                                <strong>{{ $comment->user->name }}</strong>
-                                                <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
-                                                @if($comment->is_resolved)
-                                                    <span class="badge bg-success">Resolved</span>
-                                                @endif
-                                            </div>
-                                            <div class="comment-content">
-                                                {!! nl2br(e($comment->comment)) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            @if(!$comment->is_resolved && (auth()->id() == $comment->user_id || auth()->user()->can('approve-content', $project)))
-                                            <li>
-                                                <form action="{{ route('projects.content.comments.resolve', [$project, $content, $comment]) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="fas fa-check me-2"></i>Mark as Resolved
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            @endif
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
+                    {{-- Comments List --}}
+                    @forelse($content->comments->sortByDesc('created_at') as $comment)
+                    <div class="flex gap-3 pb-4 mb-4 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
+                        <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold shrink-0">
+                            {{ strtoupper(substr($comment->user->name, 0, 1)) }}
                         </div>
-                    @else
-                        <div class="text-center text-muted py-3">
-                            <i class="fas fa-comments fa-2x mb-2"></i>
-                            <p>No comments yet. Be the first to add feedback!</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <!-- Navigation -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <a href="{{ route('projects.content.index', $project) }}" class="btn btn-outline-secondary w-100 mb-2">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Content List
-                    </a>
-                    <a href="{{ route('projects.show', $project) }}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-project-diagram me-2"></i>Back to Project
-                    </a>
-                </div>
-            </div>
-
-            <!-- Workflow Status -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">Workflow Status</h6>
-                </div>
-                <div class="card-body">
-                    <div class="workflow-steps">
-                        <div class="step {{ $content->status == 'draft' ? 'active' : ($content->created_at ? 'completed' : '') }}">
-                            <div class="step-icon">
-                                <i class="fas fa-edit"></i>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm font-medium text-gray-800">{{ $comment->user->name }}</span>
+                                <span class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
+                                @if($comment->is_resolved)
+                                <span class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-xs">Selesai</span>
+                                @endif
                             </div>
-                            <div class="step-content">
-                                <h6>Draft</h6>
-                                <small class="text-muted">Content created</small>
-                            </div>
-                        </div>
-                        <div class="step {{ $content->status == 'review' ? 'active' : ($content->submitted_at ? 'completed' : '') }}">
-                            <div class="step-icon">
-                                <i class="fas fa-eye"></i>
-                            </div>
-                            <div class="step-content">
-                                <h6>Review</h6>
-                                <small class="text-muted">Under review</small>
-                            </div>
-                        </div>
-                        <div class="step {{ in_array($content->status, ['approved', 'published']) ? 'active' : '' }}">
-                            <div class="step-icon">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="step-content">
-                                <h6>Approved</h6>
-                                <small class="text-muted">Ready to publish</small>
-                            </div>
-                        </div>
-                        <div class="step {{ $content->status == 'published' ? 'active' : '' }}">
-                            <div class="step-icon">
-                                <i class="fas fa-globe"></i>
-                            </div>
-                            <div class="step-content">
-                                <h6>Published</h6>
-                                <small class="text-muted">Live content</small>
-                            </div>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $comment->comment }}</p>
+                            @if(!$comment->is_resolved && (auth()->id() === $comment->user_id || $canApprove))
+                            <form action="{{ route('projects.content.comments.resolve', [$project, $content, $comment]) }}" method="POST" class="mt-1">
+                                @csrf
+                                <button type="submit" class="text-xs text-gray-400 hover:text-green-600 transition">
+                                    ✓ Tandai selesai
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Version History -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">Recent Versions</h6>
-                </div>
-                <div class="card-body">
-                    @if($content->versions->count() > 0)
-                        <div class="version-list">
-                            @foreach($content->versions->take(5) as $version)
-                            <div class="version-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <div>
-                                    <small class="fw-bold">v{{ $version->version_number }}</small>
-                                    <br>
-                                    <small class="text-muted">{{ $version->created_at->format('M d, H:i') }}</small>
-                                </div>
-                                <div>
-                                    <form action="{{ route('projects.content.restore-version', [$project, $content, $version]) }}" method="POST"
-                                          onsubmit="return confirm('Restore this version? Current content will be saved as a new version.')">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                                            Restore
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        @if($content->versions->count() > 5)
-                        <div class="text-center mt-3">
-                            <a href="{{ route('projects.content.versions', [$project, $content]) }}" class="btn btn-sm btn-outline-secondary">
-                                View All Versions
-                            </a>
-                        </div>
-                        @endif
-                    @else
-                        <div class="text-center text-muted py-3">
-                            <i class="fas fa-history fa-2x mb-2"></i>
-                            <p>No version history yet</p>
-                        </div>
-                    @endif
+                    @empty
+                    <div class="text-center py-8 text-gray-400 text-sm">
+                        Belum ada komentar. Jadilah yang pertama memberi feedback!
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Approval Modal -->
-<div class="modal fade" id="approvalModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Approve Content</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        {{-- Sidebar --}}
+        <div class="space-y-4">
+
+            {{-- Workflow Status --}}
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 class="font-semibold text-gray-800 mb-4">Status Alur Kerja</h3>
+                @php
+                    $steps = [
+                        ['key' => 'draft',     'label' => 'Draft',     'desc' => 'Konten dibuat'],
+                        ['key' => 'review',    'label' => 'Review',    'desc' => 'Menunggu review'],
+                        ['key' => 'approved',  'label' => 'Disetujui', 'desc' => 'Siap dipublikasi'],
+                        ['key' => 'published', 'label' => 'Dipublikasi','desc' => 'Konten live'],
+                    ];
+                    $statusOrder = ['draft'=>0,'review'=>1,'approved'=>2,'rejected'=>2,'published'=>3];
+                    $currentOrder = $statusOrder[$content->status] ?? 0;
+                @endphp
+                <div class="space-y-3">
+                    @foreach($steps as $i => $step)
+                    @php
+                        $stepOrder = $statusOrder[$step['key']] ?? $i;
+                        $isActive = $content->status === $step['key'] || ($step['key'] === 'approved' && $content->status === 'rejected');
+                        $isDone = $stepOrder < $currentOrder;
+                    @endphp
+                    <div class="flex items-center gap-3 {{ (!$isActive && !$isDone) ? 'opacity-40' : '' }}">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm
+                            {{ $isActive ? 'bg-blue-600 text-white' : ($isDone ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500') }}">
+                            {{ $isDone ? '✓' : ($i + 1) }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">{{ $step['label'] }}</p>
+                            <p class="text-xs text-gray-500">{{ $step['desc'] }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
             </div>
+
+            {{-- Version History --}}
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-gray-800">Versi Terbaru</h3>
+                    <a href="{{ route('projects.content.versions', [$project, $content]) }}"
+                       class="text-xs text-blue-600 hover:underline">Lihat semua</a>
+                </div>
+                @forelse($versions->take(5) as $version)
+                <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">v{{ $version->version_number }}</p>
+                        <p class="text-xs text-gray-400">{{ $version->created_at->format('d M, H:i') }}</p>
+                        @if($version->change_notes)
+                        <p class="text-xs text-gray-500 truncate max-w-32">{{ $version->change_notes }}</p>
+                        @endif
+                    </div>
+                    @if($canEdit)
+                    <form action="{{ route('projects.content.restore-version', [$project, $content, $version]) }}" method="POST"
+                          onsubmit="return confirm('Restore versi ini? Konten saat ini akan disimpan sebagai versi baru.')">
+                        @csrf
+                        <button type="submit" class="text-xs text-blue-600 border border-blue-300 px-2 py-1 rounded hover:bg-blue-50 transition">
+                            Restore
+                        </button>
+                    </form>
+                    @endif
+                </div>
+                @empty
+                <p class="text-sm text-gray-400 text-center py-3">Belum ada riwayat versi</p>
+                @endforelse
+            </div>
+
+        </div>
+    </div>
+
+    {{-- Approve Modal --}}
+    <div x-show="showApproveModal" x-cloak
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         @click.self="showApproveModal = false">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Setujui Konten</h3>
             <form action="{{ route('projects.content.approve', [$project, $content]) }}" method="POST">
                 @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="approval_notes" class="form-label">Approval Notes (Optional)</label>
-                        <textarea class="form-control" name="notes" id="approval_notes" rows="3" 
-                                  placeholder="Add any notes about the approval..."></textarea>
-                    </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Catatan (Opsional)</label>
+                    <textarea name="notes" rows="3"
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+                              placeholder="Tambahkan catatan approval..."></textarea>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Approve Content</button>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                        ✅ Setujui Konten
+                    </button>
+                    <button type="button" @click="showApproveModal = false"
+                            class="flex-1 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
+                        Batal
+                    </button>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
-<!-- Rejection Modal -->
-<div class="modal fade" id="rejectionModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Reject Content</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+    {{-- Reject Modal --}}
+    <div x-show="showRejectModal" x-cloak
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         @click.self="showRejectModal = false">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Tolak Konten</h3>
             <form action="{{ route('projects.content.reject', [$project, $content]) }}" method="POST">
                 @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="rejection_reason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="reason" id="rejection_reason" rows="3" 
-                                  placeholder="Please explain why this content is being rejected..." required></textarea>
-                    </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penolakan <span class="text-red-500">*</span></label>
+                    <textarea name="notes" rows="3" required
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300"
+                              placeholder="Jelaskan alasan penolakan..."></textarea>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Reject Content</button>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium">
+                        ❌ Tolak Konten
+                    </button>
+                    <button type="button" @click="showRejectModal = false"
+                            class="flex-1 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
+                        Batal
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+
+    {{-- Toast --}}
+    <div x-show="toast" x-cloak x-transition
+         class="fixed bottom-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50">
+        <span x-text="toastMsg"></span>
+    </div>
 </div>
 
-@push('styles')
-<style>
-.workflow-steps .step {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-.workflow-steps .step.active,
-.workflow-steps .step.completed {
-    opacity: 1;
-}
-
-.workflow-steps .step-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-}
-
-.workflow-steps .step.active .step-icon {
-    background: #0d6efd;
-    color: white;
-}
-
-.workflow-steps .step.completed .step-icon {
-    background: #198754;
-    color: white;
-}
-
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-}
-
-.avatar-title {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-}
-</style>
-@endpush
-
-@push('scripts')
 <script>
-function approveContent() {
-    new bootstrap.Modal(document.getElementById('approvalModal')).show();
-}
+function contentShow() {
+    return {
+        showApproveModal: false,
+        showRejectModal: false,
+        toast: false,
+        toastMsg: '',
 
-function rejectContent() {
-    new bootstrap.Modal(document.getElementById('rejectionModal')).show();
-}
+        copyContent() {
+            const text = document.getElementById('contentDisplay').innerText;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => this.showToast('Konten disalin!'));
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.focus(); ta.select();
+                document.execCommand('copy'); ta.remove();
+                this.showToast('Konten disalin!');
+            }
+        },
 
-function copyContent() {
-    const content = document.getElementById('contentDisplay').innerText;
-    navigator.clipboard.writeText(content).then(function() {
-        // Show success message
-        const toast = document.createElement('div');
-        toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3';
-        toast.style.zIndex = '9999';
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    Content copied to clipboard!
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `;
-        document.body.appendChild(toast);
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-        
-        // Remove toast after it's hidden
-        toast.addEventListener('hidden.bs.toast', function() {
-            document.body.removeChild(toast);
-        });
-    });
+        showToast(msg) {
+            this.toastMsg = msg;
+            this.toast = true;
+            setTimeout(() => this.toast = false, 2500);
+        }
+    }
 }
 </script>
-@endpush
 @endsection

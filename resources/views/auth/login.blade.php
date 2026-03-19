@@ -28,14 +28,25 @@
                         </div>
                     @endif
 
+                    <!-- Auth Error Alert -->
+                    @if ($errors->any())
+                        <div class="mb-4 flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
+                            <svg class="w-5 h-5 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.75-11.25a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0v-4.5zm.75 7.5a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="text-sm">
+                                @foreach ($errors->all() as $error)
+                                    <p>{{ $error }}</p>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Email -->
                     <div class="mb-4">
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                         <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('email')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ $errors->has('email') ? 'border-red-400 bg-red-50' : 'border-gray-300' }}">
                     </div>
 
                     <!-- Password -->
@@ -43,9 +54,6 @@
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                         <input id="password" type="password" name="password" required
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('password')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <!-- Remember Me -->

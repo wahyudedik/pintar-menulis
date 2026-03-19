@@ -385,6 +385,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Operator Monitor
         Route::get('/operators', [\App\Http\Controllers\Admin\UserController::class, 'operators'])->name('operators.index');
+
+        // Client Feature Analytics
+        Route::get('/feature-analytics', [\App\Http\Controllers\Admin\ClientFeatureAnalyticsController::class, 'index'])->name('feature-analytics.index');
+        Route::get('/feature-analytics/user/{user}', [\App\Http\Controllers\Admin\ClientFeatureAnalyticsController::class, 'userDetail'])->name('feature-analytics.user');
+        Route::get('/feature-analytics/feature/{featureKey}', [\App\Http\Controllers\Admin\ClientFeatureAnalyticsController::class, 'featureDetail'])->name('feature-analytics.feature');
     });
 });
 
@@ -485,6 +490,13 @@ Route::prefix('api/whatsapp')->middleware(['auth'])->group(function () {
     Route::get('/subscription', [\App\Http\Controllers\WhatsAppController::class, 'getSubscription'])->name('api.whatsapp.subscription');
     Route::post('/subscription', [\App\Http\Controllers\WhatsAppController::class, 'updateSubscription'])->name('api.whatsapp.update-subscription');
     Route::delete('/subscription', [\App\Http\Controllers\WhatsAppController::class, 'deleteSubscription'])->name('api.whatsapp.delete-subscription');
+});
+
+// Admin Error Logs
+Route::prefix('admin/error-logs')->middleware(['auth', 'role:admin'])->name('admin.error-logs.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\ErrorLogController::class, 'index'])->name('index');
+    Route::post('/clear', [\App\Http\Controllers\Admin\ErrorLogController::class, 'clear'])->name('clear');
+    Route::get('/download', [\App\Http\Controllers\Admin\ErrorLogController::class, 'download'])->name('download');
 });
 
 // Admin WhatsApp Analytics Routes

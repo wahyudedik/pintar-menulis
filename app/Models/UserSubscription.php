@@ -104,9 +104,22 @@ class UserSubscription extends Model
 
     public static function startTrial(User $user, Package $package): self
     {
-        // Cancel any existing subscription
+        // Defense-in-depth: cek di level model juga
+        if ($user->hasUsedTrial()) {
+            throw new \RuntimeException('User sudah pernah menggunakan trial.');
+        }
+
+        if (!$package->has_trial || ($package->trial_days ?? 0) <= 0) {
+            throw new \RuntimeException('Paket ini tidak memiliki masa trial.');
+        }
+
+        if ($package->price == 0) {
+            throw new \RuntimeException('Paket gratis tidak menggunakan mekanisme trial berbayar.');
+        }
+
+        // Cancel any existing trial (jangan cancel yang active/paid)
         self::where('user_id', $user->id)
-            ->whereIn('status', ['trial', 'active'])
+            ->where('status', 'trial')
             ->update(['status' => 'cancelled', 'cancelled_at' => now()]);
 
         return self::create([
@@ -115,7 +128,7 @@ class UserSubscription extends Model
             'status'          => 'trial',
             'billing_cycle'   => 'monthly',
             'trial_starts_at' => now(),
-            'trial_ends_at'   => now()->addDays($package->trial_days ?? 30),
+            'trial_ends_at'   => now()->addDays($package->trial_days),
             'trial_used'      => true,
             'ai_quota_limit'  => $package->ai_quota_monthly,
             'ai_quota_used'   => 0,

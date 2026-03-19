@@ -608,7 +608,17 @@
     }
 
     function copyToClipboard(text, button) {
-        navigator.clipboard.writeText(text).then(() => {
+        const doWrite = () => {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            }
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            document.execCommand('copy'); ta.remove();
+            return Promise.resolve();
+        };
+        doWrite().then(() => {
             const originalText = button.textContent;
             button.textContent = '✅ Copied!';
             button.classList.add('text-green-600');

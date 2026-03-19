@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'feature'  => \App\Http\Middleware\CheckFeatureAccess::class,
         ]);
+        $middleware->appendToGroup('web', \App\Http\Middleware\TrackFeatureUsage::class);
         // Exclude payment webhooks from CSRF verification
         $middleware->validateCsrfTokens(except: [
             'webhook/midtrans',

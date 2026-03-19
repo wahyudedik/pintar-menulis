@@ -26,7 +26,7 @@
                             @if ($request->ai_generated_content)
                                 <div class="mt-4 flex justify-end">
                                     <button
-                                        onclick="navigator.clipboard.writeText('{{ addslashes($request->ai_generated_content) }}'); alert('Teks berhasil disalin!')"
+                                        onclick="copyToClipboard('{{ addslashes($request->ai_generated_content) }}').then(() => showNotification('Teks berhasil disalin!', 'success'))"
                                         class="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center">
                                         <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor">

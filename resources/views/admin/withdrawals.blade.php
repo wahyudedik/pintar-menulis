@@ -5,7 +5,7 @@
     <!-- Header -->
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Withdrawal Management</h1>
-        <p class="text-sm text-gray-600 mt-1">Kelola permintaan penarikan dana operator & guru</p>
+        <p class="text-sm text-gray-600 mt-1">Kelola permintaan penarikan dana operator, guru & referral client</p>
     </div>
 
     @if(session('success'))
@@ -13,6 +13,26 @@
         {{ session('success') }}
     </div>
     @endif
+
+    <!-- Filter by Type -->
+    <div class="flex gap-2 mb-6 flex-wrap">
+        <a href="{{ route('admin.withdrawals') }}" 
+           class="px-4 py-2 rounded-lg text-sm font-medium transition {{ !request('type') ? 'bg-gray-900 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+            Semua
+        </a>
+        <a href="{{ route('admin.withdrawals', ['type' => 'operator']) }}" 
+           class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('type') === 'operator' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+            🔧 Operator
+        </a>
+        <a href="{{ route('admin.withdrawals', ['type' => 'guru']) }}" 
+           class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('type') === 'guru' ? 'bg-purple-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+            📚 Guru
+        </a>
+        <a href="{{ route('admin.withdrawals', ['type' => 'referral']) }}" 
+           class="px-4 py-2 rounded-lg text-sm font-medium transition {{ request('type') === 'referral' ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+            🎁 Referral
+        </a>
+    </div>
 
     <!-- Stats -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -89,6 +109,16 @@
                             <h3 class="text-base font-semibold text-gray-900">{{ $withdrawal->user->name }}</h3>
                             <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $withdrawal->user->isGuru() ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
                                 {{ ucfirst($withdrawal->user->role) }}
+                            </span>
+                            @php
+                                $typeBadge = match($withdrawal->type ?? 'operator') {
+                                    'referral' => ['label' => '🎁 Referral', 'class' => 'bg-green-100 text-green-700'],
+                                    'guru'     => ['label' => '📚 Guru', 'class' => 'bg-purple-100 text-purple-700'],
+                                    default    => ['label' => '🔧 Operator', 'class' => 'bg-blue-100 text-blue-700'],
+                                };
+                            @endphp
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $typeBadge['class'] }}">
+                                {{ $typeBadge['label'] }}
                             </span>
                             <span class="px-2 py-1 text-xs font-medium rounded
                                 @if($withdrawal->status === 'pending') bg-yellow-100 text-yellow-700

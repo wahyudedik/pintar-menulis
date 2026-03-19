@@ -114,9 +114,19 @@
                 <!-- Profile/Logout -->
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open" 
-                            class="tooltip flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white hover:opacity-90 transition"
+                            class="tooltip flex items-center justify-center w-12 h-12 rounded-lg overflow-hidden hover:opacity-90 transition"
                             data-tooltip="{{ auth()->user()->name }}">
-                        <span class="font-semibold text-sm">{{ substr(auth()->user()->name, 0, 2) }}</span>
+                        @if(auth()->user()->avatar)
+                            @if(str_starts_with(auth()->user()->avatar, 'http'))
+                                <img src="{{ auth()->user()->avatar }}" class="w-12 h-12 object-cover rounded-lg" alt="{{ auth()->user()->name }}">
+                            @else
+                                <img src="{{ Storage::url(auth()->user()->avatar) }}" class="w-12 h-12 object-cover rounded-lg" alt="{{ auth()->user()->name }}">
+                            @endif
+                        @else
+                            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                {{ substr(auth()->user()->name, 0, 2) }}
+                            </div>
+                        @endif
                     </button>
                     
                     <div x-show="open" 
@@ -127,6 +137,9 @@
                             <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                         </div>
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            Edit Profil
+                        </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
@@ -192,6 +205,25 @@
                     .catch(() => {});
             }
         }
+    }
+
+    // Global notification helper — available on every page
+    function showNotification(message, type = 'info') {
+        const colors = {
+            success: 'bg-green-600',
+            error:   'bg-red-600',
+            warning: 'bg-yellow-500',
+            info:    'bg-blue-600',
+        };
+        const el = document.createElement('div');
+        el.className = `fixed top-4 right-4 z-[9999] px-4 py-3 rounded-lg text-white text-sm font-medium shadow-lg transition-all duration-300 translate-x-full ${colors[type] || colors.info}`;
+        el.textContent = message;
+        document.body.appendChild(el);
+        requestAnimationFrame(() => el.classList.replace('translate-x-full', 'translate-x-0'));
+        setTimeout(() => {
+            el.classList.replace('translate-x-0', 'translate-x-full');
+            setTimeout(() => el.remove(), 300);
+        }, 3500);
     }
 
     // Tooltip Handler

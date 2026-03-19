@@ -13,6 +13,8 @@ class Order extends Model
         'operator_id',
         'category',
         'brief',
+        'brief_file',
+        'brief_file_original_name',
         'budget',
         'deadline',
         'result',

@@ -143,6 +143,11 @@
                        class="w-full py-2.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition text-sm text-center block">
                         🛒 Beli Template
                     </a>
+                @elseif(auth()->id() === $template->user_id)
+                    <button onclick="useTemplate({{ $template->id }})"
+                            class="w-full py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition text-sm">
+                        ✓ Gunakan (Template Saya)
+                    </button>
                 @else
                     <button onclick="useTemplate({{ $template->id }})"
                             class="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition text-sm">
@@ -194,15 +199,15 @@ function setRating(value) {
 }
 
 function submitRating(templateId) {
-    if (!selectedRating) { alert('Pilih rating terlebih dahulu'); return; }
+    if (!selectedRating) { showNotification('Pilih rating terlebih dahulu', 'warning'); return; }
     fetch(`/templates/${templateId}/rate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ rating: selectedRating, review: document.getElementById('review-text').value })
     }).then(r => r.json()).then(d => {
-        if (d.success) { alert('Rating berhasil disimpan!'); location.reload(); }
-        else alert(d.message);
-    });
+        if (d.success) { showNotification('Rating berhasil disimpan!', 'success'); location.reload(); }
+        else showNotification(d.message || 'Gagal menyimpan rating.', 'error');
+    }).catch(() => showNotification('Terjadi kesalahan.', 'error'));
 }
 
 function toggleFavorite(templateId) {
@@ -211,7 +216,25 @@ function toggleFavorite(templateId) {
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
     }).then(r => r.json()).then(d => {
         if (d.success) location.reload();
-    });
+        else showNotification(d.message || 'Gagal update favorit.', 'error');
+    }).catch(() => showNotification('Terjadi kesalahan.', 'error'));
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+    }
+    // Fallback for HTTP (local dev)
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    return Promise.resolve();
 }
 
 function useTemplate(templateId) {
@@ -219,13 +242,19 @@ function useTemplate(templateId) {
         method: 'POST',
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
     }).then(r => r.json()).then(d => {
+        if (d.needs_purchase) {
+            window.location.href = d.purchase_url;
+            return;
+        }
         if (d.success) {
             const content = d.template?.template_content;
             if (content) {
-                navigator.clipboard.writeText(content).then(() => alert('Template disalin ke clipboard!'));
+                copyToClipboard(content).then(() => showNotification('Template disalin ke clipboard!', 'success'));
             }
-        } else alert(d.message);
-    });
+        } else {
+            showNotification(d.message || 'Gagal menggunakan template.', 'error');
+        }
+    }).catch(() => showNotification('Terjadi kesalahan.', 'error'));
 }
 </script>
 @endsection

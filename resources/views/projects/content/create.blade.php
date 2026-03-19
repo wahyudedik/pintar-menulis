@@ -116,7 +116,7 @@
                         <button type="submit" name="action" value="draft" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-sm">
                             Simpan sebagai Draft
                         </button>
-                        @if(auth()->user()->can('submit-for-review', $project))
+                        @if($project->canUserEdit(auth()->user()))
                         <button type="submit" name="action" value="review" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition text-sm">
                             Kirim untuk Review
                         </button>
@@ -313,14 +313,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // Show loading state
-        const submitBtns = this.querySelectorAll('button[type="submit"]');
-        submitBtns.forEach(btn => {
-            btn.disabled = true;
-            const originalText = btn.textContent;
-            btn.dataset.originalText = originalText;
-            btn.textContent = 'Menyimpan...';
-        });
+        // Show loading state — disable AFTER a tick so button value is submitted
+        const clickedBtn = document.activeElement;
+        setTimeout(() => {
+            const submitBtns = this.querySelectorAll('button[type="submit"]');
+            submitBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = 'Menyimpan...';
+            });
+        }, 50);
     });
 });
 </script>

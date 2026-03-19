@@ -19,9 +19,70 @@
     </div>
     @endif
 
-    <form method="POST" action="{{ route('operator.profile.update') }}" class="bg-white rounded-lg border border-gray-200 p-4">
+    @if(session('success'))
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded mb-4 text-sm text-green-800">
+        {{ session('success') }}
+    </div>
+    @endif
+
+    <form method="POST" action="{{ route('operator.profile.update') }}" enctype="multipart/form-data" class="space-y-4">
         @csrf
         @method('PUT')
+
+        <!-- Foto Profil -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4" x-data="{ avatarPreview: null }">
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">Foto Profil</h3>
+            <div class="flex items-center gap-4">
+                <div class="flex-shrink-0">
+                    <template x-if="avatarPreview">
+                        <img :src="avatarPreview" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+                    </template>
+                    <template x-if="!avatarPreview">
+                        @if(auth()->user()->avatar)
+                            @if(str_starts_with(auth()->user()->avatar, 'http'))
+                                <img src="{{ auth()->user()->avatar }}" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+                            @else
+                                <img src="{{ Storage::url(auth()->user()->avatar) }}" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+                            @endif
+                        @else
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                        @endif
+                    </template>
+                </div>
+                <div class="flex-1">
+                    <input type="file" name="avatar" accept="image/jpeg,image/png,image/jpg,image/webp"
+                           class="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer"
+                           @change="const f=$event.target.files[0]; if(f){const r=new FileReader();r.onload=e=>avatarPreview=e.target.result;r.readAsDataURL(f);}">
+                    <p class="text-xs text-gray-400 mt-1">JPG, PNG, WebP - maks 2MB</p>
+                    @error('avatar')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Dasar -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+            <h3 class="text-sm font-semibold text-gray-900">Informasi Dasar</h3>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm">
+                @error('name')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                <input type="text" name="phone" value="{{ old('phone', auth()->user()->phone) }}"
+                       placeholder="+62 812 3456 7890"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                <input type="text" name="location" value="{{ old('location', auth()->user()->location) }}"
+                       placeholder="Jakarta, Indonesia"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm">
+            </div>
+        </div>
 
         <!-- Bio -->
         <div class="mb-4">

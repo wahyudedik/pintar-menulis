@@ -68,7 +68,7 @@
     </div>
 
     {{-- Withdraw Button --}}
-    @if($stats['available_balance'] >= 10000)
+    @if($stats['available_balance'] >= 50000)
     <div class="mb-6">
         <a href="{{ route('client.referral.withdraw') }}" 
            class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition font-medium text-sm">
@@ -163,12 +163,23 @@
 
 <script>
 function copyCode() {
-    navigator.clipboard.writeText('{{ $stats['referral_code'] }}');
-    alert('Kode referral disalin!');
+    copyToClipboard('{{ $stats['referral_code'] }}');
+    showNotification('Kode referral disalin!', 'success');
 }
 function copyLink() {
-    navigator.clipboard.writeText('{{ url('/register?ref=' . $stats['referral_code']) }}');
-    alert('Link referral disalin!');
+    copyToClipboard('{{ url('/register?ref=' . $stats['referral_code']) }}');
+    showNotification('Link referral disalin!', 'success');
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+        return;
+    }
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); ta.remove();
 }
 </script>
 @endsection

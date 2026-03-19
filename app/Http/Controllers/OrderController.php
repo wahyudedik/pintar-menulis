@@ -68,7 +68,11 @@ class OrderController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        $order->load(['operator', 'operator.operatorProfile', 'package', 'revisions']);
+        $order->load(['operator', 'operator.operatorProfile', 'revisions']);
+        // package is optional (freelance orders don't have one)
+        if ($order->package_id) {
+            $order->load('package');
+        }
         
         return view('client.order-detail', compact('order'));
     }

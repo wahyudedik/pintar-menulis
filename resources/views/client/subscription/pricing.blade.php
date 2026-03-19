@@ -147,15 +147,23 @@
                     </div>
                     @endif
                 @elseif($package->has_trial && $package->trial_days > 0 && !auth()->user()->hasUsedTrial())
-                    {{-- Paid plan with trial available --}}
-                    <form action="{{ route('subscription.trial', $package) }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                                class="w-full py-3 rounded-xl text-sm font-semibold transition
-                                    {{ $package->is_featured ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-900 hover:bg-gray-800 text-white' }}">
-                            Coba Gratis {{ $package->trial_days }} Hari
-                        </button>
-                    </form>
+                    {{-- Paid plan with trial available: show both options --}}
+                    <div x-data class="space-y-2">
+                        <a :href="billing==='yearly'
+                                ? '{{ route('subscription.checkout', $package) }}?billing=yearly'
+                                : '{{ route('subscription.checkout', $package) }}'"
+                           class="block w-full text-center py-3 rounded-xl text-sm font-semibold transition
+                               {{ $package->is_featured ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-900 hover:bg-gray-800 text-white' }}">
+                            Berlangganan Sekarang
+                        </a>
+                        <form action="{{ route('subscription.trial', $package) }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full py-2.5 rounded-xl text-sm font-medium transition border border-gray-300 text-gray-600 hover:bg-gray-50">
+                                Coba Gratis {{ $package->trial_days }} Hari
+                            </button>
+                        </form>
+                    </div>
                 @else
                     {{-- Direct checkout --}}
                     <div x-data>

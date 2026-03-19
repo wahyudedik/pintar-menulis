@@ -52,7 +52,17 @@ class SubscriptionController extends Controller
             return back()->with('error', 'Paket ini tidak memiliki masa trial.');
         }
 
-        UserSubscription::startTrial($user, $package);
+        // Jangan izinkan trial jika sudah ada subscription aktif berbayar
+        $current = $user->currentSubscription();
+        if ($current && $current->isActive()) {
+            return back()->with('error', 'Anda sudah memiliki langganan aktif. Silakan checkout untuk upgrade.');
+        }
+
+        try {
+            UserSubscription::startTrial($user, $package);
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         // Notify user
         $this->notificationService->notifySubscriptionActivated(
@@ -66,7 +76,19 @@ class SubscriptionController extends Controller
     // Halaman checkout
     public function checkout(Request $request, Package $package)
     {
-        $user         = Auth::user();
+        $user = Auth::user();
+
+        // Paket gratis tidak perlu checkout
+        if ($package->price == 0) {
+            return redirect()->route('subscription.trial', $package)
+                ->with('error', 'Paket gratis tidak memerlukan checkout.');
+        }
+
+        // Paket tidak aktif
+        if (!$package->is_active) {
+            return redirect()->route('pricing')->with('error', 'Paket tidak tersedia.');
+        }
+
         $billingCycle = $request->get('billing', 'monthly');
         $price        = $billingCycle === 'yearly'
             ? ($package->yearly_price ?? $package->price * 10)
@@ -86,6 +108,18 @@ class SubscriptionController extends Controller
     // Proses pembayaran (manual transfer)
     public function processPayment(Request $request, Package $package)
     {
+        $user = Auth::user();
+
+        // Guard: paket gratis tidak boleh lewat sini
+        if ($package->price == 0) {
+            return redirect()->route('pricing')->with('error', 'Paket gratis tidak memerlukan pembayaran.');
+        }
+
+        // Guard: paket tidak aktif
+        if (!$package->is_active) {
+            return redirect()->route('pricing')->with('error', 'Paket tidak tersedia.');
+        }
+
         $request->validate([
             'billing_cycle'  => 'required|in:monthly,yearly',
             'payment_method' => 'required|string',
@@ -93,7 +127,14 @@ class SubscriptionController extends Controller
             'gateway'        => 'required|in:manual_transfer,midtrans,xendit',
         ]);
 
-        $user = Auth::user();
+        // Validasi harga sesuai billing cycle
+        $expectedPrice = $request->billing_cycle === 'yearly'
+            ? ($package->yearly_price ?? $package->price * 10)
+            : $package->price;
+
+        if ($expectedPrice <= 0) {
+            return redirect()->route('pricing')->with('error', 'Harga paket tidak valid.');
+        }
 
         // For gateway payments (Midtrans/Xendit), redirect to gateway
         if ($request->gateway !== 'manual_transfer') {
@@ -106,7 +147,7 @@ class SubscriptionController extends Controller
             $proofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
         }
 
-        // Cancel existing pending
+        // Cancel existing pending (bukan yang aktif/trial)
         UserSubscription::where('user_id', $user->id)
             ->where('status', 'pending_payment')
             ->update(['status' => 'cancelled']);
@@ -126,7 +167,8 @@ class SubscriptionController extends Controller
         $this->notificationService->notifySubscriptionPendingVerification($newSub->load('package'));
 
         return redirect()->route('subscription.index')
-            ->with('success', '✅ Bukti pembayaran berhasil dikirim! Admin akan verifikasi dalam 1×24 jam.');    }
+            ->with('success', '✅ Bukti pembayaran berhasil dikirim! Admin akan verifikasi dalam 1×24 jam.');
+    }
 
     // Cancel subscription
     public function cancel(Request $request)
@@ -147,6 +189,16 @@ class SubscriptionController extends Controller
     // Admin: verifikasi pembayaran
     public function adminVerify(Request $request, UserSubscription $subscription)
     {
+        // Guard: hanya boleh verify yang masih pending_payment
+        if ($subscription->status !== 'pending_payment') {
+            return back()->with('error', 'Subscription ini tidak dalam status pending_payment.');
+        }
+
+        // Guard: pastikan package masih aktif
+        if (!$subscription->package?->is_active) {
+            return back()->with('error', 'Paket subscription sudah tidak aktif.');
+        }
+
         $billingCycle = $subscription->billing_cycle ?? 'monthly';
         $months       = $billingCycle === 'yearly' ? 12 : 1;
 
@@ -154,7 +206,7 @@ class SubscriptionController extends Controller
             'status'         => 'active',
             'starts_at'      => now(),
             'ends_at'        => now()->addMonths($months),
-            'ai_quota_used'  => 0, // reset quota on activation
+            'ai_quota_used'  => 0,
             'quota_reset_at' => now()->addMonth(),
         ]);
 

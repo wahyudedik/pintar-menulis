@@ -130,7 +130,7 @@
                     </button>
                 </div>
 
-                <form @submit.prevent="submitOrder">
+                <form @submit.prevent="submitOrder" enctype="multipart/form-data">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                         <select x-model="orderForm.category" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -152,22 +152,64 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Brief</label>
-                        <textarea x-model="orderForm.brief" required rows="4" 
-                                  placeholder="Jelaskan kebutuhan Anda..."
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Brief
+                            <span class="text-gray-400 font-normal text-xs ml-1">(isi teks atau upload file, atau keduanya)</span>
+                        </label>
+                        <textarea x-model="orderForm.brief" rows="4"
+                                  placeholder="Jelaskan kebutuhan Anda secara detail..."
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"></textarea>
                     </div>
 
+                    {{-- Brief File Upload --}}
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Budget (Rp)</label>
-                        <input type="number" x-model="orderForm.budget" required min="50000"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Upload File Brief
+                            <span class="text-gray-400 font-normal text-xs ml-1">(opsional · PDF, DOC, DOCX, TXT, gambar · maks 10 MB)</span>
+                        </label>
+                        <div class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition"
+                             :class="orderForm.briefFileName ? 'border-blue-400 bg-blue-50' : ''"
+                             @dragover.prevent @drop.prevent="handleFileDrop($event)">
+                            <input type="file" id="briefFileInput"
+                                   accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp"
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                   @change="handleFileChange($event)">
+                            <div class="text-center pointer-events-none">
+                                <template x-if="!orderForm.briefFileName">
+                                    <div>
+                                        <svg class="mx-auto w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Drag & drop atau <span class="text-blue-600 font-medium">klik untuk pilih file</span></p>
+                                    </div>
+                                </template>
+                                <template x-if="orderForm.briefFileName">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <span class="text-sm font-medium text-blue-700" x-text="orderForm.briefFileName"></span>
+                                        <button type="button" class="pointer-events-auto text-red-500 hover:text-red-700 ml-1" @click.stop="clearFile()">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
-                        <input type="date" x-model="orderForm.deadline" required :min="minDate"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Budget (Rp)</label>
+                            <input type="number" x-model="orderForm.budget" required min="50000"
+                                   placeholder="Contoh: 500000"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                            <input type="date" x-model="orderForm.deadline" required :min="minDate"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                        </div>
                     </div>
 
                     <div x-show="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
@@ -175,13 +217,13 @@
                     </div>
 
                     <div class="flex space-x-3">
-                        <button type="submit" :disabled="submitting" 
-                                class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
+                        <button type="submit" :disabled="submitting"
+                                class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 text-sm font-medium">
                             <span x-show="!submitting">Kirim Request</span>
                             <span x-show="submitting">Mengirim...</span>
                         </button>
-                        <button type="button" @click="showModal = false" 
-                                class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition">
+                        <button type="button" @click="showModal = false"
+                                class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
                             Batal
                         </button>
                     </div>
@@ -296,14 +338,42 @@ function browseOperators() {
                 category: '',
                 brief: '',
                 budget: '',
-                deadline: ''
+                deadline: '',
+                briefFileName: '',
+                briefFile: null,
             };
+            // Reset file input
+            const fi = document.getElementById('briefFileInput');
+            if (fi) fi.value = '';
         },
-        
+
+        handleFileChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.orderForm.briefFile = file;
+                this.orderForm.briefFileName = file.name;
+            }
+        },
+
+        handleFileDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                this.orderForm.briefFile = file;
+                this.orderForm.briefFileName = file.name;
+            }
+        },
+
+        clearFile() {
+            this.orderForm.briefFile = null;
+            this.orderForm.briefFileName = '';
+            const fi = document.getElementById('briefFileInput');
+            if (fi) fi.value = '';
+        },
+
         async submitOrder() {
             this.submitting = true;
             this.errorMessage = '';
-            
+
             try {
                 const formData = new FormData();
                 formData.append('operator_id', this.selectedOperator);
@@ -311,7 +381,10 @@ function browseOperators() {
                 formData.append('brief', this.orderForm.brief);
                 formData.append('budget', this.orderForm.budget);
                 formData.append('deadline', this.orderForm.deadline);
-                
+                if (this.orderForm.briefFile) {
+                    formData.append('brief_file', this.orderForm.briefFile);
+                }
+
                 const response = await fetch('{{ route('request.order') }}', {
                     method: 'POST',
                     headers: {
@@ -320,11 +393,10 @@ function browseOperators() {
                     },
                     body: formData
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok && data.success) {
-                    // ESCROW: Redirect to payment page instead of orders list
                     window.location.href = data.redirect_url;
                 } else {
                     this.errorMessage = data.message || 'Terjadi kesalahan. Silakan coba lagi.';

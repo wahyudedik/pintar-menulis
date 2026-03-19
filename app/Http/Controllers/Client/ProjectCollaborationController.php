@@ -57,7 +57,15 @@ class ProjectCollaborationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'User dengan email tersebut tidak ditemukan. Pastikan mereka sudah mendaftar di platform ini.'
-            ], 404);
+            ], 422);
+        }
+
+        // Hanya client yang bisa diundang ke project
+        if (!$user->isClient()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pengguna dengan role client yang dapat diundang ke project.'
+            ], 422);
         }
 
         // Check if already a member

@@ -27,7 +27,14 @@
 
                 <div class="bg-gray-50 rounded p-3 mb-3">
                     <p class="text-xs text-gray-600 font-medium mb-1">Brief:</p>
-                    <p class="text-sm text-gray-800">{{ $order->brief }}</p>
+                    <p class="text-sm text-gray-800">{{ $order->brief ?? '(lihat file brief)' }}</p>
+                    @if($order->brief_file)
+                    <a href="{{ Storage::url($order->brief_file) }}" target="_blank"
+                       class="mt-1 flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                        {{ $order->brief_file_original_name ?? 'File Brief' }}
+                    </a>
+                    @endif
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mb-3">
@@ -89,6 +96,13 @@
                 <div class="bg-gray-50 rounded p-3 mb-3">
                     <p class="text-xs text-gray-600 font-medium mb-1">Brief:</p>
                     <p class="text-sm text-gray-800">{{ Str::limit($order->brief, 150) }}</p>
+                    @if($order->brief_file)
+                    <a href="{{ Storage::url($order->brief_file) }}" target="_blank"
+                       class="mt-1 flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                        {{ $order->brief_file_original_name ?? 'File Brief' }}
+                    </a>
+                    @endif
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mb-3">

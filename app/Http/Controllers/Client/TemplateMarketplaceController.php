@@ -304,7 +304,22 @@ class TemplateMarketplaceController extends Controller
                 ->with('info', 'Anda sudah memiliki template ini.');
         }
 
-        // Create pending purchase record
+        // Reuse existing pending/processing purchase if exists
+        $existing = TemplatePurchase::where('buyer_id', Auth::id())
+            ->where('template_id', $template->id)
+            ->whereIn('payment_status', ['pending', 'processing'])
+            ->latest()
+            ->first();
+
+        if ($existing) {
+            if ($existing->payment_status === 'processing') {
+                return redirect()->route('templates.show', $id)
+                    ->with('info', 'Pembayaran Anda sedang diverifikasi admin.');
+            }
+            return redirect()->route('templates.checkout', $existing->id);
+        }
+
+        // Create new pending purchase record
         $purchase = TemplatePurchase::create([
             'buyer_id'       => Auth::id(),
             'template_id'    => $template->id,

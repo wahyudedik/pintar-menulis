@@ -46,32 +46,66 @@ class OrderRequestController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'operator_id' => 'required|exists:users,id',
-            'category' => 'required|string',
-            'brief' => 'required|string|min:20',
-            'budget' => 'required|integer|min:50000',
-            'deadline' => 'required|date|after:today',
+            'category'    => 'required|string',
+            'brief'       => 'nullable|string|min:20',
+            'brief_file'  => 'nullable|file|mimes:pdf,doc,docx,txt,png,jpg,jpeg,webp|max:10240',
+            'budget'      => 'required|integer|min:50000',
+            'deadline'    => 'required|date|after_or_equal:today',
+        ], [
+            'brief.min'               => 'Brief minimal 20 karakter.',
+            'brief_file.mimes'        => 'File harus berformat PDF, DOC, DOCX, TXT, atau gambar.',
+            'brief_file.max'          => 'Ukuran file maksimal 10 MB.',
+            'budget.min'              => 'Budget minimal Rp 50.000.',
+            'deadline.after_or_equal' => 'Deadline tidak boleh sebelum hari ini.',
+            'operator_id.required'    => 'Operator harus dipilih.',
+            'category.required'       => 'Kategori harus dipilih.',
         ]);
 
-        // Create order with pending_payment status
+        // At least brief text OR brief file must be provided
+        if (!$request->filled('brief') && !$request->hasFile('brief_file')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Isi brief teks atau upload file brief.',
+            ], 422);
+        }
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => implode(' ', $validator->errors()->all()),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        // Handle file upload
+        $briefFilePath = null;
+        $briefFileOriginalName = null;
+        if ($request->hasFile('brief_file')) {
+            $file = $request->file('brief_file');
+            $briefFileOriginalName = $file->getClientOriginalName();
+            $briefFilePath = $file->store('orders/briefs', 'public');
+        }
+
         $order = Order::create([
-            'user_id' => auth()->id(),
-            'operator_id' => $validated['operator_id'], // Store requested operator
-            'category' => $validated['category'],
-            'brief' => $validated['brief'],
-            'budget' => $validated['budget'],
-            'deadline' => $validated['deadline'],
-            'status' => 'pending_payment', // Order not visible to operator yet!
-            'payment_status' => 'pending_payment',
+            'user_id'                  => auth()->id(),
+            'operator_id'              => $validated['operator_id'],
+            'category'                 => $validated['category'],
+            'brief'                    => $validated['brief'] ?? null,
+            'brief_file'               => $briefFilePath,
+            'brief_file_original_name' => $briefFileOriginalName,
+            'budget'                   => $validated['budget'],
+            'deadline'                 => $validated['deadline'],
+            'status'                   => 'pending',
+            'payment_status'           => 'pending_payment',
         ]);
 
-        // ESCROW: Redirect to payment page instead of notifying operator
-        // Operator will be notified AFTER payment is verified by admin
         return response()->json([
-            'success' => true,
-            'message' => 'Order berhasil dibuat! Silakan lakukan pembayaran.',
-            'order_id' => $order->id,
+            'success'      => true,
+            'message'      => 'Order berhasil dibuat! Silakan lakukan pembayaran.',
+            'order_id'     => $order->id,
             'redirect_url' => route('payment.show', $order),
         ]);
     }

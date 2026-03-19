@@ -797,7 +797,7 @@ function regenerateCaption() {
 
 function copyCaption() {
     const caption = document.getElementById('generatedCaption').textContent;
-    navigator.clipboard.writeText(caption).then(() => {
+    copyToClipboard(caption).then(() => {
         showNotification('✅ Caption berhasil di-copy ke clipboard!', 'success');
     }).catch(() => {
         showNotification('❌ Gagal copy caption. Silakan copy manual.', 'error');
@@ -806,11 +806,27 @@ function copyCaption() {
 
 function copyPricingTable() {
     const table = document.getElementById('pricingTable').textContent;
-    navigator.clipboard.writeText(table).then(() => {
+    copyToClipboard(table).then(() => {
         showNotification('✅ Tabel harga berhasil di-copy ke clipboard!', 'success');
     }).catch(() => {
         showNotification('❌ Gagal copy tabel harga. Silakan copy manual.', 'error');
     });
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+    }
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    return Promise.resolve();
 }
 
 function showNotification(message, type = 'info') {

@@ -36,10 +36,18 @@
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
                     @php
-                        $typeColors = ['created'=>'green','edited'=>'blue','submitted'=>'yellow','approved'=>'green','rejected'=>'red','restored'=>'purple'];
-                        $color = $typeColors[$version->change_type] ?? 'gray';
+                        $typeClasses = [
+                            'created'              => 'bg-green-100 text-green-700',
+                            'edited'               => 'bg-blue-100 text-blue-700',
+                            'submitted'            => 'bg-yellow-100 text-yellow-700',
+                            'submitted_for_review' => 'bg-yellow-100 text-yellow-700',
+                            'approved'             => 'bg-green-100 text-green-700',
+                            'rejected'             => 'bg-red-100 text-red-700',
+                            'restored'             => 'bg-purple-100 text-purple-700',
+                        ];
+                        $typeClass = $typeClasses[$version->change_type] ?? 'bg-gray-100 text-gray-700';
                     @endphp
-                    <span class="px-2 py-0.5 bg-{{ $color }}-100 text-{{ $color }}-700 text-xs font-medium rounded-full">
+                    <span class="px-2 py-0.5 {{ $typeClass }} text-xs font-medium rounded-full">
                         {{ ucfirst(str_replace('_', ' ', $version->change_type)) }}
                     </span>
                     @if($loop->first)

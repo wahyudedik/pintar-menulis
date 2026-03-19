@@ -17,6 +17,24 @@
 
     <!-- AI Insights Summary -->
     @if(isset($comparisonInsights) && is_array($comparisonInsights))
+    @php
+        // Resolve top performer from market_overview or winner key
+        $topPerformer = $comparisonInsights['winner']
+            ?? $comparisonInsights['market_overview']['market_leader']
+            ?? $competitors->first()->username;
+
+        // Resolve opportunities from multiple possible keys
+        $opportunities = $comparisonInsights['opportunities']
+            ?? $comparisonInsights['market_opportunities']
+            ?? $comparisonInsights['audience_insights']['untapped_segments']
+            ?? [];
+
+        // Resolve winner reasons
+        $winnerReasons = $comparisonInsights['winner_reasons'] ?? [];
+        if (empty($winnerReasons) && isset($comparisonInsights['performance_ranking'][0]['strengths'])) {
+            $winnerReasons = $comparisonInsights['performance_ranking'][0]['strengths'];
+        }
+    @endphp
     <div class="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6">
         <div class="flex items-start space-x-4">
             <div class="flex-shrink-0">
@@ -31,10 +49,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <p class="text-sm font-medium text-purple-800 mb-1">🏆 Top Performer</p>
-                        <p class="text-lg font-bold text-purple-900">@{{ $comparisonInsights['winner'] ?? 'N/A' }}</p>
-                        @if(isset($comparisonInsights['winner_reasons']) && is_array($comparisonInsights['winner_reasons']))
+                        <p class="text-lg font-bold text-purple-900">{{ $topPerformer }}</p>
+                        @if(!empty($winnerReasons))
                         <ul class="text-xs text-purple-700 mt-1">
-                            @foreach($comparisonInsights['winner_reasons'] as $reason)
+                            @foreach(array_slice($winnerReasons, 0, 3) as $reason)
                             <li>• {{ $reason }}</li>
                             @endforeach
                         </ul>
@@ -42,14 +60,14 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-purple-800 mb-1">💡 Key Opportunities</p>
-                        @if(isset($comparisonInsights['opportunities']) && is_array($comparisonInsights['opportunities']))
+                        @if(!empty($opportunities))
                         <ul class="text-sm text-purple-700">
-                            @foreach(array_slice($comparisonInsights['opportunities'], 0, 2) as $opportunity)
+                            @foreach(array_slice($opportunities, 0, 3) as $opportunity)
                             <li>• {{ $opportunity }}</li>
                             @endforeach
                         </ul>
                         @else
-                        <p class="text-sm text-purple-700">Analyzing opportunities...</p>
+                        <p class="text-sm text-purple-700">Tidak ada data peluang tersedia.</p>
                         @endif
                     </div>
                 </div>
@@ -142,6 +160,22 @@
     </div>
     <!-- Detailed Insights -->
     @if(isset($comparisonInsights) && is_array($comparisonInsights))
+    @php
+        // Resolve key insights
+        $keyInsights = $comparisonInsights['key_insights'] ?? [];
+
+        // Resolve recommendations: try comparisonInsights first, then strategicRecommendations
+        $recommendations = $comparisonInsights['recommendations'] ?? [];
+        if (empty($recommendations) && isset($strategicRecommendations)) {
+            $sr = $strategicRecommendations;
+            // Flatten from execution_roadmap.immediate_actions or content_strategy
+            $recommendations = array_merge(
+                $sr['execution_roadmap']['immediate_actions'] ?? [],
+                $sr['content_strategy']['engagement_tactics'] ?? [],
+                $sr['positioning_strategy']['differentiation_factors'] ?? []
+            );
+        }
+    @endphp
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Key Insights -->
         <div class="bg-white rounded-xl border border-gray-200 p-6">
@@ -151,9 +185,9 @@
                 </svg>
                 Key Insights
             </h3>
-            @if(isset($comparisonInsights['key_insights']) && is_array($comparisonInsights['key_insights']))
+            @if(!empty($keyInsights))
             <ul class="space-y-3">
-                @foreach($comparisonInsights['key_insights'] as $insight)
+                @foreach($keyInsights as $insight)
                 <li class="flex items-start space-x-3">
                     <div class="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
                     <p class="text-sm text-gray-700">{{ $insight }}</p>
@@ -161,11 +195,11 @@
                 @endforeach
             </ul>
             @else
-            <p class="text-sm text-gray-500">Generating insights...</p>
+            <p class="text-sm text-gray-500">Tidak ada data insights tersedia.</p>
             @endif
         </div>
 
-        <!-- Recommendations -->
+        <!-- Strategic Recommendations -->
         <div class="bg-white rounded-xl border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,9 +207,9 @@
                 </svg>
                 Strategic Recommendations
             </h3>
-            @if(isset($comparisonInsights['recommendations']) && is_array($comparisonInsights['recommendations']))
+            @if(!empty($recommendations))
             <ul class="space-y-3">
-                @foreach($comparisonInsights['recommendations'] as $recommendation)
+                @foreach(array_slice($recommendations, 0, 5) as $recommendation)
                 <li class="flex items-start space-x-3">
                     <div class="flex-shrink-0 w-2 h-2 bg-green-600 rounded-full mt-2"></div>
                     <p class="text-sm text-gray-700">{{ $recommendation }}</p>
@@ -183,10 +217,96 @@
                 @endforeach
             </ul>
             @else
-            <p class="text-sm text-gray-500">Generating recommendations...</p>
+            <p class="text-sm text-gray-500">Tidak ada rekomendasi tersedia.</p>
             @endif
         </div>
     </div>
+
+    {{-- Strategic Roadmap (from strategicRecommendations) --}}
+    @if(isset($strategicRecommendations) && is_array($strategicRecommendations))
+    @php
+        $roadmap = $strategicRecommendations['execution_roadmap'] ?? [];
+        $contentStrategy = $strategicRecommendations['content_strategy'] ?? [];
+        $audienceStrategy = $strategicRecommendations['audience_strategy'] ?? [];
+    @endphp
+    @if(!empty($roadmap) || !empty($contentStrategy))
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Immediate Actions -->
+        @if(!empty($roadmap['immediate_actions']))
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                <span class="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">!</span>
+                Aksi Segera (1-2 Minggu)
+            </h3>
+            <ul class="space-y-2">
+                @foreach($roadmap['immediate_actions'] as $action)
+                <li class="flex items-start space-x-2">
+                    <div class="flex-shrink-0 w-1.5 h-1.5 bg-red-500 rounded-full mt-2"></div>
+                    <p class="text-xs text-gray-700">{{ $action }}</p>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <!-- Short Term -->
+        @if(!empty($roadmap['short_term_initiatives']))
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                <span class="w-6 h-6 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">→</span>
+                Jangka Pendek (1-3 Bulan)
+            </h3>
+            <ul class="space-y-2">
+                @foreach($roadmap['short_term_initiatives'] as $initiative)
+                <li class="flex items-start space-x-2">
+                    <div class="flex-shrink-0 w-1.5 h-1.5 bg-yellow-500 rounded-full mt-2"></div>
+                    <p class="text-xs text-gray-700">{{ $initiative }}</p>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <!-- Long Term -->
+        @if(!empty($roadmap['long_term_strategy']))
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                <span class="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">★</span>
+                Jangka Panjang (3-12 Bulan)
+            </h3>
+            <ul class="space-y-2">
+                @foreach($roadmap['long_term_strategy'] as $strategy)
+                <li class="flex items-start space-x-2">
+                    <div class="flex-shrink-0 w-1.5 h-1.5 bg-green-500 rounded-full mt-2"></div>
+                    <p class="text-xs text-gray-700">{{ $strategy }}</p>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+    </div>
+    @endif
+
+    {{-- Content Strategy Gaps --}}
+    @if(!empty($contentStrategy['content_gaps_to_exploit']))
+    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 text-orange-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            Content Gaps yang Bisa Dieksploitasi
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            @foreach($contentStrategy['content_gaps_to_exploit'] as $gap)
+            <div class="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg">
+                <div class="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                <p class="text-sm text-gray-700">{{ $gap }}</p>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+    @endif
     @endif
 
     <!-- Performance Charts -->

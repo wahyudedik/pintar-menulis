@@ -89,10 +89,10 @@ class ProjectContentController extends Controller
             'type' => 'required|string|in:caption,article,ad_copy,email,product_desc',
             'tags' => 'nullable|string',
             'notes' => 'nullable|string',
-            'action' => 'required|string|in:draft,review'
+            'action' => 'nullable|string|in:draft,review'
         ]);
 
-        $status = $validated['action'] === 'review' ? 'review' : 'draft';
+        $status = ($validated['action'] ?? 'draft') === 'review' ? 'review' : 'draft';
 
         // Prepare metadata
         $metadata = [];
@@ -206,22 +206,22 @@ class ProjectContentController extends Controller
     public function submitForReview(Project $project, ProjectContent $content)
     {
         if (!$content->canEdit(auth()->user()) || !$content->isDraft()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Content tidak dapat disubmit untuk review.'
-            ], 403);
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Content tidak dapat disubmit untuk review.'], 403);
+            }
+            return back()->with('error', 'Content tidak dapat disubmit untuk review.');
         }
 
         $content->submitForReview();
 
-        // Notify approvers
         $this->notificationService->notifyContentSubmitted($content->load('project.user', 'project.members.user', 'creator'));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Content berhasil disubmit untuk review.',
-            'status' => $content->status
-        ]);
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Content berhasil disubmit untuk review.', 'status' => $content->status]);
+        }
+
+        return redirect()->route('projects.content.show', [$project, $content])
+            ->with('success', 'Konten berhasil dikirim untuk review.');
     }
 
     /**
@@ -290,25 +290,29 @@ class ProjectContentController extends Controller
         }
 
         $validated = $request->validate([
-            'comment' => 'required|string|max:1000',
-            'type' => 'required|in:comment,suggestion,approval,rejection',
+            'comment'          => 'required|string|max:1000',
+            'type'             => 'nullable|in:comment,suggestion,approval,rejection',
             'highlighted_text' => 'nullable|array',
-            'parent_id' => 'nullable|exists:content_comments,id'
+            'parent_id'        => 'nullable|exists:content_comments,id',
         ]);
 
         $comment = $content->comments()->create([
-            'user_id' => auth()->id(),
-            'comment' => $validated['comment'],
-            'type' => $validated['type'],
-            'highlighted_text' => $validated['highlighted_text'],
-            'parent_id' => $validated['parent_id']
+            'user_id'          => auth()->id(),
+            'comment'          => $validated['comment'],
+            'type'             => $validated['type'] ?? 'comment',
+            'highlighted_text' => $validated['highlighted_text'] ?? null,
+            'parent_id'        => $validated['parent_id'] ?? null,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Comment berhasil ditambahkan.',
-            'comment' => $comment->load('user')
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Komentar berhasil ditambahkan.',
+                'comment' => $comment->load('user'),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Komentar berhasil ditambahkan.');
     }
 
     /**
@@ -351,19 +355,24 @@ class ProjectContentController extends Controller
     public function restoreVersion(Project $project, ProjectContent $content, ContentVersion $version)
     {
         if (!$content->canEdit(auth()->user())) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki permission untuk restore version.'
-            ], 403);
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Tidak memiliki permission.'], 403);
+            }
+            return back()->with('error', 'Anda tidak memiliki permission untuk restore version.');
         }
 
         $content->restoreVersion($version);
 
-        return response()->json([
-            'success' => true,
-            'message' => "Content berhasil di-restore ke version {$version->version_number}.",
-            'redirect' => route('projects.content.show', [$project, $content])
-        ]);
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success'  => true,
+                'message'  => "Content berhasil di-restore ke version {$version->version_number}.",
+                'redirect' => route('projects.content.show', [$project, $content]),
+            ]);
+        }
+
+        return redirect()->route('projects.content.show', [$project, $content])
+            ->with('success', "Konten berhasil di-restore ke versi {$version->version_number}.");
     }
 
     /**

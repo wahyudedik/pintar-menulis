@@ -52,6 +52,7 @@ class WithdrawalController extends Controller
 
         $withdrawal = WithdrawalRequest::create([
             'user_id' => auth()->id(),
+            'type'    => 'operator',
             'amount' => $validated['amount'],
             'bank_name' => $validated['bank_name'],
             'account_number' => $validated['account_number'],

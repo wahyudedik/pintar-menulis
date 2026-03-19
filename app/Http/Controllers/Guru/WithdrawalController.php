@@ -79,6 +79,7 @@ class WithdrawalController extends Controller
 
         $withdrawal = WithdrawalRequest::create([
             'user_id'        => $user->id,
+            'type'           => 'guru',
             'amount'         => $validated['amount'],
             'bank_name'      => $validated['bank_name'],
             'account_number' => $validated['account_number'],
