@@ -4,41 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Noteds</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full">
             <!-- Logo -->
             <div class="text-center mb-8">
-                <img src="{{ asset('logo.png') }}" alt="Noteds" class="w-16 h-16 rounded-lg object-cover mx-auto mb-4">
+                <img src="<?php echo e(asset('logo.png')); ?>" alt="Noteds" class="w-16 h-16 rounded-lg object-cover mx-auto mb-4">
                 <h2 class="text-2xl font-bold text-gray-900">Create Account</h2>
                 <p class="text-sm text-gray-600 mt-2">Daftar untuk memulai</p>
             </div>
 
             <!-- Register Form -->
             <div class="bg-white rounded-lg border border-gray-200 p-8">
-                <form method="POST" action="{{ route('register') }}">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('register')); ?>">
+                    <?php echo csrf_field(); ?>
 
                     <!-- Name -->
                     <div class="mb-4">
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                        <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus
+                        <input id="name" type="text" name="name" value="<?php echo e(old('name')); ?>" required autofocus
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('name')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="text-sm text-red-600 mt-1"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Email -->
                     <div class="mb-4">
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input id="email" type="email" name="email" value="{{ old('email') }}" required
+                        <input id="email" type="email" name="email" value="<?php echo e(old('email')); ?>" required
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('email')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="text-sm text-red-600 mt-1"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Password -->
@@ -46,9 +60,16 @@
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                         <input id="password" type="password" name="password" required
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('password')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="text-sm text-red-600 mt-1"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Confirm Password -->
@@ -64,12 +85,19 @@
                             Kode Referral <span class="text-gray-400 font-normal">(opsional)</span>
                         </label>
                         <input id="referral_code" type="text" name="referral_code"
-                               value="{{ old('referral_code', request('ref')) }}"
+                               value="<?php echo e(old('referral_code', request('ref'))); ?>"
                                maxlength="10" placeholder="Masukkan kode referral jika ada"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase">
-                        @error('referral_code')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['referral_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="text-sm text-red-600 mt-1"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Submit Button -->
@@ -89,7 +117,7 @@
                 </div>
 
                 <!-- Google Register Button -->
-                <a href="{{ route('auth.google') . (old('referral_code', request('ref')) ? '?ref=' . old('referral_code', request('ref')) : '') }}" class="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium text-gray-700">
+                <a href="<?php echo e(route('auth.google') . (old('referral_code', request('ref')) ? '?ref=' . old('referral_code', request('ref')) : '')); ?>" class="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium text-gray-700">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -103,7 +131,7 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-600">
                         Sudah punya akun?
-                        <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="<?php echo e(route('login')); ?>" class="text-blue-600 hover:text-blue-700 font-medium">
                             Login di sini
                         </a>
                     </p>
@@ -112,7 +140,7 @@
 
             <!-- Back to Home -->
             <div class="text-center mt-6">
-                <a href="{{ route('welcome') }}" class="text-sm text-gray-600 hover:text-gray-900">
+                <a href="<?php echo e(route('welcome')); ?>" class="text-sm text-gray-600 hover:text-gray-900">
                     ← Kembali ke Home
                 </a>
             </div>
@@ -121,3 +149,4 @@
 </body>
 </html>
 
+<?php /**PATH E:\PROJEKU\pintar-menulis\resources\views/auth/register.blade.php ENDPATH**/ ?>

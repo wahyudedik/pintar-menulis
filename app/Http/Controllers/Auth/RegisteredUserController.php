@@ -51,10 +51,10 @@ class RegisteredUserController extends Controller
             app(\App\Services\ReferralService::class)->trackSignup($user, $request->referral_code);
         }
 
-        // Auto-start free trial on registration
+        // Auto-assign free package on registration (langsung active, bukan trial)
         $freePackage = \App\Models\Package::where('price', 0)->where('is_active', true)->first();
         if ($freePackage) {
-            \App\Models\UserSubscription::startTrial($user, $freePackage);
+            \App\Models\UserSubscription::activateFree($user, $freePackage);
         }
 
         event(new Registered($user));

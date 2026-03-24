@@ -17,6 +17,11 @@ class GoogleAuthController extends Controller
      */
     public function redirectToGoogle()
     {
+        // Simpan referral code ke session sebelum redirect ke Google
+        if (request()->filled('ref')) {
+            session(['referral_code' => request('ref')]);
+        }
+
         return Socialite::driver('google')->redirect();
     }
 
@@ -65,15 +70,25 @@ class GoogleAuthController extends Controller
                 'role'              => 'client',
             ]);
 
-            // Auto-start free trial on registration
+            // Generate referral code
+            app(\App\Services\ReferralService::class)->generateCode($user);
+
+            // Track referral if ?ref= param present in session
+            $refCode = session('referral_code');
+            if ($refCode) {
+                app(\App\Services\ReferralService::class)->trackSignup($user, $refCode);
+                session()->forget('referral_code');
+            }
+
+            // Auto-assign free package (active, bukan trial)
             $freePackage = \App\Models\Package::where('price', 0)->where('is_active', true)->first();
             if ($freePackage) {
-                \App\Models\UserSubscription::startTrial($user, $freePackage);
+                \App\Models\UserSubscription::activateFree($user, $freePackage);
             }
 
             Auth::login($user);
 
-            return redirect()->intended(route('dashboard'))->with('success', '🎉 Akun berhasil dibuat! Trial 30 hari gratis sudah aktif.');
+            return redirect()->intended(route('dashboard'))->with('success', '🎉 Akun berhasil dibuat! Selamat datang di Pintar Menulis.');
             
         } catch (Exception $e) {
             return redirect()->route('login')->with('error', 'Gagal login dengan Google. Silakan coba lagi.');

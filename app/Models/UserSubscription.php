@@ -31,7 +31,9 @@ class UserSubscription extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'active' && $this->ends_at?->isFuture();
+        if ($this->status !== 'active') return false;
+        // null ends_at = free plan, tidak pernah expire
+        return $this->ends_at === null || $this->ends_at->isFuture();
     }
 
     public function isOnTrial(): bool
@@ -47,7 +49,7 @@ class UserSubscription extends Model
     public function isExpired(): bool
     {
         return $this->status === 'expired'
-            || ($this->status === 'active' && $this->ends_at?->isPast())
+            || ($this->status === 'active' && $this->ends_at !== null && $this->ends_at->isPast())
             || ($this->status === 'trial' && $this->trial_ends_at?->isPast());
     }
 
@@ -59,6 +61,7 @@ class UserSubscription extends Model
             return max(0, (int) now()->diffInDays($this->trial_ends_at, false));
         }
         if ($this->isActive()) {
+            if ($this->ends_at === null) return 9999; // free plan
             return max(0, (int) now()->diffInDays($this->ends_at, false));
         }
         return 0;
@@ -133,6 +136,30 @@ class UserSubscription extends Model
             'ai_quota_limit'  => $package->ai_quota_monthly,
             'ai_quota_used'   => 0,
             'quota_reset_at'  => now()->addMonth(),
+        ]);
+    }
+
+    /**
+     * Assign free (price=0) package — active indefinitely (ends_at 100 years).
+     */
+    public static function activateFree(User $user, Package $package): self
+    {
+        // Cancel any existing subscription
+        self::where('user_id', $user->id)
+            ->whereIn('status', ['trial', 'active', 'pending_payment'])
+            ->update(['status' => 'cancelled', 'cancelled_at' => now()]);
+
+        return self::create([
+            'user_id'        => $user->id,
+            'package_id'     => $package->id,
+            'status'         => 'active',
+            'billing_cycle'  => 'monthly',
+            'starts_at'      => now(),
+            'ends_at'        => null, // free plan tidak pernah expire
+            'trial_used'     => false,
+            'ai_quota_limit' => $package->ai_quota_monthly,
+            'ai_quota_used'  => 0,
+            'quota_reset_at' => now()->addMonth(),
         ]);
     }
 
