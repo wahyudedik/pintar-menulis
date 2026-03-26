@@ -20,8 +20,10 @@ class ErrorLogController extends Controller
 
     public function index(Request $request)
     {
-        $level   = $request->get('level', 'all');
-        $search  = $request->get('search', '');
+        $level   = (string) $request->get('level', 'all');
+        if ($level === '') $level = 'all';
+        
+        $search  = (string) $request->get('search', '');
         $perPage = (int) $request->get('per_page', 50);
         $page    = (int) $request->get('page', 1);
 
