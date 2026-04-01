@@ -3830,19 +3830,26 @@ PROMPT;
     public function generateQualityBadge(array $p): array
     {
         $snippet   = mb_substr($p['code_or_doc'] ?? '', 0, 2000);
-        $assetType = $p['asset_type'] ?? 'digital asset';
+        $assetType = $p['asset_type'] ?? 'digital product';
         $prompt = <<<PROMPT
-Kamu adalah senior software engineer dan technical reviewer Indonesia. Review kualitas aset digital berikut.
+Kamu adalah reviewer produk digital profesional Indonesia. Review kualitas produk berikut dan berikan badge.
 
-Tipe Aset: {$assetType}
+Tipe Produk: {$assetType}
 Nama: {$p['product_name']}
 Deskripsi: {$p['product_desc']}
-Cuplikan Kode/Dokumentasi:
+Detail Tambahan:
 ---
 {$snippet}
 ---
 
-Lakukan review dan berikan output JSON:
+Sesuaikan kriteria review berdasarkan tipe produk:
+- Ebook/PDF: Kelengkapan Konten, Struktur & Organisasi, Kualitas Penulisan, Desain & Layout, Value untuk Pembeli, Orisinalitas
+- Template Desain: Kualitas Visual, Kemudahan Edit, Kelengkapan Variasi, Kompatibilitas, Dokumentasi, Value
+- Kursus Online: Struktur Kurikulum, Kedalaman Materi, Kualitas Penyampaian, Materi Pendukung, Value, Relevansi
+- Software/Plugin: Keterbacaan Kode, Dokumentasi, Struktur, Best Practices, Keamanan, Performa
+- Produk lain: Kelengkapan, Kualitas, Dokumentasi, Kemudahan Penggunaan, Value, Orisinalitas
+
+Berikan output JSON:
 ```json
 {
   "overall_score": 85,
@@ -3850,19 +3857,15 @@ Lakukan review dan berikan output JSON:
   "badge_level": "Gold/Silver/Bronze/Not Verified",
   "verdict": "ringkasan verdict 1-2 kalimat",
   "criteria": [
-    {"name": "Keterbacaan Kode", "score": 80, "status": "Pass/Fail/Warning", "note": "catatan singkat"},
-    {"name": "Dokumentasi", "score": 75, "status": "Pass", "note": "catatan"},
-    {"name": "Struktur & Organisasi", "score": 90, "status": "Pass", "note": "catatan"},
-    {"name": "Best Practices", "score": 85, "status": "Pass", "note": "catatan"},
-    {"name": "Keamanan (Security)", "score": 70, "status": "Warning", "note": "catatan"},
-    {"name": "Performa", "score": 80, "status": "Pass", "note": "catatan"}
+    {"name": "Nama Kriteria", "score": 80, "status": "Pass/Fail/Warning", "note": "catatan singkat"}
   ],
   "strengths": ["kelebihan 1", "kelebihan 2", "kelebihan 3"],
   "improvements": ["saran perbaikan 1", "saran perbaikan 2"],
-  "badge_text": "teks badge marketing yang bisa ditampilkan di halaman produk",
+  "badge_text": "teks badge marketing 2-3 kalimat yang bisa ditampilkan di halaman produk sebagai social proof",
   "verified": true
 }
 ```
+Gold >= 80, Silver >= 60, Bronze >= 40, Not Verified < 40.
 Berikan HANYA JSON valid.
 PROMPT;
         $result = $this->_parseJson($this->generateText($prompt, 1500, 0.4));

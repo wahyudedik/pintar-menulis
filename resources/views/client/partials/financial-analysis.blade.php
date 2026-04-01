@@ -1,5 +1,5 @@
 {{-- 📊 Financial Analysis Partial --}}
-<div x-show="generatorType === 'financial'" x-cloak class="space-y-6">
+<div class="space-y-6">
 
     <div class="bg-white rounded-xl border border-gray-200 p-5">
         <div class="flex items-center gap-3 mb-4">

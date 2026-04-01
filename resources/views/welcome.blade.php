@@ -17,7 +17,6 @@
     <title>Aplikasi Pembuat Caption Jualan Otomatis untuk UMKM Indonesia | Noteds</title>
     <meta name="description" content="Bikin caption jualan yang bikin closing dalam 10 detik. Khusus UMKM Indonesia. Gratis 5 variasi caption per hari. Auto hashtag Indonesia.">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-gray-50">
@@ -846,6 +845,220 @@
                     </div>
                     <h3 class="font-semibold text-gray-900 mb-2">Langsung Jadi!</h3>
                     <p class="text-sm text-gray-600">Dapat 5 variasi caption + hashtag. Tinggal copy & posting!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✨ Contoh Hasil AI -->
+    <div class="bg-gray-50 py-16" id="contoh-hasil">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">Lihat Hasil AI Kami</h2>
+                <p class="text-gray-600">Brief singkat → caption siap posting dalam hitungan detik</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Example 1 -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-5 bg-red-50 border-b border-red-100">
+                        <p class="text-xs font-bold text-red-500 uppercase tracking-wide mb-1">Brief</p>
+                        <p class="text-sm text-gray-800">"Jualan brownies homemade, target ibu-ibu, harga 35rb"</p>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-xs font-bold text-green-600 uppercase tracking-wide mb-2">Hasil AI ✨</p>
+                        <p class="text-sm text-gray-800 leading-relaxed">Bun, brownies ini bukan brownies biasa 🍫✨ Lumer di mulut, manisnya pas, coklat premium BUKAN coklat bubuk! Harga cuma 35rb tapi rasanya kayak brownies cafe 100rb 😍 Yang kemarin order udah repeat order 3x loh! Yuk cobain sebelum slot hari ini habis 🔥</p>
+                        <div class="flex flex-wrap gap-1 mt-3">
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#BrowniesHomemade</span>
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#JajananRumahan</span>
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#KueEnak</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 2 -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-5 bg-red-50 border-b border-red-100">
+                        <p class="text-xs font-bold text-red-500 uppercase tracking-wide mb-1">Brief</p>
+                        <p class="text-sm text-gray-800">"Jasa desain logo, profesional, mulai 150rb"</p>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-xs font-bold text-green-600 uppercase tracking-wide mb-2">Hasil AI ✨</p>
+                        <p class="text-sm text-gray-800 leading-relaxed">Logo itu investasi pertama brand kamu 💡 Jangan asal murah tapi hasilnya template-an. Di sini kamu dapet: ✅ Desain original 100% ✅ Revisi sampai puas ✅ File lengkap (PNG, SVG, PDF) ✅ Mulai 150rb aja! Udah 200+ brand percaya sama kami. Giliran kamu kapan? 🚀 DM sekarang, free konsultasi!</p>
+                        <div class="flex flex-wrap gap-1 mt-3">
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#DesainLogo</span>
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#BrandingUMKM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 3 -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-5 bg-red-50 border-b border-red-100">
+                        <p class="text-xs font-bold text-red-500 uppercase tracking-wide mb-1">Brief</p>
+                        <p class="text-sm text-gray-800">"Kursus bahasa Inggris online, untuk karyawan, 299rb/bulan"</p>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-xs font-bold text-green-600 uppercase tracking-wide mb-2">Hasil AI ✨</p>
+                        <p class="text-sm text-gray-800 leading-relaxed">Masih malu ngomong English di meeting? 😅 Tenang, kamu gak sendirian. Kursus ini dirancang khusus buat karyawan yang mau: 📌 Percaya diri presentasi bahasa Inggris 📌 Lancar email & chat sama klien luar 📌 Naik jabatan karena skill bahasa Cuma 299rb/bulan, bisa belajar kapan aja dari HP 📱 Batch baru mulai minggu depan — slot terbatas!</p>
+                        <div class="flex flex-wrap gap-1 mt-3">
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#KursusBahasaInggris</span>
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#BelajarOnline</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 4 -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-5 bg-red-50 border-b border-red-100">
+                        <p class="text-xs font-bold text-red-500 uppercase tracking-wide mb-1">Brief</p>
+                        <p class="text-sm text-gray-800">"Skincare serum vitamin C, untuk remaja, 89rb"</p>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-xs font-bold text-green-600 uppercase tracking-wide mb-2">Hasil AI ✨</p>
+                        <p class="text-sm text-gray-800 leading-relaxed">Glowing tanpa filter? Bisa banget! ✨ Serum Vitamin C ini bikin kulit kamu: 🍊 Cerah dalam 7 hari 🍊 Bekas jerawat memudar 🍊 Lembab seharian Formulanya ringan, cocok buat kulit remaja yang sensitif. Harga? Cuma 89rb! Lebih murah dari ngopi seminggu tapi efeknya sebulan penuh 😍 Grab yours now sebelum sold out!</p>
+                        <div class="flex flex-wrap gap-1 mt-3">
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#SkincareRemaja</span>
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">#SerumVitaminC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎯 Live Demo -->
+    <div class="bg-white py-16" id="coba-gratis" x-data="liveDemo()">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">Coba Langsung — Gratis!</h2>
+                <p class="text-gray-600">Isi 3 pertanyaan, AI generate caption dalam 10 detik. Tanpa daftar.</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl border border-gray-200 p-6 sm:p-8">
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Produk / jasa kamu apa?</label>
+                        <input type="text" x-model="product" maxlength="100" placeholder="Contoh: Brownies coklat premium, Jasa foto produk, Kursus Excel"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                            <select x-model="platform" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                <option value="instagram">Instagram</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="shopee">Shopee</option>
+                                <option value="whatsapp">WhatsApp</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tujuan</label>
+                            <select x-model="goal" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                <option value="closing">Jualan / Closing</option>
+                                <option value="awareness">Branding</option>
+                                <option value="engagement">Engagement</option>
+                                <option value="viral">Viral</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="generate()" :disabled="loading || !product"
+                        class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <svg x-show="loading" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                    <span x-text="loading ? 'AI sedang bikin...' : '✨ Generate Caption Gratis'"></span>
+                </button>
+
+                <!-- Result -->
+                <div x-show="result" x-cloak class="mt-6">
+                    <div class="bg-white rounded-xl border border-green-200 p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-green-600 uppercase tracking-wide">Hasil AI</span>
+                            <button @click="navigator.clipboard && navigator.clipboard.writeText(result)" class="text-xs text-gray-500 hover:text-blue-600">📋 Copy</button>
+                        </div>
+                        <pre class="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed" x-text="result"></pre>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-gray-500 mb-3">Suka hasilnya? Daftar untuk generate tanpa batas 🚀</p>
+                        <a href="{{ route('register') }}" class="inline-block px-6 py-2.5 bg-blue-600 text-white font-semibold text-sm rounded-lg hover:bg-blue-700 transition">
+                            Daftar Gratis — Tanpa Kartu Kredit
+                        </a>
+                    </div>
+                </div>
+
+                <div x-show="error" x-cloak class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="error"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function liveDemo() {
+        return {
+            product: '', platform: 'instagram', goal: 'closing',
+            loading: false, result: '', error: '',
+            async generate() {
+                this.loading = true; this.result = ''; this.error = '';
+                try {
+                    const resp = await fetch('/api/demo/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+                        body: JSON.stringify({ product: this.product, platform: this.platform, goal: this.goal }),
+                    });
+                    const data = await resp.json();
+                    if (data.success) this.result = data.result;
+                    else this.error = data.message || 'Gagal generate. Coba lagi.';
+                } catch (e) { this.error = 'Terjadi kesalahan jaringan.'; }
+                finally { this.loading = false; }
+            }
+        }
+    }
+    </script>
+
+    <!-- 💬 Testimoni -->
+    <div class="bg-gray-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-3">Kata Mereka yang Sudah Pakai</h2>
+                <p class="text-gray-600">UMKM dari berbagai industri sudah merasakan manfaatnya</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center gap-1 mb-3 text-yellow-400">⭐⭐⭐⭐⭐</div>
+                    <p class="text-sm text-gray-700 leading-relaxed mb-4">"Dulu bikin caption 1 jam, sekarang 10 detik. Engagement naik 3x sejak pakai Noteds. Yang paling keren, bahasanya natural banget — followers gak sadar itu AI!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-bold text-sm">RA</div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">Rina A.</p>
+                            <p class="text-xs text-gray-500">Owner Toko Kue Online, Bandung</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center gap-1 mb-3 text-yellow-400">⭐⭐⭐⭐⭐</div>
+                    <p class="text-sm text-gray-700 leading-relaxed mb-4">"Saya handle 5 akun IG client. Sebelum pakai Noteds, kewalahan bikin konten. Sekarang semua client puas, dan saya bisa ambil lebih banyak project. ROI-nya gila!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">DF</div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">Dimas F.</p>
+                            <p class="text-xs text-gray-500">Social Media Manager Freelance, Jakarta</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center gap-1 mb-3 text-yellow-400">⭐⭐⭐⭐⭐</div>
+                    <p class="text-sm text-gray-700 leading-relaxed mb-4">"Fitur multi-platform-nya juara. Saya tinggal bikin 1 konten, langsung di-optimize untuk IG, TikTok, dan Shopee sekaligus. Hemat waktu banget buat yang jualan di banyak platform."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-sm">SP</div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">Sarah P.</p>
+                            <p class="text-xs text-gray-500">Seller Shopee & Tokopedia, Surabaya</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

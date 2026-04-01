@@ -12,6 +12,12 @@
                     <a href="{{ route('ai.generator') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('ai.generator') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
                         AI Generator
                     </a>
+                    <a href="{{ route('ai.analysis') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('ai.analysis') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                        Analisis Dokumen
+                    </a>
+                    <a href="{{ route('explore.index') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('explore.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                        🌟 Explore
+                    </a>
 
                     {{-- Konten --}}
                     <div class="relative" x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false">

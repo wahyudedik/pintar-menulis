@@ -19,12 +19,30 @@
     </svg>
 </a>
 
+<!-- AI Analisis Dokumen -->
+<a href="{{ route('ai.analysis') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('ai.analysis') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="Analisis Dokumen">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+</a>
+
 <!-- Keyword Research -->
 <a href="{{ route('keyword-research.index') }}" 
    class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('keyword-research.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100' }}"
    data-tooltip="Keyword Research">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+    </svg>
+</a>
+
+<!-- Explore -->
+<a href="{{ route('explore.index') }}" 
+   class="tooltip flex items-center justify-center w-12 h-12 rounded-lg transition {{ request()->routeIs('explore.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100' }}"
+   data-tooltip="Explore">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"></path>
     </svg>
 </a>
 

@@ -1,57 +1,79 @@
-{{-- 7. Digital Asset Quality Scanner --}}
+{{-- 🏅 Quality Badge Scanner --}}
 <div x-show="generatorType === 'quality-badge'" x-cloak>
     <div class="bg-white rounded-xl border border-gray-200 p-6">
-        <div class="flex items-center gap-3 mb-5">
+        <div class="flex items-center gap-3 mb-2">
             <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center text-xl">🏅</div>
             <div>
-                <h2 class="text-lg font-bold text-gray-900">Digital Asset Quality Scanner</h2>
-                <p class="text-sm text-gray-500">Review kualitas aset digital — dapatkan badge "AI-Verified Quality" untuk tingkatkan konversi</p>
+                <h2 class="text-lg font-bold text-gray-900">Quality Badge Scanner</h2>
+                <p class="text-sm text-gray-500">Review kualitas produk digital kamu, dapatkan skor & badge untuk tingkatkan kepercayaan pembeli</p>
             </div>
         </div>
+
+        {{-- Penjelasan singkat --}}
+        <div class="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p class="text-xs text-amber-800 leading-relaxed">
+                <span class="font-semibold">Cara kerja:</span> AI akan menganalisis deskripsi & dokumentasi produk digital kamu, 
+                lalu memberikan skor kualitas (Gold/Silver/Bronze) beserta saran perbaikan. 
+                Hasilnya bisa kamu pasang di halaman produk sebagai bukti kualitas.
+            </p>
+            <div class="flex items-center gap-4 mt-2 text-xs text-amber-700">
+                <span>🏅 Gold ≥ 80</span>
+                <span>🥈 Silver ≥ 60</span>
+                <span>🥉 Bronze ≥ 40</span>
+            </div>
+        </div>
+
         <div class="grid md:grid-cols-2 gap-4 mb-5">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Aset/Produk <span class="text-red-500">*</span></label>
-                <input type="text" x-model="badgeForm.product_name" placeholder="Contoh: Plugin WordPress SEO Optimizer"
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk <span class="text-red-500">*</span></label>
+                <input type="text" x-model="badgeForm.product_name" placeholder="Contoh: Template Canva Premium, Ebook Marketing 101"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Aset</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Produk</label>
                 <select x-model="badgeForm.asset_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent">
                     <option value="">Pilih tipe...</option>
-                    <option value="WordPress Plugin">WordPress Plugin</option>
-                    <option value="PHP Script">PHP Script</option>
-                    <option value="JavaScript Library">JavaScript Library</option>
-                    <option value="Python Package">Python Package</option>
-                    <option value="Mobile App">Mobile App</option>
-                    <option value="API Service">API Service</option>
-                    <option value="Template/Theme">Template/Theme</option>
-                    <option value="Documentation">Documentation</option>
-                    <option value="Digital Product">Digital Product</option>
+                    <optgroup label="📦 Produk Digital">
+                        <option value="Ebook / PDF">Ebook / PDF</option>
+                        <option value="Template Desain">Template Desain (Canva, Figma, dll)</option>
+                        <option value="Kursus Online">Kursus Online / Video Tutorial</option>
+                        <option value="Preset / Filter">Preset / Filter Foto & Video</option>
+                        <option value="Spreadsheet / Planner">Spreadsheet / Planner</option>
+                        <option value="Digital Product">Produk Digital Lainnya</option>
+                    </optgroup>
+                    <optgroup label="💻 Software & Tools">
+                        <option value="WordPress Plugin">WordPress Plugin / Theme</option>
+                        <option value="Mobile App">Mobile App</option>
+                        <option value="API Service">API / SaaS</option>
+                        <option value="Script / Library">Script / Library</option>
+                    </optgroup>
                 </select>
             </div>
             <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Aset <span class="text-red-500">*</span></label>
-                <textarea x-model="badgeForm.product_desc" rows="2" placeholder="Jelaskan fungsi, teknologi yang digunakan, dan fitur utama..."
+                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Produk <span class="text-red-500">*</span></label>
+                <textarea x-model="badgeForm.product_desc" rows="3" placeholder="Jelaskan produk kamu: apa fungsinya, untuk siapa, fitur utama, dan apa yang membedakan dari kompetitor..."
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"></textarea>
             </div>
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Cuplikan Kode / Dokumentasi
-                    <span class="text-xs text-gray-400 font-normal">(opsional, maks 3000 karakter — paste bagian utama kode atau README)</span>
+                    Detail Tambahan
+                    <span class="text-xs text-gray-400 font-normal">(opsional — paste daftar isi, fitur list, cuplikan kode, atau README)</span>
                 </label>
-                <textarea x-model="badgeForm.code_or_doc" rows="8" placeholder="Paste cuplikan kode atau dokumentasi di sini..."
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"></textarea>
+                <textarea x-model="badgeForm.code_or_doc" rows="6" placeholder="Contoh:&#10;- Bab 1: Dasar-dasar Digital Marketing&#10;- Bab 2: Strategi Instagram Ads&#10;- Bonus: Template Copywriting&#10;- Format: PDF 120 halaman, full color"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"></textarea>
                 <p class="text-xs text-gray-400 mt-1" x-text="(badgeForm.code_or_doc || '').length + '/3000 karakter'"></p>
             </div>
         </div>
+
         <button @click="generateQualityBadge()" :disabled="badgeLoading || !badgeForm.product_name || !badgeForm.product_desc"
             class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-amber-600 hover:to-yellow-600 transition disabled:opacity-50 flex items-center justify-center gap-2">
             <template x-if="badgeLoading"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></template>
-            <span x-text="badgeLoading ? 'AI sedang mereview aset...' : '🏅 Scan & Generate Badge'"></span>
+            <span x-text="badgeLoading ? 'AI sedang mereview produk...' : '🏅 Scan & Generate Badge'"></span>
         </button>
         <div x-show="badgeError" x-cloak class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" x-text="badgeError"></div>
     </div>
 
+    {{-- Result --}}
     <div x-show="badgeResult" x-cloak class="mt-5">
         <template x-if="badgeResult">
         <div class="space-y-4">
@@ -70,7 +92,7 @@
                 </div>
                 <p class="text-sm text-gray-700" x-text="badgeResult.verdict"></p>
                 <button @click="badgeCopyText()" class="mt-3 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition">
-                    <span x-text="badgeCopied ? '✓ Tersalin!' : '📋 Copy Badge Text untuk Halaman Produk'"></span>
+                    <span x-text="badgeCopied ? '✓ Tersalin!' : '📋 Copy Teks Badge untuk Halaman Produk'"></span>
                 </button>
             </div>
 
@@ -116,6 +138,16 @@
                         </template>
                     </ul>
                 </div>
+            </div>
+
+            {{-- Cara Pakai Badge --}}
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p class="text-xs font-bold text-blue-800 mb-2">💡 Cara Pakai Badge Ini</p>
+                <ul class="space-y-1 text-xs text-blue-700">
+                    <li>1. Copy teks badge di atas, paste di halaman produk / deskripsi marketplace</li>
+                    <li>2. Tampilkan skor & level badge sebagai social proof untuk calon pembeli</li>
+                    <li>3. Perbaiki saran di atas untuk naikkan skor, lalu scan ulang</li>
+                </ul>
             </div>
         </div>
         </template>

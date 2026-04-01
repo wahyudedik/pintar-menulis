@@ -28,7 +28,60 @@ class AIGeneratorController extends Controller
 
     public function index()
     {
-        return view('client.ai-generator');
+        $user = auth()->user();
+        $sub  = $user->currentSubscription();
+        $onboarding = [
+            'business_type'    => $user->business_type,
+            'business_name'    => $user->business_name,
+            'primary_platform' => $user->primary_platform,
+            'content_goal'     => $user->content_goal,
+        ];
+        $creditCosts    = config('credits');
+        $quotaRemaining = $sub ? $sub->remaining_quota : 0;
+        $quotaLimit     = $sub ? $sub->ai_quota_limit : 0;
+
+        return view('client.ai-generator', compact('onboarding', 'creditCosts', 'quotaRemaining', 'quotaLimit'));
+    }
+
+    public function analysisIndex()
+    {
+        return view('client.ai-analysis');
+    }
+
+    /**
+     * Live demo — generate 1 caption tanpa login. Rate limited di route.
+     */
+    public function demoGenerate(Request $request)
+    {
+        $request->validate([
+            'product'  => 'required|string|max:100',
+            'platform' => 'required|string|in:instagram,tiktok,facebook,shopee,whatsapp',
+            'goal'     => 'required|string|in:closing,awareness,engagement,viral',
+        ]);
+
+        try {
+            $goalTone = ['closing' => 'persuasive', 'awareness' => 'educational', 'engagement' => 'casual', 'viral' => 'funny'];
+            $result = $this->aiService->generateCopywriting([
+                'category'    => 'social_media',
+                'subcategory' => 'instagram_caption',
+                'brief'       => $request->product,
+                'tone'        => $goalTone[$request->goal] ?? 'casual',
+                'platform'    => $request->platform,
+                'keywords'    => '',
+                'generate_variations' => false,
+                'variation_count'     => 3,
+                'auto_hashtag'        => true,
+                'local_language'      => '',
+                'mode'        => 'simple',
+                'user_id'     => 0,
+                'industry'    => 'general',
+                'goal'        => $request->goal,
+            ]);
+
+            return response()->json(['success' => true, 'result' => $result]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal generate. Silakan coba lagi.'], 500);
+        }
     }
 
     /**
@@ -190,7 +243,7 @@ class AIGeneratorController extends Controller
             }
 
             // Consume one quota unit after successful generation
-            $sub->consumeQuota(1);
+            $sub->consumeQuota(config('credits.generate', 1));
 
             return response()->json([
                 'success' => true,
@@ -1998,7 +2051,7 @@ class AIGeneratorController extends Controller
      */
     public function generateGoogleAds(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('google_ads')) return $this->quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2024,7 +2077,7 @@ class AIGeneratorController extends Controller
                 ], 500);
             }
 
-            $quota = $this->consumeQuota();
+            $quota = $this->consumeQuota('google_ads');
 
             return response()->json([
                 'success'         => true,
@@ -2051,7 +2104,7 @@ class AIGeneratorController extends Controller
      */
     public function generateProductExplainer(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('product_explainer')) return $this->quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2070,7 +2123,7 @@ class AIGeneratorController extends Controller
                 return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan pesan. Silakan coba lagi.'], 500);
             }
 
-            $quota = $this->consumeQuota();
+            $quota = $this->consumeQuota('product_explainer');
 
             return response()->json([
                 'success'         => true,
@@ -2097,7 +2150,7 @@ class AIGeneratorController extends Controller
      */
     public function generateMagicPromoLink(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('promo_link')) return $this->quotaResponse($err);
 
         try {
             $validated = $request->validate([
@@ -2116,7 +2169,7 @@ class AIGeneratorController extends Controller
                 return response()->json(['success' => false, 'message' => 'AI gagal menghasilkan caption. Silakan coba lagi.'], 500);
             }
 
-            $quota = $this->consumeQuota();
+            $quota = $this->consumeQuota('promo_link');
 
             return response()->json([
                 'success'         => true,
@@ -2145,7 +2198,7 @@ class AIGeneratorController extends Controller
      */
     public function analyzeFinancial(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('financial_analysis')) return $this->quotaResponse($err);
 
         $request->validate([
             'analysis_type' => 'required|in:stock_chart,financial_report,combined',
@@ -2187,7 +2240,7 @@ class AIGeneratorController extends Controller
                 'documents'     => $documents,
             ]);
 
-            $quota = $this->consumeQuota();
+            $quota = $this->consumeQuota('financial_analysis');
 
             // Save to history
             \App\Models\CaptionHistory::recordCaption(
@@ -2226,7 +2279,7 @@ class AIGeneratorController extends Controller
      */
     public function analyzeEbook(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('ebook_analysis')) return $this->quotaResponse($err);
 
         $request->validate([
             'analysis_type' => 'required|in:full,summary,quality,audience',
@@ -2250,7 +2303,7 @@ class AIGeneratorController extends Controller
                 'documents'     => $documents,
             ]);
 
-            $quota = $this->consumeQuota();
+            $quota = $this->consumeQuota('ebook_analysis');
 
             \App\Models\CaptionHistory::recordCaption(
                 auth()->id(),
@@ -2277,7 +2330,7 @@ class AIGeneratorController extends Controller
      */
     public function analyzeReaderTrend(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('reader_trend')) return $this->quotaResponse($err);
 
         $request->validate([
             'genre'    => 'nullable|string|max:200',
@@ -2292,7 +2345,7 @@ class AIGeneratorController extends Controller
                 'context'  => $request->context ?? '',
             ]);
 
-            $quota = $this->consumeQuota();
+            $quota = $this->consumeQuota('reader_trend');
 
             \App\Models\CaptionHistory::recordCaption(
                 auth()->id(),
@@ -2314,7 +2367,7 @@ class AIGeneratorController extends Controller
     }
     public function generateSeoMetadata(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('seo_metadata')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name'   => 'required|string|max:150',
@@ -2324,7 +2377,7 @@ class AIGeneratorController extends Controller
                 'url'            => 'nullable|string|max:200',
             ]);
             $result = $this->geminiService->generateSeoMetadata($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('seo_metadata');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
@@ -2336,7 +2389,7 @@ class AIGeneratorController extends Controller
     /** 4. Smart Comparison */
     public function generateComparison(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('smart_comparison')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_a_name'  => 'required|string|max:150',
@@ -2348,7 +2401,7 @@ class AIGeneratorController extends Controller
                 'buyer_persona'   => 'nullable|string|max:300',
             ]);
             $result = $this->geminiService->generateComparison($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('smart_comparison');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
@@ -2360,7 +2413,7 @@ class AIGeneratorController extends Controller
     /** 5. FAQ Generator */
     public function generateFaq(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('faq_generator')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name' => 'required|string|max:150',
@@ -2369,7 +2422,7 @@ class AIGeneratorController extends Controller
                 'category'     => 'nullable|string|max:100',
             ]);
             $result = $this->geminiService->generateFaq($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('faq_generator');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
@@ -2381,7 +2434,7 @@ class AIGeneratorController extends Controller
     /** 6. Reels/TikTok Hook */
     public function generateReelsHook(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('reels_hook')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name'    => 'required|string|max:150',
@@ -2392,7 +2445,7 @@ class AIGeneratorController extends Controller
                 'video_goal'      => 'nullable|string|max:200',
             ]);
             $result = $this->geminiService->generateReelsHook($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('reels_hook');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
@@ -2404,7 +2457,7 @@ class AIGeneratorController extends Controller
     /** 7. Quality Badge Scanner */
     public function generateQualityBadge(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('quality_badge')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name' => 'required|string|max:150',
@@ -2413,7 +2466,7 @@ class AIGeneratorController extends Controller
                 'code_or_doc'  => 'nullable|string|max:3000',
             ]);
             $result = $this->geminiService->generateQualityBadge($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('quality_badge');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
@@ -2425,7 +2478,7 @@ class AIGeneratorController extends Controller
     /** 8. Discount Campaign Copywriter */
     public function generateDiscountCampaign(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('discount_campaign')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'promo_name'     => 'required|string|max:100',
@@ -2439,7 +2492,7 @@ class AIGeneratorController extends Controller
                 'wa_number'      => 'nullable|string|max:20',
             ]);
             $result = $this->geminiService->generateDiscountCampaign($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('discount_campaign');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
@@ -2451,7 +2504,7 @@ class AIGeneratorController extends Controller
     /** 9. Trend-Based Product Tagging */
     public function generateTrendTags(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('trend_tags')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name' => 'required|string|max:150',
@@ -2460,7 +2513,7 @@ class AIGeneratorController extends Controller
                 'current_tags' => 'nullable|string|max:300',
             ]);
             $result = $this->geminiService->generateTrendTags($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('trend_tags');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);
@@ -2472,7 +2525,7 @@ class AIGeneratorController extends Controller
     /** 10. Lead Magnet Creator */
     public function generateLeadMagnet(Request $request)
     {
-        if ($err = $this->checkQuota()) return $this->quotaResponse($err);
+        if ($err = $this->checkQuota('lead_magnet')) return $this->quotaResponse($err);
         try {
             $v = $request->validate([
                 'product_name'    => 'required|string|max:150',
@@ -2484,7 +2537,7 @@ class AIGeneratorController extends Controller
                 'wa_number'       => 'nullable|string|max:20',
             ]);
             $result = $this->geminiService->generateLeadMagnet($v);
-            $quota  = $this->consumeQuota();
+            $quota  = $this->consumeQuota('lead_magnet');
             return response()->json(['success' => true, 'data' => $result, 'quota_remaining' => $quota]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => collect($e->errors())->flatten()->implode('; ')], 422);

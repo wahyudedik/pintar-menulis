@@ -2,17 +2,27 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Noteds">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
     <link rel="icon" type="image/jpeg" href="{{ asset('favicon.png') }}">
     <title>@yield('title', config('app.name', 'Noteds'))</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     
     @stack('head')
     <style>
         [x-cloak] { display: none !important; }
+        
+        /* Safe area for mobile devices with gesture bars */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        }
         
         /* Tooltip Styles - Simple & Reliable */
         .tooltip-container {
@@ -259,5 +269,21 @@
     <!-- 🤖 AI Assistant Widget -->
     @include('partials.ai-assistant-widget')
     @stack('scripts')
+
+    <script>
+    // Start Alpine after Vite module has loaded it
+    (function waitForAlpine() {
+        if (window.Alpine) {
+            window.Alpine.start();
+        } else {
+            setTimeout(waitForAlpine, 10);
+        }
+    })();
+
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+    </script>
 </body>
 </html>

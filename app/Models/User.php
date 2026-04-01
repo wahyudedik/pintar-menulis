@@ -40,6 +40,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'referral_code',
         'referred_by_id',
         'referral_earnings',
+        'onboarding_completed',
+        'business_type',
+        'business_name',
+        'primary_platform',
+        'content_goal',
     ];
 
     /**
@@ -69,6 +74,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_whatsapp_interaction' => 'datetime',
             'guru_total_earnings' => 'decimal:2',
             'referral_earnings'   => 'decimal:2',
+            'onboarding_completed' => 'boolean',
         ];
     }
 

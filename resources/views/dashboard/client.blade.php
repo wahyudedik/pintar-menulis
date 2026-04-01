@@ -4,6 +4,30 @@
 
 @section('content')
 <div class="p-6">
+
+    {{-- Onboarding Wizard (hanya untuk user baru) --}}
+    @if($showOnboarding)
+        @include('dashboard.partials.onboarding-wizard')
+    @endif
+
+    {{-- Quick Start Card (tampil kalau belum pernah generate) --}}
+    @php $captionCount = \App\Models\CaptionHistory::where('user_id', auth()->id())->count(); @endphp
+    @if($captionCount === 0)
+    <div class="mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-lg font-bold">🚀 Mulai Generate Konten Pertama Kamu!</h2>
+                <p class="text-sm text-blue-100 mt-1">Coba buat caption dalam 30 detik — cukup jawab beberapa pertanyaan simpel.</p>
+                <a href="{{ route('ai.generator') }}"
+                   class="inline-block mt-3 px-5 py-2.5 bg-white text-blue-600 font-semibold text-sm rounded-lg hover:bg-blue-50 transition">
+                    Coba Sekarang — Gratis →
+                </a>
+            </div>
+            <span class="text-4xl">✨</span>
+        </div>
+    </div>
+    @endif
+
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
         <p class="text-sm text-gray-500 mt-1">Selamat datang, {{ auth()->user()->name }}</p>

@@ -1,5 +1,5 @@
 {{-- 9. Trend-Based Product Tagging --}}
-<div x-show="generatorType === 'trend-tags'" x-cloak>
+<div class="space-y-5">
     <div class="bg-white rounded-xl border border-gray-200 p-6">
         <div class="flex items-center gap-3 mb-5">
             <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-xl">📈</div>

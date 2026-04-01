@@ -39,38 +39,41 @@ class DashboardController extends Controller
 
     protected function clientDashboard()
     {
-        $activeOrders = auth()->user()->orders()
+        $user = auth()->user();
+        $showOnboarding = !$user->onboarding_completed;
+
+        $activeOrders = $user->orders()
             ->where('status', 'active')
             ->with('package')
             ->get();
 
-        $recentRequests = auth()->user()->copywritingRequests()
+        $recentRequests = $user->copywritingRequests()
             ->with('order.package')
             ->latest()
             ->take(5)
             ->get();
 
         $stats = [
-            'total_orders' => auth()->user()->orders()->count(),
+            'total_orders' => $user->orders()->count(),
             'active_orders' => $activeOrders->count(),
-            'pending_requests' => auth()->user()->copywritingRequests()
+            'pending_requests' => $user->copywritingRequests()
                 ->whereIn('status', ['pending', 'in_progress'])
                 ->count(),
-            'completed_requests' => auth()->user()->copywritingRequests()
+            'completed_requests' => $user->copywritingRequests()
                 ->where('status', 'completed')
                 ->count(),
         ];
 
-        // 📊 Enhanced Dashboard Analytics
         $dashboardAnalytics = $this->getDashboardAnalytics();
         $platformPerformance = $this->getPlatformPerformance();
 
         return view('dashboard.client', compact(
-            'activeOrders', 
-            'recentRequests', 
-            'stats', 
-            'dashboardAnalytics', 
-            'platformPerformance'
+            'activeOrders',
+            'recentRequests',
+            'stats',
+            'dashboardAnalytics',
+            'platformPerformance',
+            'showOnboarding'
         ));
     }
 
@@ -152,6 +155,32 @@ class DashboardController extends Controller
                 'message' => 'Failed to refresh analytics: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function completeOnboarding(Request $request)
+    {
+        $request->validate([
+            'business_type'    => 'required|string|max:100',
+            'business_name'    => 'required|string|max:150',
+            'primary_platform' => 'required|string|max:50',
+            'content_goal'     => 'required|string|max:50',
+        ]);
+
+        auth()->user()->update([
+            'business_type'       => $request->business_type,
+            'business_name'       => $request->business_name,
+            'primary_platform'    => $request->primary_platform,
+            'content_goal'        => $request->content_goal,
+            'onboarding_completed' => true,
+        ]);
+
+        return response()->json(['success' => true, 'redirect' => route('ai.generator')]);
+    }
+
+    public function skipOnboarding()
+    {
+        auth()->user()->update(['onboarding_completed' => true]);
+        return response()->json(['success' => true]);
     }
 
     protected function operatorDashboard()

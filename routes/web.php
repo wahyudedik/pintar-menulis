@@ -45,6 +45,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/disconnect-google', [ProfileController::class, 'disconnectGoogle'])->name('profile.disconnect-google');
 
+    // Onboarding
+    Route::post('/onboarding/complete', [DashboardController::class, 'completeOnboarding'])->name('onboarding.complete');
+    Route::post('/onboarding/skip', [DashboardController::class, 'skipOnboarding'])->name('onboarding.skip');
+
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
@@ -56,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:client', 'verified'])->group(function () {
         // AI Generator
         Route::get('/ai-generator', [\App\Http\Controllers\Client\AIGeneratorController::class, 'index'])->name('ai.generator');
+        Route::get('/ai-analysis', [\App\Http\Controllers\Client\AIGeneratorController::class, 'analysisIndex'])->name('ai.analysis');
         
         // Keyword Research
         Route::get('/keyword-research', [\App\Http\Controllers\Client\KeywordResearchController::class, 'index'])->name('keyword-research.index');
@@ -163,6 +168,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/referral', [\App\Http\Controllers\Client\ReferralController::class, 'index'])->name('client.referral.index');
         Route::get('/referral/withdraw', [\App\Http\Controllers\Client\ReferralController::class, 'withdrawCreate'])->name('client.referral.withdraw');
         Route::post('/referral/withdraw', [\App\Http\Controllers\Client\ReferralController::class, 'withdrawStore'])->name('client.referral.withdraw.store');
+
+        // Explore & Community
+        Route::get('/explore', [\App\Http\Controllers\Client\ExploreController::class, 'index'])->name('explore.index');
+        Route::post('/caption/{caption}/toggle-public', [\App\Http\Controllers\Client\ExploreController::class, 'togglePublic'])->name('caption.toggle-public');
+        Route::post('/caption/{caption}/like', [\App\Http\Controllers\Client\ExploreController::class, 'like'])->name('caption.like');
         
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -572,6 +582,11 @@ Route::prefix('api')->middleware('throttle:30,1')->group(function () {
 // Public API Routes (no auth required)
 Route::prefix('api')->group(function () {
     Route::get('/banner/{type}', [\App\Http\Controllers\BannerInformationController::class, 'getByType']);
+
+    // Live Demo — 1x generate tanpa register, rate limited
+    Route::post('/demo/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'demoGenerate'])
+        ->middleware('throttle:3,60') // max 3 per IP per jam
+        ->name('api.demo.generate');
 });
 
 require __DIR__.'/auth.php';

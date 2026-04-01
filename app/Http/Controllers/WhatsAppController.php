@@ -101,6 +101,11 @@ class WhatsAppController extends Controller
     {
         $message = trim(strtolower($message));
 
+        // Cari user yang linked ke nomor ini untuk personalisasi
+        $user = \App\Models\User::where('whatsapp_number', $from)
+            ->where('whatsapp_verified', true)
+            ->first();
+
         // Command routing
         switch (true) {
             case $message === 'help' || $message === 'bantuan':
@@ -112,17 +117,32 @@ class WhatsAppController extends Controller
                 break;
 
             case $message === 'daily' || $message === 'ide':
-                $this->sendDailyIdeas($from);
+                $this->sendDailyIdeas($from, $user);
                 break;
 
             case str_starts_with($message, 'caption '):
-                $prompt = substr($message, 8); // Remove 'caption '
-                $this->generateCaption($from, $prompt);
+                $prompt = substr($message, 8);
+                $this->generateCaption($from, $prompt, $user);
+                break;
+
+            case str_starts_with($message, 'promo '):
+                $prompt = substr($message, 6);
+                $this->generatePromoCaption($from, $prompt, $user);
+                break;
+
+            case str_starts_with($message, 'hashtag '):
+                $topic = substr($message, 8);
+                $this->generateHashtags($from, $topic);
                 break;
 
             case str_starts_with($message, 'video '):
-                $prompt = substr($message, 6); // Remove 'video '
+                $prompt = substr($message, 6);
                 $this->generateVideoIdeas($from, $prompt);
+                break;
+
+            case str_starts_with($message, 'platform '):
+                $platform = substr($message, 9);
+                $this->setUserPlatform($from, $platform, $user);
                 break;
 
             case $message === 'status':
@@ -135,7 +155,7 @@ class WhatsAppController extends Controller
 
             default:
                 // Treat as caption generation prompt
-                $this->generateCaption($from, $message);
+                $this->generateCaption($from, $message, $user);
                 break;
         }
     }
@@ -237,16 +257,20 @@ class WhatsAppController extends Controller
         $message .= "• Kirim foto → Dapet caption + hashtag\n";
         $message .= "• Kirim voice note → Dapet caption (soon)\n\n";
         
-        $message .= "🎯 *Perintah Khusus:*\n";
+        $message .= "🎯 *Perintah:*\n";
         $message .= "• `menu` - Lihat semua fitur\n";
         $message .= "• `daily` - Ide konten harian\n";
         $message .= "• `caption [topik]` - Generate caption\n";
+        $message .= "• `promo [produk]` - Caption promo/jualan\n";
+        $message .= "• `hashtag [topik]` - Generate 30 hashtag\n";
         $message .= "• `video [topik]` - Ide video content\n";
+        $message .= "• `platform [nama]` - Set platform default\n";
         $message .= "• `status` - Cek akun kamu\n";
         $message .= "• `help` - Bantuan ini\n\n";
         
         $message .= "💡 *Contoh:*\n";
-        $message .= "\"caption produk kecantikan untuk remaja\"\n";
+        $message .= "\"promo brownies coklat premium 35rb\"\n";
+        $message .= "\"hashtag skincare remaja\"\n";
         $message .= "\"video tutorial masak nasi goreng\"\n\n";
         
         $message .= "_Powered by Noteds AI_ ✨";
@@ -267,17 +291,18 @@ class WhatsAppController extends Controller
         $message .= "3️⃣ Thread Twitter/X\n";
         $message .= "4️⃣ Video Script & Ideas\n\n";
         
+        $message .= "🏷️ *Marketing Tools:*\n";
+        $message .= "• `promo [produk]` → Caption jualan\n";
+        $message .= "• `hashtag [topik]` → 30 hashtag\n";
+        $message .= "• `video [topik]` → Ide video\n\n";
+        
         $message .= "📸 *Fitur Gambar:*\n";
         $message .= "• Kirim foto → Auto caption\n";
-        $message .= "• Analisis visual produk\n";
-        $message .= "• Hashtag suggestions\n";
-        $message .= "• Engagement tips\n\n";
+        $message .= "• Analisis visual produk\n\n";
         
-        $message .= "📅 *Daily Features:*\n";
-        $message .= "• Ide konten harian\n";
-        $message .= "• Trending topics\n";
-        $message .= "• Seasonal content\n";
-        $message .= "• Reminder otomatis\n\n";
+        $message .= "⚙️ *Pengaturan:*\n";
+        $message .= "• `platform [nama]` → Set platform default\n";
+        $message .= "• `status` → Cek akun\n\n";
         
         $message .= "💬 *Cara Pakai:*\n";
         $message .= "Langsung ketik aja topik yang mau dibuatin caption!\n\n";
@@ -289,32 +314,33 @@ class WhatsAppController extends Controller
     /**
      * 💡 Send daily content ideas
      */
-    private function sendDailyIdeas(string $from): void
+    private function sendDailyIdeas(string $from, ?\App\Models\User $user = null): void
     {
-        $this->whatsappService->sendDailyContentIdeas($from, [
-            'business_type' => 'UMKM',
-            'target_audience' => 'Gen Z Indonesia'
-        ]);
+        $prefs = [
+            'business_type'   => $user->business_type ?? 'UMKM',
+            'target_audience' => 'Gen Z Indonesia',
+        ];
+        $this->whatsappService->sendDailyContentIdeas($from, $prefs);
     }
 
     /**
-     * ✨ Generate caption from prompt
+     * ✨ Generate caption from prompt — personalized if user linked
      */
-    private function generateCaption(string $from, string $prompt): void
+    private function generateCaption(string $from, string $prompt, ?\App\Models\User $user = null): void
     {
         if (empty(trim($prompt))) {
             $this->whatsappService->sendMessage($from, "❌ Prompt kosong. Coba ketik topik yang mau dibuatin caption ya!\n\nContoh: \"produk skincare untuk remaja\"");
             return;
         }
 
-        // Send processing message
         $this->whatsappService->sendMessage($from, "🤖 Sedang generate caption... Tunggu sebentar ya!");
 
+        $platform = $user->primary_platform ?? 'instagram';
         $this->whatsappService->sendAICaption($from, $prompt, [
-            'platform' => 'instagram',
-            'tone' => 'engaging',
-            'target_audience' => 'Gen Z Indonesia',
-            'hashtag_count' => 10
+            'platform'        => $platform,
+            'tone'            => 'engaging',
+            'target_audience' => $user->business_type ? "Pelanggan {$user->business_type}" : 'Gen Z Indonesia',
+            'hashtag_count'   => 10,
         ]);
     }
 
@@ -361,6 +387,77 @@ class WhatsAppController extends Controller
             ]);
 
             $this->whatsappService->sendMessage($from, "❌ Terjadi kesalahan sistem. Tim kami sedang memperbaiki.");
+        }
+    }
+
+    /**
+     * 🏷️ Generate promo/selling caption — tone persuasive
+     */
+    private function generatePromoCaption(string $from, string $prompt, ?\App\Models\User $user = null): void
+    {
+        if (empty(trim($prompt))) {
+            $this->whatsappService->sendMessage($from, "❌ Tulis produk yang mau dipromosikan.\n\nContoh: `promo brownies coklat premium 35rb`");
+            return;
+        }
+
+        $this->whatsappService->sendMessage($from, "🏷️ Sedang bikin caption promo... Tunggu ya!");
+
+        $platform = $user->primary_platform ?? 'instagram';
+        $this->whatsappService->sendAICaption($from, $prompt, [
+            'platform'        => $platform,
+            'tone'            => 'persuasive',
+            'target_audience' => $user->business_type ? "Pelanggan {$user->business_type}" : 'Semua kalangan',
+            'hashtag_count'   => 10,
+            'extra_instruction' => 'Fokus pada closing dan urgensi. Tambahkan CTA yang kuat. Gunakan emoji yang menarik.',
+        ]);
+    }
+
+    /**
+     * #️⃣ Generate hashtags for a topic
+     */
+    private function generateHashtags(string $from, string $topic): void
+    {
+        if (empty(trim($topic))) {
+            $this->whatsappService->sendMessage($from, "❌ Tulis topik untuk generate hashtag.\n\nContoh: `hashtag skincare remaja`");
+            return;
+        }
+
+        $this->whatsappService->sendMessage($from, "#️⃣ Sedang cari hashtag terbaik...");
+
+        try {
+            $prompt = "Generate 30 hashtag Instagram yang relevan untuk topik: \"{$topic}\" di Indonesia.\n\n"
+                    . "Bagi jadi 3 grup:\n"
+                    . "🔥 Hashtag Populer (10): volume tinggi, kompetisi tinggi\n"
+                    . "🎯 Hashtag Niche (10): volume sedang, kompetisi rendah — lebih targeted\n"
+                    . "💎 Hashtag Long-tail (10): spesifik, kompetisi sangat rendah\n\n"
+                    . "Format: langsung list hashtag per grup, tanpa penjelasan panjang.";
+
+            $result = $this->geminiService->generateText($prompt, 800, 0.7);
+            $this->whatsappService->sendMessage($from, "#️⃣ *Hashtag untuk \"{$topic}\"*\n\n{$result}\n\n_Copy & paste ke postingan kamu!_ ✨");
+        } catch (\Exception $e) {
+            \Log::error('WA Hashtag generation failed: ' . $e->getMessage());
+            $this->whatsappService->sendMessage($from, "❌ Gagal generate hashtag. Coba lagi ya!");
+        }
+    }
+
+    /**
+     * 📱 Set user's default platform
+     */
+    private function setUserPlatform(string $from, string $platform, ?\App\Models\User $user = null): void
+    {
+        $validPlatforms = ['instagram', 'tiktok', 'facebook', 'shopee', 'tokopedia', 'whatsapp', 'youtube'];
+        $platform = trim(strtolower($platform));
+
+        if (!in_array($platform, $validPlatforms)) {
+            $this->whatsappService->sendMessage($from, "❌ Platform tidak dikenal.\n\nPilihan: " . implode(', ', $validPlatforms));
+            return;
+        }
+
+        if ($user) {
+            $user->update(['primary_platform' => $platform]);
+            $this->whatsappService->sendMessage($from, "✅ Platform default diubah ke *{$platform}*.\n\nSemua caption yang kamu generate sekarang akan dioptimasi untuk {$platform}! 🎯");
+        } else {
+            $this->whatsappService->sendMessage($from, "⚠️ Nomor WA kamu belum terhubung ke akun Noteds.\n\nHubungkan di: " . url('/profile') . "\n\nSetelah terhubung, kamu bisa set platform default.");
         }
     }
 

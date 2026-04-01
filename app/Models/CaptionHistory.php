@@ -21,6 +21,8 @@ class CaptionHistory extends Model
         'last_generated_at',
         'rating',
         'feedback',
+        'is_public',
+        'likes_count',
     ];
 
     protected $casts = [

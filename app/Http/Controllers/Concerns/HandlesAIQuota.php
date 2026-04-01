@@ -10,17 +10,31 @@ use Illuminate\Http\JsonResponse;
 trait HandlesAIQuota
 {
     /**
-     * Check if the current user has a valid subscription and remaining quota.
-     * Returns an error array if quota is exceeded, null if OK.
+     * Get credit cost for a feature.
      */
-    protected function checkQuota(): ?array
+    protected function creditCost(string $feature): int
+    {
+        return config("credits.{$feature}", 1);
+    }
+
+    /**
+     * Check if the current user has a valid subscription and enough quota.
+     * Pass $feature to check against specific credit cost.
+     */
+    protected function checkQuota(?string $feature = null): ?array
     {
         $sub = auth()->user()->currentSubscription();
         if (!$sub || !$sub->isValid()) {
             return ['success' => false, 'quota_error' => true, 'message' => '⚡ Kamu belum memiliki langganan aktif.'];
         }
-        if ($sub->remaining_quota <= 0) {
-            return ['success' => false, 'quota_error' => true, 'message' => '🚫 Kuota AI kamu sudah habis bulan ini.'];
+
+        $cost = $feature ? $this->creditCost($feature) : 1;
+        if ($sub->remaining_quota < $cost) {
+            return [
+                'success'     => false,
+                'quota_error' => true,
+                'message'     => "🚫 Kuota tidak cukup. Fitur ini butuh {$cost} kredit, sisa kamu {$sub->remaining_quota}.",
+            ];
         }
         return null;
     }
@@ -34,12 +48,13 @@ trait HandlesAIQuota
     }
 
     /**
-     * Consume one quota unit and return the remaining count.
+     * Consume credits for a feature and return the remaining count.
      */
-    protected function consumeQuota(): int
+    protected function consumeQuota(?string $feature = null): int
     {
-        $sub = auth()->user()->currentSubscription();
-        $sub->consumeQuota(1);
+        $cost = $feature ? $this->creditCost($feature) : 1;
+        $sub  = auth()->user()->currentSubscription();
+        $sub->consumeQuota($cost);
         $sub->refresh();
         return $sub->remaining_quota;
     }
