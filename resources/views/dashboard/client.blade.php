@@ -364,15 +364,15 @@
                     <div class="text-xs text-indigo-700">Deep dive into performance</div>
                 </a>
 
-                <a href="{{ route('competitor-analysis.index') }}" class="bg-white rounded-lg p-4 border border-indigo-200 hover:shadow-md transition group">
+                <a href="{{ route('projects.index') }}" class="bg-white rounded-lg p-4 border border-indigo-200 hover:shadow-md transition group">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-2xl">🔍</span>
+                        <span class="text-2xl">📁</span>
                         <svg class="w-4 h-4 text-indigo-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </div>
-                    <div class="text-sm font-medium text-indigo-900">Competitor Analysis</div>
-                    <div class="text-xs text-indigo-700">Monitor competitors</div>
+                    <div class="text-sm font-medium text-indigo-900">Projects</div>
+                    <div class="text-xs text-indigo-700">Kelola project kamu</div>
                 </a>
 
                 <button onclick="generateOptimalContent()" class="bg-white rounded-lg p-4 border border-indigo-200 hover:shadow-md transition group text-left">
@@ -465,9 +465,6 @@
         @endif
     </div>
 </div>
-
-<!-- Banner Popup -->
-<x-banner-popup type="client" />
 
 <script>
     // 📊 Dashboard Analytics Functions

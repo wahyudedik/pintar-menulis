@@ -21,12 +21,12 @@
     function handleFeatureLocked(data, showNotificationFn) {
         if (data && data.feature_locked) {
             const msg = (data.message || 'Fitur ini tidak tersedia di paket kamu.')
-                + ' <a href="{{ route("pricing") }}" class="underline font-semibold">Upgrade sekarang G��</a>';
+                + ' <a href="<?php echo e(route("pricing")); ?>" class="underline font-semibold">Upgrade sekarang G��</a>';
             // Tampilkan sebagai toast dengan link
             const toast = document.createElement('div');
             toast.innerHTML = msg;
             toast.className = 'fixed bottom-6 right-6 z-50 bg-yellow-500 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium max-w-xs cursor-pointer';
-            toast.onclick = () => window.location.href = '{{ route("pricing") }}';
+            toast.onclick = () => window.location.href = '<?php echo e(route("pricing")); ?>';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 6000);
             return true;
@@ -39,8 +39,8 @@
             mode: 'simple',
             generatorType: 'text',
             isFirstTimeUser: true,
-            quotaRemaining: {{ $quotaRemaining ?? 0 }},
-            creditCosts: @json($creditCosts ?? []),
+            quotaRemaining: <?php echo e($quotaRemaining ?? 0); ?>,
+            creditCosts: <?php echo json_encode($creditCosts ?? [], 15, 512) ?>,
             selectedRating: 0,
             ratingFeedback: '',
             rated: false,
@@ -305,7 +305,7 @@
                 await this.loadDynamicDates();
 
                 // Pre-fill from onboarding data
-                const ob = @json($onboarding ?? []);
+                const ob = <?php echo json_encode($onboarding ?? [], 15, 512) ?>;
                 if (ob.primary_platform) {
                     this.form.platform = ob.primary_platform;
                     this.simpleForm.platform = ob.primary_platform;
@@ -2073,3 +2073,4 @@
     }
 )
 </script>
+<?php /**PATH E:\PROJEKU\pintar-menulis\resources\views/client/partials/ai-generator/_script.blade.php ENDPATH**/ ?>

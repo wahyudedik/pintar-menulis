@@ -5,14 +5,14 @@
             <p class="text-xs sm:text-sm text-gray-500 mt-1">Generate copywriting berkualitas dengan AI</p>
         </div>
         <div class="flex items-center gap-2 sm:gap-3">
-            {{-- Quota Badge --}}
+            
             <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 rounded-full text-xs sm:text-sm" id="quota-badge">
                 <span class="text-xs text-gray-500 hidden sm:inline">Kuota:</span>
                 <span class="font-bold" :class="quotaRemaining > 10 ? 'text-green-600' : quotaRemaining > 0 ? 'text-yellow-600' : 'text-red-600'"
                       x-text="quotaRemaining"></span>
-                <span class="text-xs text-gray-400">/ {{ $quotaLimit ?? '∞' }}</span>
+                <span class="text-xs text-gray-400">/ <?php echo e($quotaLimit ?? '∞'); ?></span>
             </div>
-            {{-- ML Insights Button --}}
+            
             <button @click="toggleMLPreview()"
                 :disabled="mlLoading"
                 class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition flex items-center space-x-2 text-sm font-medium disabled:opacity-75">
@@ -92,3 +92,4 @@
             </div>
         </div>
     </div>
+<?php /**PATH E:\PROJEKU\pintar-menulis\resources\views/client/partials/ai-generator/header-navigation.blade.php ENDPATH**/ ?>

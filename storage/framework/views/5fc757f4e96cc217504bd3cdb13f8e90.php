@@ -19,7 +19,7 @@
 
                 <div x-show="result && !loading" x-cloak>
 
-                    {{-- Platform preview selector --}}
+                    
                     <div class="flex items-center gap-2 mb-4">
                         <span class="text-xs text-gray-500 font-medium">Preview:</span>
                         <button @click="previewPlatform = 'raw'" :class="previewPlatform === 'raw' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium transition">📝 Teks</button>
@@ -28,11 +28,11 @@
                         <button @click="previewPlatform = 'tiktok'" :class="previewPlatform === 'tiktok' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium transition">🎵 TikTok</button>
                     </div>
 
-                    {{-- Parsed variations --}}
+                    
                     <div class="space-y-4 mb-4">
                         <template x-for="(caption, idx) in parsedCaptions" :key="idx">
                             <div class="border border-gray-200 rounded-xl overflow-hidden">
-                                {{-- Variation header --}}
+                                
                                 <div class="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
                                     <span class="text-xs font-semibold text-gray-500">Variasi <span x-text="idx + 1"></span></span>
                                     <div class="flex items-center gap-1.5">
@@ -52,17 +52,17 @@
                                     </div>
                                 </div>
 
-                                {{-- Raw text view --}}
+                                
                                 <div x-show="previewPlatform === 'raw'" class="p-4">
                                     <pre class="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed" x-text="caption"></pre>
                                 </div>
 
-                                {{-- Instagram mockup --}}
+                                
                                 <div x-show="previewPlatform === 'instagram'" class="p-4 flex justify-center">
                                     <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                                         <div class="flex items-center gap-2 px-3 py-2 border-b border-gray-100">
-                                            <div class="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold" x-text="'{{ substr(auth()->user()->name, 0, 1) }}'"></div>
-                                            <span class="text-xs font-semibold text-gray-900">{{ auth()->user()->business_name ?? auth()->user()->name }}</span>
+                                            <div class="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold" x-text="'<?php echo e(substr(auth()->user()->name, 0, 1)); ?>'"></div>
+                                            <span class="text-xs font-semibold text-gray-900"><?php echo e(auth()->user()->business_name ?? auth()->user()->name); ?></span>
                                         </div>
                                         <div class="w-full aspect-square bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                                             <span class="text-4xl">📸</span>
@@ -77,25 +77,25 @@
                                     </div>
                                 </div>
 
-                                {{-- WhatsApp mockup --}}
+                                
                                 <div x-show="previewPlatform === 'whatsapp'" class="p-4 flex justify-center">
                                     <div class="w-full max-w-sm bg-[#e5ddd5] rounded-lg p-3">
                                         <div class="bg-[#dcf8c6] rounded-lg p-3 ml-8 shadow-sm relative">
                                             <p class="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap" x-text="caption.length > 300 ? caption.substring(0, 300) + '...' : caption"></p>
                                             <div class="flex items-center justify-end gap-1 mt-1">
-                                                <span class="text-xs text-gray-500">{{ now()->format('H:i') }}</span>
+                                                <span class="text-xs text-gray-500"><?php echo e(now()->format('H:i')); ?></span>
                                                 <span class="text-blue-500 text-xs">✓✓</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {{-- TikTok mockup --}}
+                                
                                 <div x-show="previewPlatform === 'tiktok'" class="p-4 flex justify-center">
                                     <div class="w-full max-w-xs bg-black rounded-2xl overflow-hidden aspect-[9/16] max-h-80 relative flex flex-col justify-end p-4">
                                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                                         <div class="relative z-10">
-                                            <p class="text-xs font-semibold text-white mb-1">@{{ strtolower(str_replace(' ', '', auth()->user()->business_name ?? auth()->user()->name)) }}</p>
+                                            <p class="text-xs font-semibold text-white mb-1">{{ strtolower(str_replace(' ', '', auth()->user()->business_name ?? auth()->user()->name)) }}</p>
                                             <p class="text-xs text-white/90 leading-relaxed line-clamp-3" x-text="caption"></p>
                                         </div>
                                     </div>
@@ -104,7 +104,7 @@
                         </template>
                     </div>
 
-                    {{-- Copy all + bulk actions --}}
+                    
                     <div class="flex flex-wrap gap-2 mb-4">
                         <button @click="copyToClipboard"
                                 class="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition text-sm">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    {{-- Rating Section --}}
+                    
                     <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200" x-show="!rated">
                         <p class="text-sm font-medium text-gray-900 mb-2">⭐ Bagaimana hasilnya?</p>
                         <p class="text-xs text-gray-600 mb-3">Rating kamu membantu AI belajar dan improve!</p>
@@ -214,4 +214,4 @@
                     </div>
                 </form>
             </div>
-        </div>
+        </div><?php /**PATH E:\PROJEKU\pintar-menulis\resources\views/client/partials/ai-generator/result-section.blade.php ENDPATH**/ ?>

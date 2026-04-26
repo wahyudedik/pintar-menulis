@@ -30,12 +30,6 @@ Route::get('/packages', [PackageController::class, 'index'])->name('packages.ind
 Route::get('/packages/{package}', [PackageController::class, 'show'])->name('packages.show');
 Route::get('/pricing', [\App\Http\Controllers\Client\SubscriptionController::class, 'pricing'])->name('pricing');
 
-// Article routes
-Route::get('/articles', [\App\Http\Controllers\ArticleController::class, 'index'])->name('articles.index');
-Route::get('/articles/{slug}', [\App\Http\Controllers\ArticleController::class, 'show'])->name('articles.show');
-
-// SEO Routes
-Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap.xml');
 
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
@@ -60,10 +54,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:client', 'verified'])->group(function () {
         // AI Generator
         Route::get('/ai-generator', [\App\Http\Controllers\Client\AIGeneratorController::class, 'index'])->name('ai.generator');
-        Route::get('/ai-analysis', [\App\Http\Controllers\Client\AIGeneratorController::class, 'analysisIndex'])->name('ai.analysis');
-        
-        // Keyword Research
-        Route::get('/keyword-research', [\App\Http\Controllers\Client\KeywordResearchController::class, 'index'])->name('keyword-research.index');
         
         // Analytics
         Route::get('/analytics', [\App\Http\Controllers\Client\AnalyticsController::class, 'index'])->name('analytics.index');
@@ -95,44 +85,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/image-caption/{imageCaption}', [\App\Http\Controllers\Client\ImageCaptionController::class, 'show'])->name('image-caption.show');
         Route::delete('/image-caption/{imageCaption}', [\App\Http\Controllers\Client\ImageCaptionController::class, 'destroy'])->name('image-caption.destroy');
 
-        // Bulk Content Generator
-        Route::get('/bulk-content', [\App\Http\Controllers\Client\BulkContentController::class, 'index'])->name('bulk-content.index');
-        Route::get('/bulk-content/create', [\App\Http\Controllers\Client\BulkContentController::class, 'create'])->name('bulk-content.create');
-        Route::post('/bulk-content/generate', [\App\Http\Controllers\Client\BulkContentController::class, 'generate'])->name('bulk-content.generate');
-        Route::get('/bulk-content/{calendar}', [\App\Http\Controllers\Client\BulkContentController::class, 'show'])->name('bulk-content.show');
-        Route::get('/bulk-content/{calendar}/export/{format}', [\App\Http\Controllers\Client\BulkContentController::class, 'export'])->name('bulk-content.export');
-        Route::delete('/bulk-content/{calendar}', [\App\Http\Controllers\Client\BulkContentController::class, 'destroy'])->name('bulk-content.destroy');
-        Route::post('/bulk-content/{calendar}/update/{dayNumber}', [\App\Http\Controllers\Client\BulkContentController::class, 'updateContent'])->name('bulk-content.update-content');
-        
         // Feedback & Support
         Route::get('/feedback', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
         Route::get('/feedback/create', [\App\Http\Controllers\FeedbackController::class, 'create'])->name('feedback.create');
         Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store'])->name('feedback.store');
         Route::get('/feedback/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show'])->name('feedback.show');
-        
-        // Template Marketplace
-        Route::prefix('templates')->name('templates.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'index'])->name('index');
-            Route::get('/create', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'create'])->name('create');
-            Route::post('/', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'store'])->name('store');
-            Route::get('/{id}', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'update'])->name('update');
-            Route::delete('/{id}', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'destroy'])->name('destroy');
-            Route::post('/{id}/rate', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'rate'])->name('rate');
-            Route::post('/{id}/favorite', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'toggleFavorite'])->name('favorite');
-            Route::post('/{id}/use', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'use'])->name('use');
-            Route::get('/{id}/purchase', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'purchase'])->name('purchase');
-            Route::get('/checkout/{purchaseId}', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'checkout'])->name('checkout');
-            Route::post('/checkout/{purchaseId}/confirm', [\App\Http\Controllers\Client\TemplateMarketplaceController::class, 'confirmPurchase'])->name('checkout.confirm');
-            
-            // Import/Export
-            Route::get('/{id}/export', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'exportSingle'])->name('export');
-            Route::post('/export-multiple', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'exportMultiple'])->name('export-multiple');
-            Route::get('/export-all', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'exportAll'])->name('export-all');
-            Route::post('/import', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'import'])->name('import');
-            Route::post('/import-url', [\App\Http\Controllers\Client\TemplateImportExportController::class, 'importFromUrl'])->name('import-url');
-        });
 
         // Subscription
         Route::prefix('subscription')->name('subscription.')->group(function () {
@@ -143,37 +100,10 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/cancel', [\App\Http\Controllers\Client\SubscriptionController::class, 'cancel'])->name('cancel');
         });
         
-        // Competitor Analysis
-        Route::prefix('competitor-analysis')->name('competitor-analysis.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'index'])->name('index');
-            Route::get('/create', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'create'])->name('create');
-            Route::get('/compare', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'compare'])->name('compare');
-            Route::get('/alerts/list', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'alerts'])->name('alerts');
-            Route::post('/', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'store'])->name('store');
-            Route::post('/alerts/{alert}/read', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'markAlertRead'])->name('alert.read');
-            Route::post('/alerts/read-all', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'markAllAlertsRead'])->name('alerts.read-all');
-            Route::post('/content-gaps/{gap}/implement', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'markGapImplemented'])->name('gap.implement');
-            Route::get('/{competitor}', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'show'])->name('show');
-            Route::post('/{competitor}/refresh', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'refresh'])->name('refresh');
-            Route::post('/{competitor}/toggle-active', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'toggleActive'])->name('toggle-active');
-            Route::delete('/{competitor}', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'destroy'])->name('destroy');
-            Route::get('/{competitor}/content-gaps', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'contentGaps'])->name('content-gaps');
-        });
-        
         // Browse Operators & Request Order
         Route::get('/browse-operators', [\App\Http\Controllers\Client\OrderRequestController::class, 'index'])->name('browse.operators');
         Route::post('/request-order', [\App\Http\Controllers\Client\OrderRequestController::class, 'store'])->name('request.order');
 
-        // Referral
-        Route::get('/referral', [\App\Http\Controllers\Client\ReferralController::class, 'index'])->name('client.referral.index');
-        Route::get('/referral/withdraw', [\App\Http\Controllers\Client\ReferralController::class, 'withdrawCreate'])->name('client.referral.withdraw');
-        Route::post('/referral/withdraw', [\App\Http\Controllers\Client\ReferralController::class, 'withdrawStore'])->name('client.referral.withdraw.store');
-
-        // Explore & Community
-        Route::get('/explore', [\App\Http\Controllers\Client\ExploreController::class, 'index'])->name('explore.index');
-        Route::post('/caption/{caption}/toggle-public', [\App\Http\Controllers\Client\ExploreController::class, 'togglePublic'])->name('caption.toggle-public');
-        Route::post('/caption/{caption}/like', [\App\Http\Controllers\Client\ExploreController::class, 'like'])->name('caption.like');
-        
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/create/{package}', [OrderController::class, 'create'])->name('orders.create');
@@ -190,47 +120,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Projects
         Route::resource('projects', ProjectController::class);
-        
-        // 👥 Project Collaboration Features
-        Route::prefix('projects/{project}')->name('projects.')->group(function () {
-            // Team Management
-            Route::get('/team', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'index'])->name('collaboration.index');
-            Route::post('/team/invite', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'inviteMember'])->name('collaboration.invite');
-            Route::patch('/team/{member}/role', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'updateMemberRole'])->name('collaboration.update-role');
-            Route::delete('/team/{member}', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'removeMember'])->name('collaboration.remove-member');
-            Route::post('/leave', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'leaveProject'])->name('collaboration.leave');
-            
-            // Team Workspace
-            Route::get('/workspace', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'workspace'])->name('collaboration.workspace');
-            Route::get('/activity', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'activityFeed'])->name('collaboration.activity');
-            
-            // Content Management
-            Route::get('/content', [\App\Http\Controllers\Client\ProjectContentController::class, 'index'])->name('content.index');
-            Route::get('/content/create', [\App\Http\Controllers\Client\ProjectContentController::class, 'create'])->name('content.create');
-            Route::post('/content', [\App\Http\Controllers\Client\ProjectContentController::class, 'store'])->name('content.store');
-            Route::get('/content/{content}', [\App\Http\Controllers\Client\ProjectContentController::class, 'show'])->name('content.show');
-            Route::get('/content/{content}/edit', [\App\Http\Controllers\Client\ProjectContentController::class, 'edit'])->name('content.edit');
-            Route::put('/content/{content}', [\App\Http\Controllers\Client\ProjectContentController::class, 'update'])->name('content.update');
-            Route::delete('/content/{content}', [\App\Http\Controllers\Client\ProjectContentController::class, 'destroy'])->name('content.destroy');
-            
-            // Content Workflow
-            Route::post('/content/{content}/submit-review', [\App\Http\Controllers\Client\ProjectContentController::class, 'submitForReview'])->name('content.submit-review');
-            Route::post('/content/{content}/approve', [\App\Http\Controllers\Client\ProjectContentController::class, 'approve'])->name('content.approve');
-            Route::post('/content/{content}/reject', [\App\Http\Controllers\Client\ProjectContentController::class, 'reject'])->name('content.reject');
-            
-            // Comments & Feedback
-            Route::post('/content/{content}/comments', [\App\Http\Controllers\Client\ProjectContentController::class, 'addComment'])->name('content.comments.store');
-            Route::post('/content/{content}/comments/{comment}/resolve', [\App\Http\Controllers\Client\ProjectContentController::class, 'resolveComment'])->name('content.comments.resolve');
-            
-            // Version History
-            Route::get('/content/{content}/versions', [\App\Http\Controllers\Client\ProjectContentController::class, 'versionHistory'])->name('content.versions');
-            Route::post('/content/{content}/versions/{version}/restore', [\App\Http\Controllers\Client\ProjectContentController::class, 'restoreVersion'])->name('content.restore-version');
-        });
-        
-        // Project Invitations (outside project scope)
-        Route::get('/invitations/{invitation}/accept', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'acceptInvitation'])->name('invitations.accept');
-        Route::get('/invitations/{invitation}/decline', [\App\Http\Controllers\Client\ProjectCollaborationController::class, 'declineInvitation'])->name('invitations.decline');
-        
+
         // Copywriting Requests
         Route::get('/copywriting', [CopywritingRequestController::class, 'index'])->name('copywriting.index');
         Route::get('/copywriting/create/{order}', [CopywritingRequestController::class, 'create'])->name('copywriting.create');
@@ -366,54 +256,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'show'])->name('feedback.show');
         Route::put('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'update'])->name('feedback.update');
         Route::delete('/feedback/{feedback}', [\App\Http\Controllers\Admin\FeedbackController::class, 'destroy'])->name('feedback.destroy');
-        
-        // Banner Information Management
-        Route::get('/banner-information', [\App\Http\Controllers\Admin\BannerInformationController::class, 'index'])->name('banner-information.index');
-        Route::put('/banner-information/{banner}', [\App\Http\Controllers\Admin\BannerInformationController::class, 'update'])->name('banner-information.update');
-        
-        // Ad Placements Management
-        Route::get('/ad-placements', [\App\Http\Controllers\Admin\AdPlacementController::class, 'index'])->name('ad-placements.index');
-        Route::put('/ad-placements/{placement}', [\App\Http\Controllers\Admin\AdPlacementController::class, 'update'])->name('ad-placements.update');
-        Route::patch('/ad-placements/{placement}/toggle', [\App\Http\Controllers\Admin\AdPlacementController::class, 'toggle'])->name('ad-placements.toggle');
 
         // Guru Monitor
         Route::get('/guru-monitor', [\App\Http\Controllers\Admin\GuruMonitorController::class, 'index'])->name('guru-monitor.index');
         Route::get('/guru-monitor/{guru}', [\App\Http\Controllers\Admin\GuruMonitorController::class, 'show'])->name('guru-monitor.show');
         Route::post('/guru-monitor/{guru}/adjust-earnings', [\App\Http\Controllers\Admin\GuruMonitorController::class, 'adjustEarnings'])->name('guru-monitor.adjust-earnings');
 
-        // Referral Monitor
-        Route::get('/referrals', [\App\Http\Controllers\Admin\ReferralController::class, 'index'])->name('referrals.index');
-
-        // Marketplace Monitor & Commission Settings
-        Route::get('/marketplace', [\App\Http\Controllers\Admin\MarketplaceController::class, 'index'])->name('marketplace.index');
-        Route::post('/marketplace/templates/{template}/approve', [\App\Http\Controllers\Admin\MarketplaceController::class, 'approveTemplate'])->name('marketplace.templates.approve');
-        Route::post('/marketplace/templates/{template}/reject', [\App\Http\Controllers\Admin\MarketplaceController::class, 'rejectTemplate'])->name('marketplace.templates.reject');
-        Route::delete('/marketplace/templates/{template}', [\App\Http\Controllers\Admin\MarketplaceController::class, 'deleteTemplate'])->name('marketplace.templates.delete');
-        Route::post('/marketplace/purchases/{purchase}/verify', [\App\Http\Controllers\Admin\MarketplaceController::class, 'verifyPurchase'])->name('marketplace.purchases.verify');
-        Route::post('/marketplace/purchases/{purchase}/reject', [\App\Http\Controllers\Admin\MarketplaceController::class, 'rejectPurchase'])->name('marketplace.purchases.reject');
-        Route::post('/marketplace/commission', [\App\Http\Controllers\Admin\MarketplaceController::class, 'updateCommission'])->name('marketplace.commission');
-
         // Operator Monitor
         Route::get('/operators', [\App\Http\Controllers\Admin\UserController::class, 'operators'])->name('operators.index');
-
-        // Client Feature Analytics
-        Route::get('/feature-analytics', [\App\Http\Controllers\Admin\ClientFeatureAnalyticsController::class, 'index'])->name('feature-analytics.index');
-        Route::get('/feature-analytics/user/{user}', [\App\Http\Controllers\Admin\ClientFeatureAnalyticsController::class, 'userDetail'])->name('feature-analytics.user');
-        Route::get('/feature-analytics/feature/{featureKey}', [\App\Http\Controllers\Admin\ClientFeatureAnalyticsController::class, 'featureDetail'])->name('feature-analytics.feature');
     });
 });
 
 // API Routes
 Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
-    // ── Tidak perlu cek fitur (semua paket bisa) ──────────────────────────────
     Route::post('/ai/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'generate'])->middleware('ai.limit:300')->name('api.ai.generate');
     Route::get('/check-first-time', [\App\Http\Controllers\Client\AIGeneratorController::class, 'checkFirstTime'])->name('api.check-first-time');
     Route::get('/templates/all', [\App\Http\Controllers\Client\AIGeneratorController::class, 'getAllTemplates'])->name('api.templates.all');
-    Route::get('/ml/status', [\App\Http\Controllers\MLSuggestionsController::class, 'getStatus'])->name('api.ml.status');
-    Route::get('/ml/preview', [\App\Http\Controllers\MLSuggestionsController::class, 'getPreview'])->name('api.ml.preview');
-    Route::get('/ml/weekly-trends', [\App\Http\Controllers\MLSuggestionsController::class, 'getWeeklyTrends'])->name('api.ml.weekly-trends');
-    Route::post('/ml/refresh', [\App\Http\Controllers\MLSuggestionsController::class, 'refreshSuggestions'])->name('api.ml.refresh');
-    Route::get('/ml/cache-stats', [\App\Http\Controllers\MLSuggestionsController::class, 'getCacheStats'])->name('api.ml.cache-stats');
     Route::post('/caption/{id}/rate', [\App\Http\Controllers\Client\CaptionRatingController::class, 'rate'])->name('api.caption.rate');
     Route::get('/notifications', function() {
         $notifications = \App\Models\Notification::where('user_id', auth()->id())
@@ -421,20 +279,12 @@ Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
         return response()->json(['notifications' => $notifications]);
     });
 
-    // ── Fitur dikontrol per paket — semua AI endpoint pakai ai.limit:180 ──────
+    // AI endpoints (quota controlled)
     Route::middleware('ai.limit:180')->group(function () {
         Route::post('/ai/generate-image-caption',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateImageCaption'])->middleware('feature:image_caption')->name('api.ai.generate-image-caption');
-        Route::post('/ai/analyze-image',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeImage'])->middleware('feature:image_analysis')->name('api.ai.analyze-image');
-        Route::post('/ai/analyze-financial',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeFinancial'])->middleware('feature:financial_analysis')->name('api.ai.analyze-financial');
-        Route::post('/ai/analyze-ebook',             [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeEbook'])->middleware('feature:ebook_analysis')->name('api.ai.analyze-ebook');
-        Route::post('/ai/analyze-reader-trend',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'analyzeReaderTrend'])->middleware('feature:reader_trend')->name('api.ai.analyze-reader-trend');
         Route::post('/ai/generate-video-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateVideoContent'])->middleware('feature:video_content')->name('api.ai.generate-video-content');
         Route::post('/ai/predict-performance',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'predictPerformance'])->middleware('feature:performance_predictor')->name('api.ai.predict-performance');
         Route::post('/ai/generate-ab-variants',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateABVariants'])->middleware('feature:ab_testing')->name('api.ai.generate-ab-variants');
-        Route::post('/ai/generate-multiplatform',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMultiPlatform'])->middleware('feature:multi_platform')->name('api.ai.generate-multiplatform');
-        Route::post('/ai/repurpose-content',         [\App\Http\Controllers\Client\AIGeneratorController::class, 'repurposeContent'])->middleware('feature:content_repurpose')->name('api.ai.repurpose-content');
-        Route::post('/ai/generate-trend-content',    [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendContent'])->middleware('feature:trend_alert')->name('api.ai.generate-trend-content');
-        Route::post('/ai/generate-optimal-content',  [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateOptimalContent'])->middleware('feature:optimal_content')->name('api.ai.generate-optimal-content');
         Route::post('/ai/generate-google-ads',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateGoogleAds'])->middleware('feature:google_ads')->name('api.ai.generate-google-ads');
         Route::post('/ai/generate-promo-link',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateMagicPromoLink'])->middleware('feature:promo_link')->name('api.ai.generate-promo-link');
         Route::post('/ai/generate-product-explainer',[\App\Http\Controllers\Client\AIGeneratorController::class, 'generateProductExplainer'])->middleware('feature:product_explainer')->name('api.ai.generate-product-explainer');
@@ -447,61 +297,12 @@ Route::prefix('api')->middleware(['auth', 'throttle:60,1'])->group(function () {
         Route::post('/ai/generate-trend-tags',       [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateTrendTags'])->middleware('feature:trend_tags')->name('api.ai.generate-trend-tags');
         Route::post('/ai/generate-lead-magnet',      [\App\Http\Controllers\Client\AIGeneratorController::class, 'generateLeadMagnet'])->middleware('feature:lead_magnet')->name('api.ai.generate-lead-magnet');
     });
-    Route::post('/ai/generate-content',          [\App\Http\Controllers\Client\ProjectContentController::class, 'generateContent'])->name('api.ai.generate-content');
-
-    // 🔍 AI Analysis
-    Route::post('/analysis/sentiment',       [\App\Http\Controllers\AIAnalysisController::class, 'analyzeSentiment'])->name('api.analysis.sentiment');
-    Route::post('/analysis/image',           [\App\Http\Controllers\AIAnalysisController::class, 'analyzeImage'])->name('api.analysis.image');
-    Route::post('/analysis/score-caption',   [\App\Http\Controllers\AIAnalysisController::class, 'scoreCaption'])->name('api.analysis.score-caption');
-    Route::post('/analysis/recommendations', [\App\Http\Controllers\AIAnalysisController::class, 'getRecommendations'])->name('api.analysis.recommendations');
-    Route::post('/analysis/campaign',        [\App\Http\Controllers\AIAnalysisController::class, 'analyzeCampaign'])->name('api.analysis.campaign');
-    Route::post('/analysis/article',         [\App\Http\Controllers\AIAnalysisController::class, 'analyzeArticle'])->name('api.analysis.article');
-    Route::get('/analysis/history',          [\App\Http\Controllers\AIAnalysisController::class, 'getHistory'])->name('api.analysis.history');
-    Route::get('/analysis/dashboard',        [\App\Http\Controllers\AIAnalysisController::class, 'getDashboard'])->name('api.analysis.dashboard');
-
-    // 🔧 Caption Optimizer
-    Route::prefix('optimizer')->name('api.optimizer.')->group(function () {
-        Route::post('/grammar/check',            [\App\Http\Controllers\CaptionOptimizerController::class, 'checkGrammar'])->name('grammar.check');
-        Route::post('/grammar/quick-fix',        [\App\Http\Controllers\CaptionOptimizerController::class, 'quickGrammarFix'])->name('grammar.quick-fix');
-        Route::post('/grammar/detailed-analysis',[\App\Http\Controllers\CaptionOptimizerController::class, 'getDetailedGrammarAnalysis'])->name('grammar.detailed-analysis');
-        Route::post('/length/shorten',           [\App\Http\Controllers\CaptionOptimizerController::class, 'shortenCaption'])->name('length.shorten');
-        Route::post('/length/expand',            [\App\Http\Controllers\CaptionOptimizerController::class, 'expandCaption'])->name('length.expand');
-        Route::post('/length/smart-adjust',      [\App\Http\Controllers\CaptionOptimizerController::class, 'smartAdjustLength'])->name('length.smart-adjust');
-        Route::get('/length/optimal-guide',      [\App\Http\Controllers\CaptionOptimizerController::class, 'getOptimalLength'])->name('length.optimal-guide');
-        Route::post('/length/analyze-impact',    [\App\Http\Controllers\CaptionOptimizerController::class, 'analyzeLengthImpact'])->name('length.analyze-impact');
-        Route::post('/batch-optimize',           [\App\Http\Controllers\CaptionOptimizerController::class, 'batchOptimize'])->name('batch-optimize');
-        Route::get('/stats',                     [\App\Http\Controllers\CaptionOptimizerController::class, 'getOptimizerStats'])->name('stats');
-    });
-
-    // 🔑 Keyword Research
-    Route::post('/keyword-research/search',  [\App\Http\Controllers\Client\KeywordResearchController::class, 'search'])->middleware('feature:keyword_research')->name('api.keyword-research.search');
-    Route::get('/keyword-research/history',  [\App\Http\Controllers\Client\KeywordResearchController::class, 'history'])->middleware('feature:keyword_research')->name('api.keyword-research.history');
-
-    // 💰 Competitor Pricing
-    Route::post('/competitor-analysis/calculate-pricing', [\App\Http\Controllers\Client\CompetitorAnalysisController::class, 'calculatePricing'])->middleware('feature:competitor_analysis')->name('api.competitor-analysis.calculate-pricing');
 });
 
 // Webhook Routes (no CSRF, no auth)
 Route::prefix('webhook')->group(function () {
-    Route::post('/whatsapp', [\App\Http\Controllers\WhatsAppController::class, 'handleWebhook'])->name('webhook.whatsapp');
     Route::post('/midtrans', [\App\Http\Controllers\Client\SubscriptionController::class, 'webhookMidtrans'])->name('webhook.midtrans');
     Route::post('/xendit', [\App\Http\Controllers\Client\SubscriptionController::class, 'webhookXendit'])->name('webhook.xendit');
-});
-
-Route::prefix('api/whatsapp')->middleware(['auth'])->group(function () {
-    Route::post('/send', [\App\Http\Controllers\WhatsAppController::class, 'sendMessage'])->name('api.whatsapp.send');
-    Route::post('/broadcast', [\App\Http\Controllers\WhatsAppController::class, 'sendBroadcast'])->name('api.whatsapp.broadcast');
-    Route::get('/status', [\App\Http\Controllers\WhatsAppController::class, 'getStatus'])->name('api.whatsapp.status');
-    
-    // User Integration Routes
-    Route::post('/link-account', [\App\Http\Controllers\WhatsAppController::class, 'linkAccount'])->name('api.whatsapp.link-account');
-    Route::post('/verify-account', [\App\Http\Controllers\WhatsAppController::class, 'verifyAccount'])->name('api.whatsapp.verify-account');
-    Route::get('/user-analytics/{user}', [\App\Http\Controllers\WhatsAppController::class, 'getUserAnalytics'])->name('api.whatsapp.user-analytics');
-    
-    // Subscription Management
-    Route::get('/subscription', [\App\Http\Controllers\WhatsAppController::class, 'getSubscription'])->name('api.whatsapp.subscription');
-    Route::post('/subscription', [\App\Http\Controllers\WhatsAppController::class, 'updateSubscription'])->name('api.whatsapp.update-subscription');
-    Route::delete('/subscription', [\App\Http\Controllers\WhatsAppController::class, 'deleteSubscription'])->name('api.whatsapp.delete-subscription');
 });
 
 // Admin Error Logs
@@ -511,88 +312,22 @@ Route::prefix('admin/error-logs')->middleware(['auth', 'role:admin'])->name('adm
     Route::get('/download', [\App\Http\Controllers\Admin\ErrorLogController::class, 'download'])->name('download');
 });
 
-// Admin WhatsApp Analytics Routes
-Route::prefix('admin/whatsapp-analytics')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/', [\App\Http\Controllers\Admin\WhatsAppAnalyticsController::class, 'index'])->name('admin.whatsapp-analytics.index');
-    Route::get('/data', [\App\Http\Controllers\Admin\WhatsAppAnalyticsController::class, 'getAnalyticsData'])->name('admin.whatsapp-analytics.data');
-    Route::post('/refresh', [\App\Http\Controllers\Admin\WhatsAppAnalyticsController::class, 'refresh'])->name('admin.whatsapp-analytics.refresh');
-    Route::get('/export', [\App\Http\Controllers\Admin\WhatsAppAnalyticsController::class, 'export'])->name('admin.whatsapp-analytics.export');
-});
-
-// Article API Routes (public)
-Route::prefix('api/articles')->group(function () {
-    Route::get('/', [\App\Http\Controllers\ArticleApiController::class, 'index'])->name('api.articles.index');
-    Route::get('/today', [\App\Http\Controllers\ArticleApiController::class, 'today'])->name('api.articles.today');
-    Route::get('/category/{category}', [\App\Http\Controllers\ArticleApiController::class, 'byCategory'])->name('api.articles.by-category');
-    Route::get('/industry/{industry}', [\App\Http\Controllers\ArticleApiController::class, 'byIndustry'])->name('api.articles.by-industry');
-    Route::get('/{slug}', [\App\Http\Controllers\ArticleApiController::class, 'show'])->name('api.articles.show');
-});
-
-// 📊 Dashboard & Analytics API Routes (Authenticated)
+// Dashboard & Analytics API
 Route::prefix('api')->middleware(['auth'])->group(function () {
-    // Dashboard Analytics
     Route::post('/dashboard/analytics-refresh', [DashboardController::class, 'refreshAnalytics'])->name('api.dashboard.analytics-refresh');
-    
-    // Analytics API
     Route::get('/analytics/insights', [\App\Http\Controllers\Client\AnalyticsController::class, 'insights'])->name('api.analytics.insights');
-    Route::post('/analytics/competitor-comparison', [\App\Http\Controllers\Client\AnalyticsController::class, 'compareWithCompetitor'])->name('api.analytics.competitor-comparison');
-    
-    // Dynamic Date API
+
     Route::get('/dynamic-dates/seasonal-events', function() {
-        return response()->json([
-            'success' => true,
-            'data' => \App\Services\DynamicDateService::getSeasonalEvents()
-        ]);
+        return response()->json(['success' => true, 'data' => \App\Services\DynamicDateService::getSeasonalEvents()]);
     })->name('api.dynamic-dates.seasonal-events');
-    
+
     Route::get('/dynamic-dates/national-days', function() {
-        return response()->json([
-            'success' => true,
-            'data' => \App\Services\DynamicDateService::getNationalDays()
-        ]);
+        return response()->json(['success' => true, 'data' => \App\Services\DynamicDateService::getNationalDays()]);
     })->name('api.dynamic-dates.national-days');
-    
+
     Route::get('/dynamic-dates/nearby-holidays', function() {
-        return response()->json([
-            'success' => true,
-            'data' => \App\Services\DynamicDateService::getNearbyHolidays()
-        ]);
+        return response()->json(['success' => true, 'data' => \App\Services\DynamicDateService::getNearbyHolidays()]);
     })->name('api.dynamic-dates.nearby-holidays');
-    
-    Route::get('/dynamic-dates/current-year', function() {
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'current_year' => \App\Services\DynamicDateService::getCurrentYear(),
-                'next_year' => \App\Services\DynamicDateService::getNextYear(),
-                'academic_year' => \App\Services\DynamicDateService::getAcademicYear(),
-                'quarterly_dates' => \App\Services\DynamicDateService::getQuarterlyDates()
-            ]
-        ]);
-    })->name('api.dynamic-dates.current-year');
-});
-
-// 🤖 AI Assistant API (Public - no auth required, with rate limiting)
-Route::prefix('api')->middleware('throttle:30,1')->group(function () {
-    Route::post('/assistant/chat', [\App\Http\Controllers\AIAssistantController::class, 'chat'])->name('api.assistant.chat');
-    Route::get('/assistant/suggestions', [\App\Http\Controllers\AIAssistantController::class, 'getSuggestions'])->name('api.assistant.suggestions');
-    Route::get('/assistant/tips', [\App\Http\Controllers\AIAssistantController::class, 'getTips'])->name('api.assistant.tips');
-});
-
-// Public API Routes (no auth required)
-Route::prefix('api')->group(function () {
-    Route::get('/banner/{type}', [\App\Http\Controllers\BannerInformationController::class, 'getByType']);
-
-    // Live Demo — 1x generate tanpa register, rate limited
-    Route::post('/demo/generate', [\App\Http\Controllers\Client\AIGeneratorController::class, 'demoGenerate'])
-        ->middleware('throttle:3,60') // max 3 per IP per jam
-        ->name('api.demo.generate');
 });
 
 require __DIR__.'/auth.php';
-
-// Load test routes only in local/testing environment
-if (app()->environment('local', 'testing')) {
-    require __DIR__.'/test.php';
-}
-

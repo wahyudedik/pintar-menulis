@@ -14,7 +14,6 @@ class GeminiService
     protected $apiKey;
     protected $apiUrl;
     protected $validator;
-    protected $qualityScorer;
     protected $fallbackManager;
     protected $currentModel;
 
@@ -22,7 +21,6 @@ class GeminiService
     {
         $this->apiKey = config('services.gemini.api_key');
         $this->validator = new OutputValidator();
-        $this->qualityScorer = new QualityScorer();
         $this->fallbackManager = new ModelFallbackManager();
         
         // Get best available model dynamically (now optimized for Tier 1)
@@ -213,14 +211,6 @@ class GeminiService
                                 // Recursive retry
                                 return $this->generateCopywriting($params);
                             }
-                            
-                            // Score quality for analytics
-                            $qualityScore = $this->qualityScorer->score($output, $params);
-                            Log::info('Quality score', [
-                                'total_score' => $qualityScore['total_score'],
-                                'grade' => $qualityScore['grade'],
-                                'breakdown' => $qualityScore['breakdown']
-                            ]);
                             
                             // Cache successful result (24 hours)
                             if ($validation['score'] >= 6.0) {

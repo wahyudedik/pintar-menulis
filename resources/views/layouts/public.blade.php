@@ -44,7 +44,6 @@
                     <a href="/" class="text-lg font-semibold text-gray-900">{{ config('app.name', 'Noteds') }}</a>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Dashboard</a>
                     @else
@@ -90,7 +89,7 @@
                 <div>
                     <h3 class="font-semibold text-white mb-4">Quick Links</h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{{ route('articles.index') }}" class="text-gray-400 hover:text-white transition">Daftar Gratis</a></li>
+                        <li><a href="{{ route('register') }}" class="text-gray-400 hover:text-white transition">Daftar Gratis</a></li>
                         <li><a href="{{ route('login') }}" class="text-gray-400 hover:text-white transition">Login</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition">Fitur</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition">Pricing</a></li>

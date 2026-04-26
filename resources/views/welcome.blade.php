@@ -32,10 +32,8 @@
                 <div class="hidden sm:flex items-center space-x-3">
                     @auth
                         <a href="{{ route('dashboard') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Dashboard</a>
-                        <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
                         <a href="{{ route('pricing') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Pricing</a>
                     @else
-                        <a href="{{ route('articles.index') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Artikel</a>
                         <a href="{{ route('pricing') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Pricing</a>
                         <a href="{{ route('login') }}" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 transition">Login</a>
                         <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
@@ -65,10 +63,8 @@
              class="sm:hidden border-t border-gray-200 bg-white px-4 py-3 space-y-1">
             @auth
                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Dashboard</a>
-                <a href="{{ route('articles.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Artikel</a>
                 <a href="{{ route('pricing') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Pricing</a>
             @else
-                <a href="{{ route('articles.index') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Artikel</a>
                 <a href="{{ route('pricing') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Pricing</a>
                 <a href="{{ route('login') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition">Login</a>
                 <a href="{{ route('register') }}" class="block px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center">Register</a>
@@ -1076,69 +1072,6 @@
         </div>
     </div>
 
-    <!-- Latest Articles Section -->
-    <div class="bg-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-3">📰 Artikel Terbaru</h2>
-                <p class="text-lg text-gray-600">Inspirasi caption, quotes, dan tips terbaru untuk konten marketing kamu</p>
-            </div>
-
-            @php
-                $latestArticles = \App\Models\Article::latest('created_at')->take(5)->get();
-            @endphp
-
-            @if($latestArticles->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    @foreach($latestArticles as $article)
-                        <a href="{{ route('articles.show', $article->slug) }}" class="group bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-md hover:shadow-lg transition-all overflow-hidden border-2 border-blue-200 hover:border-blue-400">
-                            <div class="p-6">
-                                <div class="mb-3">
-                                    @if($article->category)
-                                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full
-                                        @if($article->category === 'caption') bg-blue-100 text-blue-800
-                                        @elseif($article->category === 'quote') bg-purple-100 text-purple-800
-                                        @else bg-green-100 text-green-800
-                                        @endif">
-                                        {{ ucfirst($article->category) }}
-                                    </span>
-                                    @endif
-                                    @if($article->industry)
-                                    <span class="inline-block ml-2 px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        {{ ucfirst($article->industry) }}
-                                    </span>
-                                    @endif
-                                </div>
-                                <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition">
-                                    {{ $article->title }}
-                                </h3>
-                                <p class="text-gray-600 text-sm line-clamp-3 mb-4">
-                                    {{ Str::limit(strip_tags($article->content), 120) }}
-                                </p>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform inline-block">
-                                        Baca Selengkapnya →
-                                    </span>
-                                    <span class="text-xs text-gray-400">{{ $article->created_at->diffForHumans() }}</span>
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-
-                <div class="text-center">
-                    <a href="{{ route('articles.index') }}" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
-                        Lihat Semua Artikel →
-                    </a>
-                </div>
-            @else
-                <div class="text-center py-12 bg-gray-50 rounded-lg">
-                    <p class="text-gray-500 text-lg">Belum ada artikel tersedia. Cek kembali nanti!</p>
-                </div>
-            @endif
-        </div>
-    </div>
-
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1221,9 +1154,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Banner Popup -->
-    <x-banner-popup type="landing" />
 
     <!-- 🤖 AI Assistant Widget -->
     @include('partials.ai-assistant-widget')

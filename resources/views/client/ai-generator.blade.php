@@ -6,7 +6,6 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<script src="{{ asset('js/caption-analysis.js') }}"></script>
 @endpush
 
 @section('content')
@@ -44,59 +43,28 @@
     <!-- Content Area -->
     <div class="w-full">
 
-        {{-- ── Form Input (text/image/video) ── --}}
+        {{-- ── Form Input ── --}}
         <div class="w-full">
             <div class="bg-white rounded-lg border border-gray-200 p-6"
-                 x-show="generatorType === 'text' || generatorType === 'image' || generatorType === 'image-analysis' || generatorType === 'video'" x-cloak>
+                 x-show="generatorType === 'text' || generatorType === 'image' || generatorType === 'video'" x-cloak>
                 @include('client.partials.ai-generator.form-text-simple')
                 @include('client.partials.ai-generator.form-text-advanced')
                 @include('client.partials.ai-generator.form-image-caption')
-                @include('client.partials.ai-generator.form-image-analysis')
                 @include('client.partials.ai-generator.form-video')
-            </div>{{-- close bg-white card --}}
+            </div>
 
-            {{-- ── Placeholder Pages (Bulk, History, Stats) + Predictor ── --}}
+            {{-- ── History Placeholder ── --}}
             @include('client.partials.ai-generator.placeholder-and-predictor')
-        </div>{{-- close inner w-full --}}
-
-        {{-- ── Template Library ── --}}
-        @include('client.partials.ai-generator.template-library')
-
-        {{-- ── Multi-Platform Optimizer ── --}}
-        @include('client.partials.ai-generator.multiplatform')
+        </div>
 
         {{-- ── Result Section ── --}}
         @include('client.partials.ai-generator.result-section')
 
-        {{-- ── Content Repurposing ── --}}
-        @include('client.partials.ai-generator.repurpose')
-
-        {{-- ── Trend Intelligence ── --}}
-        @include('client.partials.ai-generator.trends')
-
-        {{-- ── Marketing & Iklan ── --}}
-        @include('client.partials.google-ads-generator')
-        @include('client.partials.promo-link-generator')
-        @include('client.partials.product-explainer')
-
-        {{-- ── SEO & Riset ── --}}
-        @include('client.partials.seo-metadata')
-        @include('client.partials.smart-comparison')
-        @include('client.partials.faq-generator')
-
-        {{-- ── Kreativitas ── --}}
-        @include('client.partials.reels-hook')
-        @include('client.partials.quality-badge')
-
-        {{-- ── Lainnya ── --}}
-        @include('client.partials.discount-campaign')
-        @include('client.partials.lead-magnet')
-
         {{-- ── ML Upgrade Modal ── --}}
         @include('client.partials.ml-upgrade-modal')
 
-    </div>{{-- close outer w-full --}}
-</div>{{-- close root x-data --}}
+    </div>
+</div>
 
 @include('client.partials.ai-generator._script')
 
